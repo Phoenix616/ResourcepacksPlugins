@@ -15,12 +15,6 @@ public class JoinListener implements Listener {
     
     @EventHandler
     public void onPlayerJoin(PostLoginEvent event) {
-        ResourcePack pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack(event.getPlayer().getPendingConnection().getListener().getDefaultServer());
-        if(pack == null) {
-            pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack("!global");
-        }
-        if(pack != null) {
-            BungeeResourcepacks.getInstance().setPack(event.getPlayer(), pack);
-        }
+        BungeeResourcepacks.getInstance().clearPack(event.getPlayer());
     }
 }

@@ -1,7 +1,7 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
 import de.themoep.BungeeResourcepacks.bungee.listeners.JoinListener;
-import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
+import de.themoep.BungeeResourcepacks.bungee.listeners.ServerConnectListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
@@ -41,7 +41,7 @@ public class BungeeResourcepacks extends Plugin {
 
             //getProxy().getPluginManager().registerCommand(this, new BungeeTestCommand("bungeetest", "bungeetest.command", "btest"));
             getProxy().getPluginManager().registerListener(this, new JoinListener());
-            getProxy().getPluginManager().registerListener(this, new ServerSwitchListener());
+            getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
             
         } catch (NoSuchMethodException e) {
             getLogger().severe("Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
@@ -99,7 +99,12 @@ public class BungeeResourcepacks extends Plugin {
         BungeeResourcepacks.getInstance().getLogger().info("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
+    public void clearPack(ProxiedPlayer player) {
+        getPackManager().clearUserPack(player.getUniqueId());
+    }
+
     public PackManager getPackManager() {
         return pm;
     }
+
 }

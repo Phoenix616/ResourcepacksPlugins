@@ -127,6 +127,21 @@ public class PackManager {
     }
 
     /**
+     * Clear the resourcepack of a user
+     * @param playerid The UUID of this player
+     * @return The resourcepack the player had selected previous, null if he had none before
+     */
+    public ResourcePack clearUserPack(UUID playerid) {
+        String previous = usermap.remove(playerid);
+        if(previous != null) {
+            return getByName(previous);
+        } else {
+            return null;
+        }
+    }
+    
+
+    /**
      * Add a server to a resourcepack
      * @param server The server this pack should be active on
      * @param pack The resourcepack
@@ -148,5 +163,4 @@ public class PackManager {
         }
         return false;
     }
-
 }
