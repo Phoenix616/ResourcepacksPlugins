@@ -35,8 +35,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     @ConstructorProperties({"ResourcePack"})
     public ResourcePackSendPacket(ResourcePack pack) {
-        this.url = pack.getUrl();
-        this.hash = pack.getHash();
+        this(pack.getUrl(), pack.getHash());
     }
     
     @Override
@@ -82,48 +81,32 @@ public class ResourcePackSendPacket extends DefinedPacket {
         return "ResourcePackSend(url=" + this.getUrl() + ", hash=" + this.getHash() + ")";
     }
 
-    public boolean equals(Object o) {
-        if(o == this) {
+    public boolean equals(Object obj) {
+        if(obj == this) {
             return true;
-        } else if(!(o instanceof ResourcePackSendPacket)) {
-            return false;
-        } else {
-            ResourcePackSendPacket other = (ResourcePackSendPacket)o;
+        } else if(obj instanceof ResourcePackSendPacket) {
+            ResourcePackSendPacket other = (ResourcePackSendPacket)obj;
             String this$url = this.getUrl();
             String other$url = other.getUrl();
-            if (this$url == null) {
-                if (other$url != null) {
-                    return false;
-                }
-            } else if (!this$url.equals(other$url)) {
+            if ((this$url == null && other$url != null) || !this$url.equals(other$url)) {
                 return false;
             }
-
             String this$hash = this.getHash();
             String other$hash = other.getHash();
-            if (this$hash == null) {
-                if (other$hash != null) {
-                    return false;
-                }
-            } else if (!this$hash.equals(other$hash)) {
+            if ((this$hash == null && other$hash != null) || !this$hash.equals(other$hash)) {
                 return false;
             }
-
             return true;
         }
-    }
-
-    protected boolean canEqual(Object other) {
-        return other instanceof ResourcePackSendPacket;
+        return false;
     }
 
     public int hashCode() {
-        boolean PRIME = true;
-        byte result = 1;
+        int result = 1;
         String $url = this.getUrl();
-        int result1 = result * 59 + ($url == null?0:$url.hashCode());
+        result = result * 59 + ($url == null?0:$url.hashCode());
         String $hash = this.getHash();
-        result1 = result1 * 59 + ($hash == null?0:$hash.hashCode());
-        return result1;
+        result = result * 59 + ($hash == null?0:$hash.hashCode());
+        return result;
     }
 }
