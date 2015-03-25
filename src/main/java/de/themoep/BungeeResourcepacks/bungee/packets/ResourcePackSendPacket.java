@@ -2,16 +2,20 @@ package de.themoep.BungeeResourcepacks.bungee.packets;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
+import de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 
 import java.beans.ConstructorProperties;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 24.03.2015.
@@ -41,7 +45,30 @@ public class ResourcePackSendPacket extends DefinedPacket {
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
         if(handler instanceof DownstreamBridge) {
-            ((DownstreamBridge) handler).handle(new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
+            DownstreamBridge bridge = (DownstreamBridge) handler;
+            bridge.handle(new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
+            
+            try {
+                Field con = bridge.getClass().getDeclaredField("con");
+                con.setAccessible(true);
+                try {
+                    UserConnection usercon = (UserConnection) con.get(bridge);
+                    BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+                    ResourcePack pack = plugin.getPackManager().getByUrl(getUrl());
+                    if(pack == null) {
+                        pack = plugin.getPackManager().getByHash(getHash());
+                    }
+                    if(pack == null) {
+                        pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/'), getUrl().length()), getUrl(), getHash());
+                    }
+                    BungeeResourcepacks.getInstance().getPackManager().setUserPack(usercon.getUniqueId(), pack);
+                } catch (IllegalAccessException e) {
+                    BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
+                    e.printStackTrace();
+                }
+            } catch (NoSuchFieldException e) {
+                BungeeResourcepacks.getInstance().getLogger().log(Level.SEVERE, "Error while trying to get the UserConnection field from the DownstreamBridge object. Is the plugin up to date?");
+            }
         } else {
             throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
         }

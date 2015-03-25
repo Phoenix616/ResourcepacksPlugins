@@ -95,7 +95,6 @@ public class BungeeResourcepacks extends Plugin {
      * @param pack The resourcepack to set for the player
      */
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
-        getPackManager().setUserPack(player.getUniqueId(), pack);
         ((UserConnection) player).unsafe().sendPacket(new ResourcePackSendPacket(pack));
         BungeeResourcepacks.getInstance().getLogger().info("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
