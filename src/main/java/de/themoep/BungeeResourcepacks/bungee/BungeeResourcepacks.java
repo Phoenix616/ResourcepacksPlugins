@@ -5,7 +5,6 @@ import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
-import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -95,7 +94,8 @@ public class BungeeResourcepacks extends Plugin {
      * @param pack The resourcepack to set for the player
      */
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
-        ((UserConnection) player).unsafe().sendPacket(new ResourcePackSendPacket(pack));
+        player.unsafe().sendPacket(new ResourcePackSendPacket(pack));
+        getPackManager().setUserPack(player.getUniqueId(), pack);
         BungeeResourcepacks.getInstance().getLogger().info("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 

@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -21,12 +22,12 @@ import java.util.logging.Level;
  * Created by Phoenix616 on 24.03.2015.
  */
 public class ResourcePackSendPacket extends DefinedPacket {
-    
+
     private String url;
     private String hash;
 
     public ResourcePackSendPacket() {};
-    
+
     @ConstructorProperties({"url", "hash"})
     public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
@@ -41,13 +42,12 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public ResourcePackSendPacket(ResourcePack pack) {
         this(pack.getUrl(), pack.getHash());
     }
-    
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
         if(handler instanceof DownstreamBridge) {
             DownstreamBridge bridge = (DownstreamBridge) handler;
             bridge.handle(new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
-            
             try {
                 Field con = bridge.getClass().getDeclaredField("con");
                 con.setAccessible(true);
@@ -59,9 +59,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
                         pack = plugin.getPackManager().getByHash(getHash());
                     }
                     if(pack == null) {
-                        pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/'), getUrl().length()), getUrl(), getHash());
+                        pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()), getUrl(), getHash());
+                        plugin.getPackManager().addPack(pack);
                     }
-                    BungeeResourcepacks.getInstance().getPackManager().setUserPack(usercon.getUniqueId(), pack);
+                    plugin.getLogger().log(Level.INFO, "Backend mc server send pack " + pack.getUrl() + " to player " + usercon.getName());
+                    plugin.getPackManager().setUserPack(usercon.getUniqueId(), pack);
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
                     e.printStackTrace();
@@ -103,7 +105,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
             this.hash = Hashing.sha1().hashString(this.getUrl(), Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
         }
     }
-    
+
     public String toString() {
         return "ResourcePackSend(url=" + this.getUrl() + ", hash=" + this.getHash() + ")";
     }

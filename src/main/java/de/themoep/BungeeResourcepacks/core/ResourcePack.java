@@ -25,8 +25,8 @@ public class ResourcePack {
     public ResourcePack(String name, String url, String hash) {
         this.name = name;
         this.url = url;
-        if(hash != null) {
-            this.hash = hash.substring(0, (hash.length() > 39) ? 39 : hash.length()).toLowerCase();
+        if(hash != null && hash.length() == 40) {
+            this.hash = hash;
         } else {
             this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
         }

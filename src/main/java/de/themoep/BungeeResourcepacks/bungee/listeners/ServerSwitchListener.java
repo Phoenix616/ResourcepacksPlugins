@@ -19,7 +19,7 @@ public class ServerSwitchListener implements Listener {
         }
         if(pack != null) {
             ResourcePack prev = BungeeResourcepacks.getInstance().getPackManager().getUserPack(event.getPlayer().getUniqueId());
-            if(prev != null && !prev.equals(pack)) {
+            if(prev != null && !pack.equals(prev)) {
                 BungeeResourcepacks.getInstance().setPack(event.getPlayer(), pack);
             }
         }
