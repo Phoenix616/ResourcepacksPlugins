@@ -15,6 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Phoenix616 on 18.03.2015.
@@ -24,6 +27,11 @@ public class BungeeResourcepacks extends Plugin {
     private static YamlConfig config;
     
     private static PackManager pm;
+
+    /**
+     * Set of uuids of currently joining players. This is needed for backend packs to be send after bungee packs
+     */
+    private Map<UUID, Boolean> joiningplayers = new ConcurrentHashMap<UUID, Boolean>();
         
     public void onEnable() {
         try {
@@ -107,4 +115,29 @@ public class BungeeResourcepacks extends Plugin {
         return pm;
     }
 
+    /**
+     * Add a players uuid to the list of currently joining players
+     * @param playerid The uuid of the player
+     */
+    public void setJoining(UUID playerid) {
+        joiningplayers.put(playerid, false);
+    }
+
+    /**
+     * Remove a players uuid from the list of currently joining players
+     * @param playerid The uuid of the player
+     */
+    public void unsetJoining(UUID playerid) {
+        joiningplayers.remove(playerid);
+    }
+    
+    /**
+     * Check if a player is on the list of currently joining players
+     * @param playerid The uuid of the player
+     * @return If the player is currently joining or not
+     */
+    public boolean isJoining(UUID playerid) {
+        return joiningplayers.containsKey(playerid);
+    }
+    
 }

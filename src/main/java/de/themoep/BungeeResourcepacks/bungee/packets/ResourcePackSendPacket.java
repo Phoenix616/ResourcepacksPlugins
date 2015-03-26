@@ -16,6 +16,8 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -47,23 +49,27 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public void handle(AbstractPacketHandler handler) throws Exception {
         if(handler instanceof DownstreamBridge) {
             DownstreamBridge bridge = (DownstreamBridge) handler;
-            bridge.handle(new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
             try {
                 Field con = bridge.getClass().getDeclaredField("con");
                 con.setAccessible(true);
                 try {
-                    UserConnection usercon = (UserConnection) con.get(bridge);
-                    BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-                    ResourcePack pack = plugin.getPackManager().getByUrl(getUrl());
-                    if(pack == null) {
-                        pack = plugin.getPackManager().getByHash(getHash());
+                    final UserConnection usercon = (UserConnection) con.get(bridge);
+                    if(BungeeResourcepacks.getInstance().isJoining(usercon.getUniqueId())) {
+                        final PacketWrapper packet = new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())));
+                        BungeeResourcepacks.getInstance().getProxy().getScheduler().schedule(BungeeResourcepacks.getInstance(), new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    relayPacket(usercon, packet);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, 1L, TimeUnit.SECONDS);
+                    } else {
+                        relayPacket(usercon, new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
                     }
-                    if(pack == null) {
-                        pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()), getUrl(), getHash());
-                        plugin.getPackManager().addPack(pack);
-                    }
-                    plugin.getLogger().log(Level.INFO, "Backend mc server send pack " + pack.getUrl() + " to player " + usercon.getName());
-                    plugin.getPackManager().setUserPack(usercon.getUniqueId(), pack);
+                    
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
                     e.printStackTrace();
@@ -74,6 +80,21 @@ public class ResourcePackSendPacket extends DefinedPacket {
         } else {
             throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
         }
+    }
+    
+    public void relayPacket(UserConnection usercon, PacketWrapper packet) throws Exception {
+        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+        ResourcePack pack = plugin.getPackManager().getByUrl(getUrl());
+        if(pack == null) {
+            pack = plugin.getPackManager().getByHash(getHash());
+        }
+        if(pack == null) {
+            pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()), getUrl(), getHash());
+            plugin.getPackManager().addPack(pack);
+        }
+        plugin.getLogger().log(Level.INFO, "Backend mc server send pack " + pack.getUrl() + " to player " + usercon.getName());
+        plugin.getPackManager().setUserPack(usercon.getUniqueId(), pack);
+        usercon.getPendingConnection().handle(packet);
     }
 
     public void read(ByteBuf buf) {

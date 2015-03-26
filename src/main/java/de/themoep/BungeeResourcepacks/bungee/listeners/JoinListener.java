@@ -2,11 +2,13 @@ package de.themoep.BungeeResourcepacks.bungee.listeners;
 
 import de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Phoenix616 on 24.03.2015.
@@ -14,7 +16,27 @@ import net.md_5.bungee.event.EventHandler;
 public class JoinListener implements Listener {
     
     @EventHandler
-    public void onPlayerJoin(PostLoginEvent event) {
-        BungeeResourcepacks.getInstance().clearPack(event.getPlayer());
+    public void onPlayerJoin(final PostLoginEvent event) {
+        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+        plugin.clearPack(event.getPlayer());
+        final UUID playerid = event.getPlayer().getUniqueId();
+        plugin.setJoining(playerid);
+        plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
+            @Override
+            public void run() {
+                BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+                ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
+                if(player != null) {
+                    ResourcePack pack = plugin.getPackManager().getServerPack(player.getServer().getInfo().getName());
+                    if (pack == null) {
+                        pack = plugin.getPackManager().getServerPack("!global");
+                    }
+                    if (pack != null) {
+                        plugin.setPack(player, pack);
+                    }
+                }
+                plugin.unsetJoining(playerid);
+            }
+        }, 300L, TimeUnit.MILLISECONDS);
     }
 }
