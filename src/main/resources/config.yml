@@ -5,13 +5,13 @@ packs:
     url: http://example.com/lobbyresourcepack.zip
    # The sha1 hash of the resourcepack's zip file, 
    # if not correct the client will waste bandwidth but it will still work!
-    hash: daw0mpwa0dp
+    hash: aadw32ead
   gamepack:
     url: http://example.com/minigameresourcepack.zip
     hash: daw0mpwa0dp
+global:
+  pack: lobbypack
 servers:
-  "!global":
-    pack: lobbypack
   lobby:
     pack: lobbypack
   minigame:

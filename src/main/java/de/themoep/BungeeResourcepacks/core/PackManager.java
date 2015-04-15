@@ -29,6 +29,11 @@ public class PackManager {
      * playerid -> packname 
      */
     private Map<UUID, String> usermap = new ConcurrentHashMap<UUID, String>();
+
+    /**
+     * Name of the global pack, null if none is set
+     */
+    private String global = null;
     
     /**
      * servername -> packname 
@@ -84,17 +89,41 @@ public class PackManager {
     }
 
     /**
+     * Set the global Resource Pack
+     * @param pack The pack to set as global
+     * @return The previous global pack, null if none was set
+     */
+    public ResourcePack setGlobalPack(ResourcePack pack) {
+        return setGlobalPack((pack == null) ? null : pack.getName());
+    }
+
+    /**
+     * Set the global Resource Pack
+     * @param packname The name of the pack to set as global
+     * @return The previous global pack, null if none was set
+     */
+    public ResourcePack setGlobalPack(String packname) {
+        ResourcePack rp = getGlobalPack();
+        global = packname;
+        return rp;
+    }
+
+    /**
+     * Get the global Resource Pack
+     * @return The global pack, null if none is set
+     */
+    public ResourcePack getGlobalPack() {
+        return (global == null) ? null : getByName(global);
+    }
+
+    /**
      * Get the resourcepack of a server
      * @param server The name of the server, "!global" for the global pack
      * @return The resourcepack of the server, null if there is none
      */
     public ResourcePack getServerPack(String server) {
         String name = servermap.get(server);
-        if(name != null) {
-            return getByName(name);
-        } else {
-            return null;
-        }
+        return (name == null) ? null : getByName(name);
     }
     
     /**
