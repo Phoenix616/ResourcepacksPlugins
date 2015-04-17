@@ -109,8 +109,15 @@ public class BungeeResourcepacks extends Plugin {
         }
     }
 
+    /**
+     * Reloads the configuration from the file and 
+     * resends the resource pack to all online players 
+     */
     public void reloadConfig() {
         loadConfig();
+        for(ProxiedPlayer p : getProxy().getPlayers()) {
+            resendPack(p);
+        }
     }
     
     public static BungeeResourcepacks getInstance() {
