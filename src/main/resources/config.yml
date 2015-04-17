@@ -1,3 +1,4 @@
+debug: true
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.

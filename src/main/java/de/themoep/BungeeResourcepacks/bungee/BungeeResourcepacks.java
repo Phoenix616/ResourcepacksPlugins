@@ -31,6 +31,8 @@ public class BungeeResourcepacks extends Plugin {
     private YamlConfig config;
     
     private PackManager pm;
+    
+    public Level loglevel;
 
     /**
      * Set of uuids of currently joining players. This is needed for backend packs to be send after bungee packs
@@ -61,7 +63,7 @@ public class BungeeResourcepacks extends Plugin {
             getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
             
         } catch (NoSuchMethodException e) {
-            getLogger().severe("Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
+            getLogger().log(Level.SEVERE, "Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
         }
 
@@ -79,6 +81,12 @@ public class BungeeResourcepacks extends Plugin {
             return;
         }
 
+        if(getConfig().getString("debug","true").equalsIgnoreCase("true")) {
+            loglevel = Level.INFO;
+        } else {
+            loglevel = Level.FINE;
+        }
+        
         pm = new PackManager();
         Configuration packs = getConfig().getSection("packs");
         for(String s : packs.getKeys()) {
@@ -157,7 +165,7 @@ public class BungeeResourcepacks extends Plugin {
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
         player.unsafe().sendPacket(new ResourcePackSendPacket(pack));
         getPackManager().setUserPack(player.getUniqueId(), pack);
-        BungeeResourcepacks.getInstance().getLogger().info("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        BungeeResourcepacks.getInstance().getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
     public void clearPack(ProxiedPlayer player) {
