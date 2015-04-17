@@ -35,7 +35,12 @@ public class BungeeResourcepacks extends Plugin {
      * Set of uuids of currently joining players. This is needed for backend packs to be send after bungee packs
      */
     private Map<UUID, Boolean> joiningplayers = new ConcurrentHashMap<UUID, Boolean>();
-        
+
+    /**
+     * Wether the plugin is enabled or not
+     */
+    public boolean enabled = false;
+
     public void onEnable() {
         try {
             Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[] { int.class, Class.class });
@@ -60,13 +65,15 @@ public class BungeeResourcepacks extends Plugin {
         }
 
         this.getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
+        this.enabled = true;
     }
 
     public void loadConfig() {
         try {
             config = new YamlConfig(getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
-            getLogger().severe("Unable to load configuration! NeoBans will not be enabled.");
+            getLogger().severe("Unable to load configuration! BungeeResourcepacks will not be enabled!");
+            this.enabled = false;
             e.printStackTrace();
             return;
         }

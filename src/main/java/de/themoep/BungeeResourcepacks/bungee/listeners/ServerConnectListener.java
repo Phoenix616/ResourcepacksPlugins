@@ -13,6 +13,8 @@ public class ServerConnectListener implements Listener {
     
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
+        if(!BungeeResourcepacks.getInstance().enabled) return;
+        
         ResourcePack pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack(event.getTarget().getName());
         if(pack == null) {
             pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack("!global");

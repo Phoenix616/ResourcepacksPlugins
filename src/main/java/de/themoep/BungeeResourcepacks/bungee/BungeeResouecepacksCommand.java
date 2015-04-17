@@ -15,6 +15,11 @@ public class BungeeResouecepacksCommand extends Command {
     
     @Override
     public void execute(CommandSender sender, String[] args) {
+        if(!BungeeResourcepacks.getInstance().enabled) {
+            sender.sendMessage(ChatColor.RED + "BungeeResourcepacks is not enabled!");
+            return;
+        }
+        
         if (args.length == 1) {
             if(args[0].equalsIgnoreCase("reload")) {
                 BungeeResourcepacks.getInstance().reloadConfig();

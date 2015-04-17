@@ -19,6 +19,8 @@ public class JoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(final PostLoginEvent event) {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+        if(!plugin.enabled) return;
+        
         plugin.clearPack(event.getPlayer());
         final UUID playerid = event.getPlayer().getUniqueId();
         plugin.setJoining(playerid);
