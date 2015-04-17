@@ -27,9 +27,9 @@ import java.util.logging.Level;
  */
 public class BungeeResourcepacks extends Plugin {
 
-    private static YamlConfig config;
+    private YamlConfig config;
     
-    private static PackManager pm;
+    private PackManager pm;
 
     /**
      * Set of uuids of currently joining players. This is needed for backend packs to be send after bungee packs
