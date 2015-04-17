@@ -23,11 +23,14 @@ public class BungeeResouecepacksCommand extends Command {
         if (args.length == 1) {
             if(args[0].equalsIgnoreCase("reload")) {
                 BungeeResourcepacks.getInstance().reloadConfig();
-                sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcePacks' Config!");
+                sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!");
+                return;
+            } else if(args[0].equalsIgnoreCase("version")) {
+                sender.sendMessage(ChatColor.GREEN + "BungeeResourcepacks' version: " + BungeeResourcepacks.getInstance().getDescription().getVersion());
                 return;
             }
         }
         
-        sender.sendMessage("Usage: /brp reload");
+        sender.sendMessage("Usage: /brp [reload|version]");
     }
 }
