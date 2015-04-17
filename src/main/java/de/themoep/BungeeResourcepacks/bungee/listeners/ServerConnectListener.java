@@ -17,7 +17,7 @@ public class ServerConnectListener implements Listener {
         
         ResourcePack pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack(event.getTarget().getName());
         if(pack == null) {
-            pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack("!global");
+            pack = BungeeResourcepacks.getInstance().getPackManager().getGlobalPack();
         }
         if(pack != null) {
             ResourcePack prev = BungeeResourcepacks.getInstance().getPackManager().getUserPack(event.getPlayer().getUniqueId());

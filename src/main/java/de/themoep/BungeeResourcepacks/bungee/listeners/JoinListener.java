@@ -36,7 +36,7 @@ public class JoinListener implements Listener {
                         pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
                     }
                     if (pack == null) {
-                        pack = plugin.getPackManager().getServerPack("!global");
+                        pack = plugin.getPackManager().getGlobalPack();
                     }
                     if (pack != null) {
                         plugin.setPack(player, pack);
