@@ -15,13 +15,12 @@ public class BungeeResouecepacksCommand extends Command {
     
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if(!BungeeResourcepacks.getInstance().enabled) {
-            sender.sendMessage(ChatColor.RED + "BungeeResourcepacks is not enabled!");
-            return;
-        }
-        
         if (args.length == 1) {
             if(args[0].equalsIgnoreCase("reload")) {
+                if(!BungeeResourcepacks.getInstance().enabled) {
+                    sender.sendMessage(ChatColor.RED + "BungeeResourcepacks is not enabled!");
+                    return;
+                }
                 BungeeResourcepacks.getInstance().reloadConfig();
                 sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!");
                 return;
@@ -30,7 +29,6 @@ public class BungeeResouecepacksCommand extends Command {
                 return;
             }
         }
-        
         sender.sendMessage("Usage: /brp [reload|version]");
     }
 }
