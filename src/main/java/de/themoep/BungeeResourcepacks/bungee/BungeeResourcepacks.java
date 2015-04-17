@@ -45,40 +45,37 @@ public class BungeeResourcepacks extends Plugin {
     public boolean enabled = false;
 
     public void onEnable() {
+        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
+        
         try {
             Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[] { int.class, Class.class });
             reg.setAccessible(true);
             try {
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
+                
+                enabled = loadConfig();
+
+                //getProxy().getPluginManager().registerCommand(this, new BungeeTestCommand("bungeetest", "bungeetest.command", "btest"));
+                getProxy().getPluginManager().registerListener(this, new JoinListener());
+                getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
-            }
-
-            loadConfig();
-
-            //getProxy().getPluginManager().registerCommand(this, new BungeeTestCommand("bungeetest", "bungeetest.command", "btest"));
-            getProxy().getPluginManager().registerListener(this, new JoinListener());
-            getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
-            
+            }            
         } catch (NoSuchMethodException e) {
             getLogger().log(Level.SEVERE, "Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
         }
-
-        this.getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
-        this.enabled = true;
     }
 
-    public void loadConfig() {
+    public boolean loadConfig() {
         try {
             config = new YamlConfig(getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! BungeeResourcepacks will not be enabled!");
-            this.enabled = false;
             e.printStackTrace();
-            return;
+            return false;
         }
 
         if(getConfig().getString("debug","true").equalsIgnoreCase("true")) {
@@ -115,6 +112,7 @@ public class BungeeResourcepacks extends Plugin {
                 getLogger().warning("Cannot find a pack setting for " + s + "! Please make sure you have a pack node on servers." + s + "!");
             }
         }
+        return true;
     }
 
     /**
