@@ -67,11 +67,7 @@ public class PackManager {
      */
     public ResourcePack getByHash(String hash) {
         String name = hashmap.get(hash);
-        if(name != null) {
-            return getByName(name);
-        } else {
-            return null;
-        }
+        return (name == null) ? null : getByName(name);
     }
 
     /**
@@ -81,11 +77,7 @@ public class PackManager {
      */
     public ResourcePack getByUrl(String url) {
         String name = urlmap.get(url);
-        if(name != null) {
-            return getByName(name);
-        } else {
-            return null;
-        }
+        return (name == null) ? null : getByName(name);
     }
 
     /**
@@ -133,11 +125,7 @@ public class PackManager {
      */
     public ResourcePack getUserPack(UUID playerid) {
         String name = usermap.get(playerid);
-        if(name != null) {
-            return getByName(name);
-        } else {
-            return null;
-        }
+        return (name == null) ? null : getByName(name);
     }
     
     /**
@@ -148,11 +136,7 @@ public class PackManager {
      */
     public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
         String previous = usermap.put(playerid, pack.getName());
-        if(previous != null) {
-            return getByName(previous);
-        } else {
-            return null;
-        }
+        return (previous == null) ? null : getByName(previous);
     }
 
     /**
@@ -162,11 +146,7 @@ public class PackManager {
      */
     public ResourcePack clearUserPack(UUID playerid) {
         String previous = usermap.remove(playerid);
-        if(previous != null) {
-            return getByName(previous);
-        } else {
-            return null;
-        }
+        return (previous == null) ? null : getByName(previous);
     }
     
 
