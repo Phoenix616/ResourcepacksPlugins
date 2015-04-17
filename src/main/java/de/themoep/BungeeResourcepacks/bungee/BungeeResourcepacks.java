@@ -7,6 +7,7 @@ import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.Protocol;
@@ -120,6 +121,24 @@ public class BungeeResourcepacks extends Plugin {
         return config;
     }
 
+    /**
+     * Resends the pack that corresponds to the player's server
+     * @param player The player to set the pack for
+     */
+    public void resendPack(ProxiedPlayer player) {
+        ResourcePack pack = null;
+        Server server = player.getServer();
+        if(server != null) {
+            pack = getPackManager().getServerPack(server.getInfo().getName());
+        }
+        if (pack == null) {
+            pack = getPackManager().getGlobalPack();
+        }
+        if (pack != null) {
+            setPack(player, pack);
+        }
+    }
+    
     /**
      * Set the resoucepack of a connected player
      * @param player The ProxiedPlayer to set the pack for
