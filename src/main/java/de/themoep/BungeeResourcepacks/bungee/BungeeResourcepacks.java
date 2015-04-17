@@ -15,9 +15,12 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 18.03.2015.
@@ -55,6 +58,8 @@ public class BungeeResourcepacks extends Plugin {
             getLogger().severe("Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
         }
+
+        this.getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
     }
 
     public void loadConfig() {
@@ -94,6 +99,10 @@ public class BungeeResourcepacks extends Plugin {
                 getLogger().warning("Cannot find a pack setting for " + s + "! Please make sure you have a pack node on servers." + s + "!");
             }
         }
+    }
+
+    public void reloadConfig() {
+        loadConfig();
     }
     
     public static BungeeResourcepacks getInstance() {
@@ -147,5 +156,5 @@ public class BungeeResourcepacks extends Plugin {
     public boolean isJoining(UUID playerid) {
         return joiningplayers.containsKey(playerid);
     }
-    
+
 }
