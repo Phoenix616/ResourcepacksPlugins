@@ -55,7 +55,6 @@ public class BungeeResourcepacks extends Plugin {
                 
                 enabled = loadConfig();
 
-                //getProxy().getPluginManager().registerCommand(this, new BungeeTestCommand("bungeetest", "bungeetest.command", "btest"));
                 getProxy().getPluginManager().registerListener(this, new JoinListener());
                 getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
             } catch (IllegalAccessException e) {
