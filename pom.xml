@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.themoep</groupId>
     <artifactId>BungeeResourcepacks</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <name>BungeeResourcepacks</name>
     <description>Plugin to set Resource Packs on whole BungeeCord and per server</description>
 
