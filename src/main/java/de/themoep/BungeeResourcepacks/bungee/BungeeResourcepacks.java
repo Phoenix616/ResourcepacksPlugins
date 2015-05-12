@@ -88,12 +88,24 @@ public class BungeeResourcepacks extends Plugin {
         for(String s : packs.getKeys()) {
             pm.addPack(new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash")));
         }
+        
+        String emptypackname = getConfig().getString("empty");
+        if(emptypackname != null) {
+            ResourcePack ep = pm.getByName(emptypackname);
+            if(ep != null) {
+                pm.setEmptyPack(ep);
+            } else {
+                getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+            }
+        }
 
         String globalpackname = getConfig().getString("global.pack");
         if(globalpackname != null) {
             ResourcePack gp = pm.getByName(globalpackname);
             if(gp != null) {
                 pm.setGlobalPack(gp);
+            } else {
+                getLogger().warning("Cannot set global resourcepack as there is no pack with the name " + globalpackname + " defined!");
             }
         }
         
