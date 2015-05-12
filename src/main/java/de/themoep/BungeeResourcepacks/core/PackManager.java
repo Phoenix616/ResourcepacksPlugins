@@ -31,6 +31,11 @@ public class PackManager {
     private Map<UUID, String> usermap = new ConcurrentHashMap<UUID, String>();
 
     /**
+     * Name of the empty pack, null if none is set
+     */
+    private String empty = null;
+    
+    /**
      * Name of the global pack, null if none is set
      */
     private String global = null;
@@ -80,6 +85,34 @@ public class PackManager {
         return (name == null) ? null : getByName(name);
     }
 
+    /**
+     * Set the empty Resource Pack
+     * @param pack The pack to set as global
+     * @return The previous global pack, null if none was set
+     */
+    public ResourcePack setEmptyPack(ResourcePack pack) {
+        return setEmptyPack((pack == null) ? null : pack.getName());
+    }
+
+    /**
+     * Set the empty Resource Pack
+     * @param packname The name of the pack to set as global
+     * @return The previous global pack, null if none was set
+     */
+    public ResourcePack setEmptyPack(String packname) {
+        ResourcePack rp = getEmptyPack();
+        empty = packname;
+        return rp;
+    }
+
+    /**
+     * Get the empty Resource Pack
+     * @return The global pack, null if none is set
+     */
+    public ResourcePack getEmptyPack() {
+        return (empty == null) ? null : getByName(empty);
+    }
+    
     /**
      * Set the global Resource Pack
      * @param pack The pack to set as global

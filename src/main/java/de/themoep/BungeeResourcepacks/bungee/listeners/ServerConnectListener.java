@@ -13,16 +13,20 @@ public class ServerConnectListener implements Listener {
     
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
-        if(!BungeeResourcepacks.getInstance().enabled) return;
+        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+        if(!plugin.enabled) return;
         
-        ResourcePack pack = BungeeResourcepacks.getInstance().getPackManager().getServerPack(event.getTarget().getName());
+        ResourcePack pack = plugin.getPackManager().getServerPack(event.getTarget().getName());
         if(pack == null) {
-            pack = BungeeResourcepacks.getInstance().getPackManager().getGlobalPack();
+            pack = plugin.getPackManager().getGlobalPack();
+        }
+        if(pack == null) {
+            pack = plugin.getPackManager().getEmptyPack();
         }
         if(pack != null) {
-            ResourcePack prev = BungeeResourcepacks.getInstance().getPackManager().getUserPack(event.getPlayer().getUniqueId());
+            ResourcePack prev = plugin.getPackManager().getUserPack(event.getPlayer().getUniqueId());
             if(!pack.equals(prev)) {
-                BungeeResourcepacks.getInstance().setPack(event.getPlayer(), pack);
+                plugin.setPack(event.getPlayer(), pack);
             }
         }
     }
