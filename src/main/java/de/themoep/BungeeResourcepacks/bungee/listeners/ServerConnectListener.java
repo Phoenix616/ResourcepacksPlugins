@@ -20,7 +20,7 @@ public class ServerConnectListener implements Listener {
         if(pack == null) {
             pack = plugin.getPackManager().getGlobalPack();
         }
-        if(pack == null) {
+        if(pack == null && plugin.getPackManager().getUserPack(event.getPlayer().getUniqueId()) != null) {
             pack = plugin.getPackManager().getEmptyPack();
         }
         if(pack != null) {
