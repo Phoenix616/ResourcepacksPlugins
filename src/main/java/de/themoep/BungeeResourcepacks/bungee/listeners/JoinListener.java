@@ -22,28 +22,5 @@ public class JoinListener implements Listener {
         if(!plugin.enabled) return;
         
         plugin.clearPack(event.getPlayer());
-        final UUID playerid = event.getPlayer().getUniqueId();
-        plugin.setJoining(playerid);
-        plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-            @Override
-            public void run() {
-                BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-                ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
-                if(player != null) {
-                    ResourcePack pack = null;
-                    Server server = player.getServer();
-                    if(server != null) {
-                        pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
-                    }
-                    if(pack == null) {
-                        pack = plugin.getPackManager().getGlobalPack();
-                    }
-                    if(pack != null) {
-                        plugin.setPack(player, pack);
-                    }
-                }
-                plugin.unsetJoining(playerid);
-            }
-        }, 300L, TimeUnit.MILLISECONDS);
     }
 }
