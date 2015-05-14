@@ -87,8 +87,8 @@ public class PackManager {
 
     /**
      * Set the empty Resource Pack
-     * @param pack The pack to set as global
-     * @return The previous global pack, null if none was set
+     * @param pack The pack to set as empty pack
+     * @return The previous empty pack, null if none was set
      */
     public ResourcePack setEmptyPack(ResourcePack pack) {
         return setEmptyPack((pack == null) ? null : pack.getName());
@@ -96,8 +96,8 @@ public class PackManager {
 
     /**
      * Set the empty Resource Pack
-     * @param packname The name of the pack to set as global
-     * @return The previous global pack, null if none was set
+     * @param packname The name of the pack to set as empty pack
+     * @return The previous empty pack, null if none was set
      */
     public ResourcePack setEmptyPack(String packname) {
         ResourcePack rp = getEmptyPack();
@@ -107,7 +107,7 @@ public class PackManager {
 
     /**
      * Get the empty Resource Pack
-     * @return The global pack, null if none is set
+     * @return The empty pack, null if none is set
      */
     public ResourcePack getEmptyPack() {
         return (empty == null) ? null : getByName(empty);
