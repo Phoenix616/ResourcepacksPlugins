@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.DownstreamBridge;
-import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -16,8 +15,6 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**

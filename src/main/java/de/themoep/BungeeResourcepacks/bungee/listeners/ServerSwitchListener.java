@@ -4,7 +4,6 @@ import de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
-import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -13,7 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Phoenix616 on 24.03.2015.
+ * Created by Phoenix616 on 14.05.2015.
  */
 public class ServerSwitchListener implements Listener {
     
