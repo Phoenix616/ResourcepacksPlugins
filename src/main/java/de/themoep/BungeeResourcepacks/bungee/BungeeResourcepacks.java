@@ -33,9 +33,10 @@ public class BungeeResourcepacks extends Plugin {
     public Level loglevel;
 
     /**
-     * Set of uuids of currently joining players. This is needed for backend packs to be send after bungee packs
+     * Set of uuids of players which got send a pack by the backend server. 
+     * This is needed so that the server does not send the bungee pack if the user has a backend one.
      */
-    private Map<UUID, Boolean> joiningplayers = new ConcurrentHashMap<UUID, Boolean>();
+    private Map<UUID, Boolean> backendPackedPlayers = new ConcurrentHashMap<UUID, Boolean>();
 
     /**
      * Wether the plugin is enabled or not
@@ -184,28 +185,28 @@ public class BungeeResourcepacks extends Plugin {
     }
 
     /**
-     * Add a players uuid to the list of currently joining players
+     * Add a player's uuid to the list of players with a backend pack
      * @param playerid The uuid of the player
      */
-    public void setJoining(UUID playerid) {
-        joiningplayers.put(playerid, false);
+    public void setBackend(UUID playerid) {
+        backendPackedPlayers.put(playerid, false);
     }
 
     /**
-     * Remove a players uuid from the list of currently joining players
+     * Remove a player's uuid from the list of players with a backend pack
      * @param playerid The uuid of the player
      */
-    public void unsetJoining(UUID playerid) {
-        joiningplayers.remove(playerid);
+    public void unsetBackend(UUID playerid) {
+        backendPackedPlayers.remove(playerid);
     }
     
     /**
-     * Check if a player is on the list of currently joining players
+     * Check if a player has a pack set by a backend server
      * @param playerid The uuid of the player
-     * @return If the player is currently joining or not
+     * @return If the player has a backend pack
      */
-    public boolean isJoining(UUID playerid) {
-        return joiningplayers.containsKey(playerid);
+    public boolean hasBackend(UUID playerid) {
+        return backendPackedPlayers.containsKey(playerid);
     }
 
 }
