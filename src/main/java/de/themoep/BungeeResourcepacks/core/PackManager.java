@@ -33,12 +33,12 @@ public class PackManager {
     /**
      * Name of the empty pack, null if none is set
      */
-    private String empty = null;
+    private ResourcePack empty = null;
     
     /**
      * Name of the global pack, null if none is set
      */
-    private String global = null;
+    private ResourcePack global = null;
     
     /**
      * servername -> packname 
@@ -91,7 +91,9 @@ public class PackManager {
      * @return The previous empty pack, null if none was set
      */
     public ResourcePack setEmptyPack(ResourcePack pack) {
-        return setEmptyPack((pack == null) ? null : pack.getName());
+        ResourcePack rp = getEmptyPack();
+        empty = pack;
+        return rp;
     }
 
     /**
@@ -100,9 +102,7 @@ public class PackManager {
      * @return The previous empty pack, null if none was set
      */
     public ResourcePack setEmptyPack(String packname) {
-        ResourcePack rp = getEmptyPack();
-        empty = packname;
-        return rp;
+        return setEmptyPack(getByName(packname));
     }
 
     /**
@@ -110,7 +110,7 @@ public class PackManager {
      * @return The empty pack, null if none is set
      */
     public ResourcePack getEmptyPack() {
-        return (empty == null) ? null : getByName(empty);
+        return empty;
     }
     
     /**
@@ -119,7 +119,9 @@ public class PackManager {
      * @return The previous global pack, null if none was set
      */
     public ResourcePack setGlobalPack(ResourcePack pack) {
-        return setGlobalPack((pack == null) ? null : pack.getName());
+        ResourcePack rp = getGlobalPack();
+        global = pack;
+        return rp;
     }
 
     /**
@@ -128,9 +130,7 @@ public class PackManager {
      * @return The previous global pack, null if none was set
      */
     public ResourcePack setGlobalPack(String packname) {
-        ResourcePack rp = getGlobalPack();
-        global = packname;
-        return rp;
+        return setGlobalPack(getByName(packname));
     }
 
     /**
@@ -138,7 +138,7 @@ public class PackManager {
      * @return The global pack, null if none is set
      */
     public ResourcePack getGlobalPack() {
-        return (global == null) ? null : getByName(global);
+        return global;
     }
 
     /**
