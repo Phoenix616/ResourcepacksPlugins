@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.DownstreamBridge;
-import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -16,8 +15,6 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -53,23 +50,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 Field con = bridge.getClass().getDeclaredField("con");
                 con.setAccessible(true);
                 try {
-                    final UserConnection usercon = (UserConnection) con.get(bridge);
-                    if(BungeeResourcepacks.getInstance().isJoining(usercon.getUniqueId())) {
-                        final PacketWrapper packet = new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())));
-                        BungeeResourcepacks.getInstance().getProxy().getScheduler().schedule(BungeeResourcepacks.getInstance(), new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    relayPacket(usercon, packet);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, 1L, TimeUnit.SECONDS);
-                    } else {
-                        relayPacket(usercon, new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
-                    }
-                    
+                    UserConnection usercon = (UserConnection) con.get(bridge);
+                    relayPacket(usercon, new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
                     e.printStackTrace();
@@ -92,6 +74,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
             pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()), getUrl(), getHash());
             plugin.getPackManager().addPack(pack);
         }
+        plugin.setBackend(usercon.getUniqueId());
         plugin.getLogger().log(BungeeResourcepacks.getInstance().loglevel, "Backend mc server send pack " + pack.getUrl() + " to player " + usercon.getName());
         plugin.getPackManager().setUserPack(usercon.getUniqueId(), pack);
         usercon.getPendingConnection().handle(packet);
