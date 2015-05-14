@@ -1,6 +1,6 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
-import de.themoep.BungeeResourcepacks.bungee.listeners.JoinListener;
+import de.themoep.BungeeResourcepacks.bungee.listeners.DisconnectListener;
 import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
@@ -54,7 +54,7 @@ public class BungeeResourcepacks extends Plugin {
                 
                 enabled = loadConfig();
 
-                getProxy().getPluginManager().registerListener(this, new JoinListener());
+                getProxy().getPluginManager().registerListener(this, new DisconnectListener());
                 getProxy().getPluginManager().registerListener(this, new ServerSwitchListener());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
