@@ -1,7 +1,7 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
 import de.themoep.BungeeResourcepacks.bungee.listeners.JoinListener;
-import de.themoep.BungeeResourcepacks.bungee.listeners.ServerConnectListener;
+import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +54,7 @@ public class BungeeResourcepacks extends Plugin {
                 enabled = loadConfig();
 
                 getProxy().getPluginManager().registerListener(this, new JoinListener());
-                getProxy().getPluginManager().registerListener(this, new ServerConnectListener());
+                getProxy().getPluginManager().registerListener(this, new ServerSwitchListener());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
