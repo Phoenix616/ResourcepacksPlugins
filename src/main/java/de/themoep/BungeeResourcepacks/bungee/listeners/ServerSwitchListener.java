@@ -42,7 +42,10 @@ public class ServerSwitchListener implements Listener {
                             pack = plugin.getPackManager().getEmptyPack();
                         }
                         if (pack != null) {
-                            plugin.setPack(player, pack);
+                            ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
+                            if(!pack.equals(prev)) {
+                                plugin.setPack(player, pack);
+                            }
                         }
                     }
                 }
