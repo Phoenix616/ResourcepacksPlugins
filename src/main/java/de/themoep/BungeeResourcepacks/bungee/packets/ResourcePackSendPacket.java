@@ -25,11 +25,10 @@ public class ResourcePackSendPacket extends DefinedPacket {
     private String url;
     private String hash;
 
-    private BungeeResourcepacks plugin;
-    
+    public ResourcePackSendPacket() {};
+
     @ConstructorProperties({"url", "hash"})
-    public ResourcePackSendPacket(BungeeResourcepacks plugin, String url, String hash) {
-        this.plugin = plugin;
+    public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
         if(hash != null) {
             this.hash = hash.substring(0, (hash.length() > 39) ? 39 : hash.length()).toLowerCase();
@@ -49,11 +48,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
                     UserConnection usercon = (UserConnection) con.get(bridge);
                     relayPacket(usercon, new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
                 } catch (IllegalAccessException e) {
-                    plugin.getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
+                    BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
                     e.printStackTrace();
                 }
             } catch (NoSuchFieldException e) {
-                plugin.getLogger().log(Level.SEVERE, "Error while trying to get the UserConnection field from the DownstreamBridge object. Is the plugin up to date?");
+                BungeeResourcepacks.getInstance().getLogger().log(Level.SEVERE, "Error while trying to get the UserConnection field from the DownstreamBridge object. Is the plugin up to date?");
             }
         } else {
             throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
@@ -61,6 +60,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
     
     public void relayPacket(UserConnection usercon, PacketWrapper packet) throws Exception {
+        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         ResourcePack pack = plugin.getPackManager().getByUrl(getUrl());
         if(pack == null) {
             pack = plugin.getPackManager().getByHash(getHash());
