@@ -189,7 +189,7 @@ public class BungeeResourcepacks extends Plugin {
      * @param pack The resourcepack to set for the player
      */
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
-        player.unsafe().sendPacket(new ResourcePackSendPacket(this, pack.getUrl(), pack.getHash()));
+        player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
         getPackManager().setUserPack(player.getUniqueId(), pack);
         getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
