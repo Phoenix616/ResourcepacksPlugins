@@ -9,12 +9,18 @@ import net.md_5.bungee.event.EventHandler;
  * Created by Phoenix616 on 14.05.2015.
  */
 public class DisconnectListener implements Listener {
-    
+
+    private BungeeResourcepacks plugin;
+
+    public DisconnectListener(BungeeResourcepacks plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-        if(!plugin.enabled) return;
-        
-        plugin.clearPack(event.getPlayer());
+        if(plugin.isEnabled()) {
+            plugin.clearPack(event.getPlayer());
+        }
     }
 }

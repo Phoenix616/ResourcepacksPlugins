@@ -1,5 +1,6 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -15,12 +16,16 @@ public class YamlConfig {
 
     protected File configFile;
 
+    private Plugin plugin;
+    
     /**
      * read configuration into memory
      * @param configFilePath
      * @throws java.io.IOException
      */
-    public YamlConfig(String configFilePath) throws IOException {
+    public YamlConfig(Plugin plugin, String configFilePath) throws IOException {
+        this.plugin = plugin;
+        
         configFile = new File(configFilePath);
 
         if (!configFile.exists()) {
@@ -43,13 +48,13 @@ public class YamlConfig {
         try {
             ymlCfg.save(cfg, configFile);
         } catch (IOException e) {
-            BungeeResourcepacks.getInstance().getLogger().severe("Unable to save configuration at " + configFile.getAbsolutePath());
+            plugin.getLogger().severe("Unable to save configuration at " + configFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
     
     public void createDefaultConfig() {
-        cfg = ymlCfg.load(new InputStreamReader(BungeeResourcepacks.getInstance().getResourceAsStream("config.yml")));
+        cfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
 
         save();
     }    

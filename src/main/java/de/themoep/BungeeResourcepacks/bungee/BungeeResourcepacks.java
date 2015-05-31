@@ -41,7 +41,7 @@ public class BungeeResourcepacks extends Plugin {
     /**
      * Wether the plugin is enabled or not
      */
-    public boolean enabled = false;
+    private boolean enabled = false;
 
     public void onEnable() {
         getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
@@ -52,10 +52,12 @@ public class BungeeResourcepacks extends Plugin {
             try {
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
                 
-                enabled = loadConfig();
+                boolean loadingSuccessful = loadConfig();
+                
+                setEnabled(loadingSuccessful);
 
-                getProxy().getPluginManager().registerListener(this, new DisconnectListener());
-                getProxy().getPluginManager().registerListener(this, new ServerSwitchListener());
+                getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
+                getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
@@ -69,7 +71,7 @@ public class BungeeResourcepacks extends Plugin {
 
     public boolean loadConfig() {
         try {
-            config = new YamlConfig(getDataFolder() + File.separator + "config.yml");
+            config = new YamlConfig(this, getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! BungeeResourcepacks will not be enabled!");
             e.printStackTrace();
@@ -131,7 +133,7 @@ public class BungeeResourcepacks extends Plugin {
      */
     public void reloadConfig() {
         loadConfig();
-        if(enabled) {
+        if(isEnabled()) {
             getLogger().log(Level.INFO, "Reloaded config. Resending packs for all online players!");
             for (ProxiedPlayer p : getProxy().getPlayers()) {
                 resendPack(p);
@@ -147,6 +149,22 @@ public class BungeeResourcepacks extends Plugin {
         return config;
     }
 
+    /**
+     * Get whether the plugin successful enabled or not
+     * @return
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Set if the plugin is enabled or not
+     * @param enabled
+     */
+    private void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
     /**
      * Resends the pack that corresponds to the player's server
      * @param player The player to set the pack for
@@ -171,9 +189,9 @@ public class BungeeResourcepacks extends Plugin {
      * @param pack The resourcepack to set for the player
      */
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
-        player.unsafe().sendPacket(new ResourcePackSendPacket(pack));
+        player.unsafe().sendPacket(new ResourcePackSendPacket(this, pack.getUrl(), pack.getHash()));
         getPackManager().setUserPack(player.getUniqueId(), pack);
-        BungeeResourcepacks.getInstance().getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
     public void clearPack(ProxiedPlayer player) {

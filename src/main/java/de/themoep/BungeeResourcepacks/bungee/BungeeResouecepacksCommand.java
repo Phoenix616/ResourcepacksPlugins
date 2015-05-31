@@ -8,27 +8,29 @@ import net.md_5.bungee.api.plugin.Command;
  * Created by Phoenix616 on 17.04.2015.
  */
 public class BungeeResouecepacksCommand extends Command {
+    
+    BungeeResourcepacks plugin;
 
     public BungeeResouecepacksCommand(BungeeResourcepacks plugin, String name, String permission, String... aliases) {
         super(name, permission, aliases);
+        this.plugin = plugin;
     }
     
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 1) {
             if(args[0].equalsIgnoreCase("reload")) {
-                if(!BungeeResourcepacks.getInstance().enabled) {
+                if(plugin.isEnabled()) {
+                    plugin.reloadConfig();
+                    sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!");
+                } else {
                     sender.sendMessage(ChatColor.RED + "BungeeResourcepacks is not enabled!");
-                    return;
                 }
-                BungeeResourcepacks.getInstance().reloadConfig();
-                sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!");
-                return;
             } else if(args[0].equalsIgnoreCase("version")) {
-                sender.sendMessage(ChatColor.GREEN + "BungeeResourcepacks' version: " + BungeeResourcepacks.getInstance().getDescription().getVersion());
-                return;
+                sender.sendMessage(ChatColor.GREEN + "BungeeResourcepacks' version: " + plugin.getDescription().getVersion());
             }
+        } else {
+            sender.sendMessage("Usage: /brp [reload|version]");
         }
-        sender.sendMessage("Usage: /brp [reload|version]");
     }
 }

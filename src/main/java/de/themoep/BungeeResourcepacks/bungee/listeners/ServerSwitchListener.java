@@ -15,41 +15,46 @@ import java.util.concurrent.TimeUnit;
  * Created by Phoenix616 on 14.05.2015.
  */
 public class ServerSwitchListener implements Listener {
+
+    BungeeResourcepacks plugin;
     
+    public ServerSwitchListener(BungeeResourcepacks plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onServerSwitch(ServerSwitchEvent event) {
-        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-        if(!plugin.enabled) return;
-
-        final UUID playerid = event.getPlayer().getUniqueId();
-        plugin.unsetBackend(playerid);
-        plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-            @Override
-            public void run() {
-                BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-                if(!plugin.hasBackend(playerid)) {
-                    ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
-                    if (player != null) {
-                        ResourcePack pack = null;
-                        Server server = player.getServer();
-                        if (server != null) {
-                            pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
-                        }
-                        if (pack == null) {
-                            pack = plugin.getPackManager().getGlobalPack();
-                        }
-                        if (pack == null && plugin.getPackManager().getUserPack(playerid) != null) {
-                            pack = plugin.getPackManager().getEmptyPack();
-                        }
-                        if (pack != null) {
-                            ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
-                            if(!pack.equals(prev)) {
-                                plugin.setPack(player, pack);
+        if (plugin.isEnabled()) {
+            final UUID playerid = event.getPlayer().getUniqueId();
+            plugin.unsetBackend(playerid);
+            plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
+                    if (!plugin.hasBackend(playerid)) {
+                        ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
+                        if (player != null) {
+                            ResourcePack pack = null;
+                            Server server = player.getServer();
+                            if (server != null) {
+                                pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
+                            }
+                            if (pack == null) {
+                                pack = plugin.getPackManager().getGlobalPack();
+                            }
+                            if (pack == null && plugin.getPackManager().getUserPack(playerid) != null) {
+                                pack = plugin.getPackManager().getEmptyPack();
+                            }
+                            if (pack != null) {
+                                ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
+                                if (!pack.equals(prev)) {
+                                    plugin.setPack(player, pack);
+                                }
                             }
                         }
                     }
                 }
-            }
-        }, 1L, TimeUnit.SECONDS);
+            }, 1L, TimeUnit.SECONDS);
+        }
     }
 }
