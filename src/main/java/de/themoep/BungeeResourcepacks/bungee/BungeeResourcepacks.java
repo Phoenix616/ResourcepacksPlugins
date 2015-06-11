@@ -92,7 +92,7 @@ public class BungeeResourcepacks extends Plugin {
         }
         
         String emptypackname = getConfig().getString("empty");
-        if(emptypackname != null) {
+        if(emptypackname != null && !emptypackname.isEmpty()) {
             ResourcePack ep = getPackManager().getByName(emptypackname);
             if(ep != null) {
                 getPackManager().setEmptyPack(ep);
@@ -102,7 +102,7 @@ public class BungeeResourcepacks extends Plugin {
         }
 
         String globalpackname = getConfig().getString("global.pack");
-        if(globalpackname != null) {
+        if(globalpackname != null && !globalpackname.isEmpty()) {
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
                 getPackManager().setGlobalPack(gp);
@@ -125,7 +125,7 @@ public class BungeeResourcepacks extends Plugin {
         Configuration servers = getConfig().getSection("servers");
         for(String s : servers.getKeys()) {
             String packname = servers.getString(s + ".pack");
-            if(packname != null) {
+            if(packname != null && !packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
                     getPackManager().addServer(s, sp);
