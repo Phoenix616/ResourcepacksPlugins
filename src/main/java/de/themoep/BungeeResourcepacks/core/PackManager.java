@@ -1,6 +1,8 @@
 package de.themoep.BungeeResourcepacks.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +41,21 @@ public class PackManager {
      * Name of the global pack, null if none is set
      */
     private ResourcePack global = null;
+
+    /**
+     * List of the names of global secondary packs
+     */
+    private List<String> globalSecondary = new ArrayList<String>();
     
     /**
      * servername -> packname 
      */
     private Map<String, String> servermap = new HashMap<String, String>();
+
+    /**
+     * servername -> List of the names of secondary packs
+     */
+    private Map<String, List<String>> serversecondarymap = new HashMap<String, List<String>>();
 
     /**
      * Registeres a new resource pack with the packmanager
@@ -142,6 +154,50 @@ public class PackManager {
     }
 
     /**
+     * Add a secondary global Resource Pack
+     * @param pack The pack to add to the set of secondary ones
+     * @return False if the pack already was in the set; True if not
+     */
+    public boolean addGlobalSecondary(ResourcePack pack) {
+        return (pack == null) ? null : addGlobalSecondary(pack.getName());
+    }
+
+    /**
+     * Add a secondary global Resource Pack
+     * @param packname The name of the pack to add to the set of secondary ones
+     * @return False if the pack already was in the set; True if not
+     */
+    public boolean addGlobalSecondary(String packname) {
+        return (isGlobalSecondary(packname)) ? false : getGlobalSecondary().add(packname);
+    }
+
+    /**
+     * Get if a pack is in the set of secondary global Resource Packs
+     * @param pack The pack to check
+     * @return True if it is a global secondary pack, false if not
+     */
+    public boolean isGlobalSecondary(ResourcePack pack) {
+        return (pack == null) ? false : isGlobalSecondary(pack.getName());
+    }
+
+    /**
+     * Get if a pack is in the set of secondary global Resource Packs
+     * @param packname The name of the pack to check
+     * @return True if it is a global secondary pack, false if not
+     */
+    public boolean isGlobalSecondary(String packname) {
+        return getGlobalSecondary().contains(packname);
+    }
+
+    /**
+     * Get the list of global seconday packs
+     * @return A list of packnames that are global secondary packs
+     */
+    public List<String> getGlobalSecondary() {
+        return globalSecondary;
+    }
+    
+    /**
      * Get the resourcepack of a server
      * @param server The name of the server, "!global" for the global pack
      * @return The resourcepack of the server, null if there is none
@@ -194,8 +250,8 @@ public class PackManager {
     }
     
     /**
-     * Add a server to a resourcepack
-     * @param server The server this pack should be active on
+     * Removes the pack of a server
+     * @param server The server the pack should get removed from
      * @return True if the server had a pack, false if not
      */
     public boolean removeServer(String server) {
@@ -205,4 +261,54 @@ public class PackManager {
         }
         return false;
     }
+
+    /**
+     * Add a secondary server Resource Pack
+     * @param server The server to add a secondary pack to
+     * @param pack The pack to add to the set of secondary ones
+     * @return False if the pack already was in the set; True if not
+     */
+    public boolean addServerSecondary(String server, ResourcePack pack) {
+        return (pack == null) ? null : addServerSecondary(server, pack.getName());
+    }
+
+    /**
+     * Add a secondary global Resource Pack
+     * @param server The server to add a secondary pack to
+     * @param packname The name of the pack to add to the set of secondary ones
+     * @return False if the pack already was in the set; True if not
+     */
+    public boolean addServerSecondary(String server, String packname) {
+        return (isServerSecondary(server, packname)) ? false : getServerSecondary(server).add(packname);
+    }
+
+    /**
+     * Get if a pack is in the set of secondary Resource Packs for this server
+     * @param server The check the secondary pack of
+     * @param pack The pack to check
+     * @return True if it is a global secondary pack, false if not
+     */
+    public boolean isServerSecondary(String server, ResourcePack pack) {
+        return (pack == null) ? false : isServerSecondary(server, pack.getName());
+    }
+
+    /**
+     * Get if a pack is in the set of secondary Resource Packs for this server
+     * @param server The server to add a secondary pack to
+     * @param packname The name of the pack to check
+     * @return True if it is a global secondary pack, false if not
+     */
+    public boolean isServerSecondary(String server, String packname) {
+        return getServerSecondary(server).contains(packname);
+    }
+
+    /**
+     * Get the list of secondary packs of a specific server
+     * @param server The name of the server
+     * @return The list of secondary packs; empty if none found
+     */
+    public List<String> getServerSecondary(String server) {
+        return (serversecondarymap.containsKey(server)) ? serversecondarymap.get(server) : new ArrayList<String>();
+    }
+
 }

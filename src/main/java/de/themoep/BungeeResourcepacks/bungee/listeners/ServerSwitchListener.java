@@ -8,6 +8,7 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,19 +35,39 @@ public class ServerSwitchListener implements Listener {
                     if (!plugin.hasBackend(playerid)) {
                         ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
                         if (player != null) {
-                            ResourcePack pack = null;
+                            ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
                             Server server = player.getServer();
+                            ResourcePack pack = null;
+                            if(plugin.getPackManager().isGlobalSecondary(prev)) {
+                                return;
+                            }
                             if (server != null) {
+                                if(plugin.getPackManager().isServerSecondary(server.getInfo().getName(), prev)) {
+                                    return;
+                                }
                                 pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
                             }
                             if (pack == null) {
                                 pack = plugin.getPackManager().getGlobalPack();
                             }
-                            if (pack == null && plugin.getPackManager().getUserPack(playerid) != null) {
-                                pack = plugin.getPackManager().getEmptyPack();
+                            if (pack == null && prev != null) {
+                                if(server != null) {
+                                    List<String> serversecondary = plugin.getPackManager().getGlobalSecondary();
+                                    if (serversecondary.size() > 0) {
+                                        pack = plugin.getPackManager().getByName(serversecondary.get(0));
+                                    }
+                                }
+                                if(pack == null) {
+                                    List<String> globalsecondary = plugin.getPackManager().getGlobalSecondary();
+                                    if (globalsecondary.size() > 0) {
+                                        pack = plugin.getPackManager().getByName(globalsecondary.get(0));
+                                    }
+                                }
+                                if(pack == null) {
+                                    pack = plugin.getPackManager().getEmptyPack();
+                                }
                             }
                             if (pack != null) {
-                                ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
                                 if (!pack.equals(prev)) {
                                     plugin.setPack(player, pack);
                                 }

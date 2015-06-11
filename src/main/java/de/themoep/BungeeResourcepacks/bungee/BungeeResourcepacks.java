@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,14 +88,14 @@ public class BungeeResourcepacks extends Plugin {
         pm = new PackManager();
         Configuration packs = getConfig().getSection("packs");
         for(String s : packs.getKeys()) {
-            pm.addPack(new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash")));
+            getPackManager().addPack(new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash")));
         }
         
         String emptypackname = getConfig().getString("empty");
         if(emptypackname != null) {
-            ResourcePack ep = pm.getByName(emptypackname);
+            ResourcePack ep = getPackManager().getByName(emptypackname);
             if(ep != null) {
-                pm.setEmptyPack(ep);
+                getPackManager().setEmptyPack(ep);
             } else {
                 getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
             }
@@ -102,11 +103,22 @@ public class BungeeResourcepacks extends Plugin {
 
         String globalpackname = getConfig().getString("global.pack");
         if(globalpackname != null) {
-            ResourcePack gp = pm.getByName(globalpackname);
+            ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
-                pm.setGlobalPack(gp);
+                getPackManager().setGlobalPack(gp);
             } else {
                 getLogger().warning("Cannot set global resourcepack as there is no pack with the name " + globalpackname + " defined!");
+            }
+        }
+        List<String> globalsecondary = getConfig().getStringList("global.secondary");
+        if(globalsecondary != null) {
+            for(String secondarypack : globalsecondary) {
+                ResourcePack sp = getPackManager().getByName(secondarypack);
+                if (sp != null) {
+                    getPackManager().addGlobalSecondary(sp);
+                } else {
+                    getLogger().warning("Cannot add resourcepack as a global secondaray pack as there is no pack with the name " + secondarypack + " defined!");
+                }
             }
         }
         
@@ -114,14 +126,25 @@ public class BungeeResourcepacks extends Plugin {
         for(String s : servers.getKeys()) {
             String packname = servers.getString(s + ".pack");
             if(packname != null) {
-                ResourcePack sp = pm.getByName(packname);
+                ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
-                    pm.addServer(s, sp);
+                    getPackManager().addServer(s, sp);
                 } else {
                     getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
                 }
             }  else {
                 getLogger().warning("Cannot find a pack setting for " + s + "! Please make sure you have a pack node on servers." + s + "!");
+            }
+            List<String> serversecondary = getConfig().getStringList(s + ".secondary");
+            if(serversecondary != null) {
+                for(String secondarypack : serversecondary) {
+                    ResourcePack sp = getPackManager().getByName(s);
+                    if (sp != null) {
+                        getPackManager().addGlobalSecondary(sp);
+                    } else {
+                        getLogger().warning("Cannot add resourcepack as a secondary pack for server " + s + " as there is no pack with the name " + secondarypack + " defined!");
+                    }
+                }
             }
         }
         return true;

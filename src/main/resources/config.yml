@@ -18,9 +18,15 @@ packs:
 # Name of the pack to use for resetting of the pack for servers which don't have one assigned
 empty: emptypack
 global:
-  pack: lobbypack
+  # List of packs to not replace if the user already has them
+  # If no main pack is set the first one also gets used to reset 
+  # the pack if the user has a non secondary one
+  secondary: 
+  - lobbypack
 servers:
   lobby:
     pack: lobbypack
+    secondary:
+    - gamepack
   minigame:
     pack: gamepack
