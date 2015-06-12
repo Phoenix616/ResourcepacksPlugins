@@ -67,11 +67,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 pack = plugin.getPackManager().getByHash(getHash());
             }
             if (pack == null) {
-                pack = new ResourcePack("BackendPack:" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()), getUrl(), getHash());
+                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()).replace(".zip", "").toLowerCase(), getUrl(), getHash());
                 plugin.getPackManager().addPack(pack);
             }
             plugin.setBackend(usercon.getUniqueId());
-            plugin.getLogger().log(BungeeResourcepacks.getInstance().loglevel, "Backend mc server send pack " + pack.getUrl() + " to player " + usercon.getName());
+            plugin.getLogger().log(BungeeResourcepacks.getInstance().loglevel, "Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
             plugin.getPackManager().setUserPack(usercon.getUniqueId(), pack);
         }
         usercon.getPendingConnection().handle(packet);
