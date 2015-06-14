@@ -48,7 +48,7 @@ public class BungeeResouecepacksCommand extends Command {
                             if(sender != player) {
                                 sender.sendMessage(player.getName() + " now uses the pack '" + pack.getName() + "'!");
                             }
-                            player.sendMessage(ChatColor.GREEN + "You know use the pack '" + pack.getName() + "'!");
+                            player.sendMessage(ChatColor.GREEN + "You now use the pack '" + pack.getName() + "'!");
                             plugin.getLogger().log(plugin.loglevel, sender.getName() + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                         } else {
                             sender.sendMessage(ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
