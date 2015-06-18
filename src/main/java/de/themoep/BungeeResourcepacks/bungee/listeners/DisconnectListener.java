@@ -18,7 +18,6 @@ public class DisconnectListener implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         if(plugin.isEnabled()) {
             plugin.clearPack(event.getPlayer());
         }

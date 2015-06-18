@@ -27,6 +27,8 @@ import java.util.logging.Level;
  */
 public class BungeeResourcepacks extends Plugin {
 
+    private static BungeeResourcepacks instance;
+    
     private YamlConfig config;
     
     private PackManager pm;
@@ -45,6 +47,8 @@ public class BungeeResourcepacks extends Plugin {
     private boolean enabled = false;
 
     public void onEnable() {
+        instance = this;
+        
         getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp", "usepack"}));
         
         try {
@@ -165,7 +169,7 @@ public class BungeeResourcepacks extends Plugin {
     }
     
     public static BungeeResourcepacks getInstance() {
-        return (BungeeResourcepacks) ProxyServer.getInstance().getPluginManager().getPlugin("BungeeResourcepacks");
+        return instance;
     }
     
     public YamlConfig getConfig() {
