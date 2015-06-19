@@ -158,10 +158,11 @@ public class BungeeResourcepacks extends Plugin {
      * Reloads the configuration from the file and 
      * resends the resource pack to all online players 
      */
-    public void reloadConfig() {
+    public void reloadConfig(boolean resend) {
         loadConfig();
-        if(isEnabled()) {
-            getLogger().log(Level.INFO, "Reloaded config. Resending packs for all online players!");
+        getLogger().log(Level.INFO, "Reloaded config.");
+        if(isEnabled() && resend) {
+            getLogger().log(Level.INFO, "Resending packs for all online players!");
             for (ProxiedPlayer p : getProxy().getPlayers()) {
                 resendPack(p);
             }

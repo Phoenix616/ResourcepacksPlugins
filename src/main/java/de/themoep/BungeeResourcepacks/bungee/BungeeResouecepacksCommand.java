@@ -23,8 +23,9 @@ public class BungeeResouecepacksCommand extends Command {
         if (args.length > 0) {
             if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("bungeeresourcepacks.command.reload")) {
                 if(plugin.isEnabled()) {
-                    plugin.reloadConfig();
-                    sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!");
+                    boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
+                    plugin.reloadConfig(resend);
+                    sender.sendMessage(ChatColor.GREEN + "Reloaded BungeeResourcepacks' config!" + (resend ? " Resend packs to all online players!":""));
                 } else {
                     sender.sendMessage(ChatColor.RED + "BungeeResourcepacks is not enabled!");
                 }
