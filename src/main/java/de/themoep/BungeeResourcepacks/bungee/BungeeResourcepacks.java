@@ -49,8 +49,8 @@ public class BungeeResourcepacks extends Plugin {
     public void onEnable() {
         instance = this;
         
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "brp", "bungeeresourcepacks.command", new String[] {"bungeeresourcepacks"}));
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", "bungeeresourcepacks.command.usepack", new String[] {}));
+        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[] {getDescription().getName().toLowerCase()}));
+        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
 
         try {
             Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[] { int.class, Class.class });
@@ -79,7 +79,7 @@ public class BungeeResourcepacks extends Plugin {
         try {
             config = new YamlConfig(this, getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
-            getLogger().severe("Unable to load configuration! BungeeResourcepacks will not be enabled!");
+            getLogger().severe("Unable to load configuration! " + getDescription().getName() + " will not be enabled!");
             e.printStackTrace();
             return false;
         }

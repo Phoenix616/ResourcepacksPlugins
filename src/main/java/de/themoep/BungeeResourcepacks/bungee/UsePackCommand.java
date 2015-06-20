@@ -24,9 +24,9 @@ public class UsePackCommand extends Command {
         if (args.length > 0) {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
-                if (sender.hasPermission("bungeeresourcepacks.pack." + pack.getName().toLowerCase())) {
+                if (sender.hasPermission(plugin.getDescription().getName().toLowerCase() + ".pack." + pack.getName().toLowerCase())) {
                     ProxiedPlayer player = (ProxiedPlayer) sender;
-                    if (args.length > 1 && sender.hasPermission("bungeeresourcepacks.command.usepack.others")) {
+                    if (args.length > 1 && sender.hasPermission(plugin.getDescription().getName().toLowerCase() + ".command.usepack.others")) {
                         player = plugin.getProxy().getPlayer(args[1]);
                         if (player == null) {
                             sender.sendMessage(ChatColor.RED + "The player " + args[1] + " is not online!");
