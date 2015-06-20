@@ -49,7 +49,7 @@ public class BungeeResourcepacks extends Plugin {
     public void onEnable() {
         instance = this;
         
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "bungeeresourcepacks", "bungeeresourcepacks.command", new String[] {"brp"}));
+        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, "brp", "bungeeresourcepacks.command", new String[] {"bungeeresourcepacks"}));
         getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", "bungeeresourcepacks.command.usepack", new String[] {}));
 
         try {
@@ -246,7 +246,7 @@ public class BungeeResourcepacks extends Plugin {
     public void unsetBackend(UUID playerid) {
         backendPackedPlayers.remove(playerid);
     }
-    
+
     /**
      * Check if a player has a pack set by a backend server
      * @param playerid The uuid of the player
