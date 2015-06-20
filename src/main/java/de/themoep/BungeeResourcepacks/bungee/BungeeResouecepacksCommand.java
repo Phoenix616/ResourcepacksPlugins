@@ -31,38 +31,9 @@ public class BungeeResouecepacksCommand extends Command {
                 }
             } else if(args[0].equalsIgnoreCase("version") && sender.hasPermission("bungeeresourcepacks.command.version")) {
                 sender.sendMessage(ChatColor.GREEN + "BungeeResourcepacks' version: " + plugin.getDescription().getVersion());
-            } else if(sender instanceof ProxiedPlayer && sender.hasPermission("bungeeresourcepacks.command.usepack")) {
-                ResourcePack pack = plugin.getPackManager().getByName(args[0]);
-                if(pack != null) {
-                    if(sender.hasPermission("bungeeresourcepacks.pack." + pack.getName().toLowerCase())) {
-                        ProxiedPlayer player = (ProxiedPlayer) sender;
-                        if(args.length > 1 && sender.hasPermission("bungeeresourcepacks.command.usepack.others")) {
-                            player = plugin.getProxy().getPlayer(args[1]);
-                            if(player == null) {
-                                sender.sendMessage(ChatColor.RED + "The player " + args[1] + " is not online!");
-                                return;
-                            }
-                        }
-                        ResourcePack prev = plugin.getPackManager().getUserPack(player.getUniqueId());
-                        if(!pack.equals(prev)) {
-                            plugin.setPack(player, pack);
-                            if(sender != player) {
-                                sender.sendMessage(player.getName() + " now uses the pack '" + pack.getName() + "'!");
-                            }
-                            player.sendMessage(ChatColor.GREEN + "You now use the pack '" + pack.getName() + "'!");
-                            plugin.getLogger().log(plugin.loglevel, sender.getName() + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
-                        } else {
-                            sender.sendMessage(ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
-                        }
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "You don't have the permission to set the pack '" + pack.getName() + "'!");
-                    }
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");
-                }
             }
         } else {
-            sender.sendMessage("Usage: /brp [<pack>|reload|version]");
+            sender.sendMessage("Usage: /" + getName() + " [reload|version]");
         }
     }
 }
