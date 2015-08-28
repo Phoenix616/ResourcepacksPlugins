@@ -11,6 +11,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -218,9 +219,15 @@ public class BungeeResourcepacks extends Plugin {
      * @param pack The resourcepack to set for the player
      */
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
-        player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
-        getPackManager().setUserPack(player.getUniqueId(), pack);
-        getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        int clientVersion = player.getPendingConnection().getVersion();
+        if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
+            player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
+            getPackManager().setUserPack(player.getUniqueId(), pack);
+            getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        } else {
+            getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName() + " as he uses the unsupported protocol version " + clientVersion + "!");
+            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients below 1.8 if you want this plugin to work for everyone!");
+        }
     }
 
     public void clearPack(ProxiedPlayer player) {
