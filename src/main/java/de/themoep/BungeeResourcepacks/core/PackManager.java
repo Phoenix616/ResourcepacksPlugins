@@ -2,8 +2,10 @@ package de.themoep.BungeeResourcepacks.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,7 +57,7 @@ public class PackManager {
     /**
      * servername -> List of the names of secondary packs
      */
-    private Map<String, List<String>> serversecondarymap = new HashMap<String, List<String>>();
+    private Map<String, Set<String>> serversecondarymap = new HashMap<String, Set<String>>();
 
     /**
      * Registeres a new resource pack with the packmanager
@@ -279,7 +281,10 @@ public class PackManager {
      * @return False if the pack already was in the set; True if not
      */
     public boolean addServerSecondary(String server, String packname) {
-        return !isServerSecondary(server, packname) && getServerSecondary(server).add(packname);
+        Set<String> serverSecondaries = getServerSecondary(server);
+        boolean notInList = serverSecondaries.add(packname);
+        serversecondarymap.put(server.toLowerCase(), serverSecondaries);
+        return notInList;
     }
 
     /**
@@ -307,8 +312,8 @@ public class PackManager {
      * @param server The name of the server
      * @return The list of secondary packs; empty if none found
      */
-    public List<String> getServerSecondary(String server) {
-        return (serversecondarymap.containsKey(server.toLowerCase())) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
+    public Set<String> getServerSecondary(String server) {
+        return (serversecondarymap.containsKey(server.toLowerCase())) ? serversecondarymap.get(server.toLowerCase()) : new HashSet<String>();
     }
 
 }
