@@ -177,7 +177,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isGlobalSecondary(ResourcePack pack) {
-        return isGlobalSecondary(pack.getName());
+        return pack != null && isGlobalSecondary(pack.getName());
     }
 
     /**
@@ -295,7 +295,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isServerSecondary(String server, ResourcePack pack) {
-        return isServerSecondary(server, pack.getName());
+        return pack != null && isServerSecondary(server, pack.getName());
     }
 
     /**
@@ -314,7 +314,7 @@ public class PackManager {
      * @return The list of secondary packs; empty if none found
      */
     public List<String> getServerSecondary(String server) {
-        return (serversecondarymap.containsKey(server.toLowerCase())) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
+        return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
 }
