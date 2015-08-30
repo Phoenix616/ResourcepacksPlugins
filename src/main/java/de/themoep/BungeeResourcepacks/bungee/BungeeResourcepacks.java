@@ -146,7 +146,7 @@ public class BungeeResourcepacks extends Plugin {
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(s);
                     if (sp != null) {
-                        getPackManager().addGlobalSecondary(sp);
+                        getPackManager().addServerSecondary(s, sp);
                     } else {
                         getLogger().warning("Cannot add resourcepack as a secondary pack for server " + s + " as there is no pack with the name " + secondarypack + " defined!");
                     }
