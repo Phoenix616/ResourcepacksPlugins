@@ -59,8 +59,8 @@ public class ResourcePack {
      * Don't use this method! Use PackManager.addServer() instead!
      */
     void addServer(String name) {
-        if(!this.servers.contains(name)) {
-            this.servers.add(name);
+        if(!this.servers.contains(name.toLowerCase())) {
+            this.servers.add(name.toLowerCase());
         }
     }
     
@@ -68,7 +68,7 @@ public class ResourcePack {
      * Don't use this method! Use PackManager.removeServer() instead!
      */
     boolean removeServer(String server) {
-        return this.servers.remove(name);
+        return this.servers.remove(server.toLowerCase());
     }
 
     public boolean equals(Object o) {

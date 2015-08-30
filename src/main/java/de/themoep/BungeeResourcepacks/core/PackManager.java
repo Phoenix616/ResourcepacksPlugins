@@ -203,7 +203,7 @@ public class PackManager {
      * @return The resourcepack of the server, null if there is none
      */
     public ResourcePack getServerPack(String server) {
-        String name = servermap.get(server);
+        String name = servermap.get(server.toLowerCase());
         return (name == null) ? null : getByName(name);
     }
     
@@ -246,7 +246,7 @@ public class PackManager {
      */
     public void addServer(String server, ResourcePack pack) {
         pack.addServer(server);
-        servermap.put(server, pack.getName().toLowerCase());
+        servermap.put(server.toLowerCase(), pack.getName().toLowerCase());
     }
     
     /**
@@ -255,7 +255,7 @@ public class PackManager {
      * @return True if the server had a pack, false if not
      */
     public boolean removeServer(String server) {
-        String packname = servermap.remove(server);
+        String packname = servermap.remove(server.toLowerCase());
         if(packname != null && packmap.containsKey(packname)) {
             return packmap.get(packname).removeServer(server);
         }
@@ -308,7 +308,7 @@ public class PackManager {
      * @return The list of secondary packs; empty if none found
      */
     public List<String> getServerSecondary(String server) {
-        return (serversecondarymap.containsKey(server)) ? serversecondarymap.get(server) : new ArrayList<String>();
+        return (serversecondarymap.containsKey(server.toLowerCase())) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
 }
