@@ -52,7 +52,7 @@ public class ServerSwitchListener implements Listener {
                             }
                             if (pack == null && prev != null) {
                                 if(server != null) {
-                                    List<String> serversecondary = plugin.getPackManager().getGlobalSecondary();
+                                    List<String> serversecondary = plugin.getPackManager().getServerSecondary(server.getInfo().getName());
                                     if (serversecondary.size() > 0) {
                                         pack = plugin.getPackManager().getByName(serversecondary.get(0));
                                     }
