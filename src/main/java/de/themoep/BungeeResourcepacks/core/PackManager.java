@@ -159,7 +159,7 @@ public class PackManager {
      * @return False if the pack already was in the set; True if not
      */
     public boolean addGlobalSecondary(ResourcePack pack) {
-        return (pack == null) ? null : addGlobalSecondary(pack.getName());
+        return addGlobalSecondary(pack.getName());
     }
 
     /**
@@ -168,7 +168,7 @@ public class PackManager {
      * @return False if the pack already was in the set; True if not
      */
     public boolean addGlobalSecondary(String packname) {
-        return (isGlobalSecondary(packname)) ? false : getGlobalSecondary().add(packname);
+        return !isGlobalSecondary(packname) && getGlobalSecondary().add(packname);
     }
 
     /**
@@ -177,7 +177,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isGlobalSecondary(ResourcePack pack) {
-        return (pack == null) ? false : isGlobalSecondary(pack.getName());
+        return isGlobalSecondary(pack.getName());
     }
 
     /**
@@ -269,7 +269,7 @@ public class PackManager {
      * @return False if the pack already was in the set; True if not
      */
     public boolean addServerSecondary(String server, ResourcePack pack) {
-        return (pack == null) ? null : addServerSecondary(server, pack.getName());
+        return addServerSecondary(server, pack.getName());
     }
 
     /**
@@ -279,7 +279,7 @@ public class PackManager {
      * @return False if the pack already was in the set; True if not
      */
     public boolean addServerSecondary(String server, String packname) {
-        return (isServerSecondary(server, packname)) ? false : getServerSecondary(server).add(packname);
+        return !isServerSecondary(server, packname) && getServerSecondary(server).add(packname);
     }
 
     /**
@@ -289,7 +289,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isServerSecondary(String server, ResourcePack pack) {
-        return (pack == null) ? false : isServerSecondary(server, pack.getName());
+        return isServerSecondary(server, pack.getName());
     }
 
     /**
