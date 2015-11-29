@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class YamlConfig {
+    private final Configuration defaultCfg;
     protected Configuration cfg;
     protected final static ConfigurationProvider ymlCfg = ConfigurationProvider.getProvider( YamlConfiguration.class );
 
@@ -27,13 +28,13 @@ public class YamlConfig {
         this.plugin = plugin;
         
         configFile = new File(configFilePath);
+        defaultCfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
 
         if (!configFile.exists()) {
             if (!configFile.getParentFile().exists()) {
                 configFile.getParentFile().mkdirs();
             }
             configFile.createNewFile();
-            cfg = ymlCfg.load(configFile);
 
             createDefaultConfig();
         } else {
@@ -54,7 +55,7 @@ public class YamlConfig {
     }
     
     public void createDefaultConfig() {
-        cfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
+        cfg = defaultCfg;
 
         save();
     }    
@@ -80,5 +81,9 @@ public class YamlConfig {
 
     public Configuration getSection(String path) {
         return cfg.getSection(path);
+    }
+
+    public Configuration getDefaults() {
+        return defaultCfg;
     }
 }

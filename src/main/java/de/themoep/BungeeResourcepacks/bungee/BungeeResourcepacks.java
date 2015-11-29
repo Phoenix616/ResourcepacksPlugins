@@ -269,7 +269,7 @@ public class BungeeResourcepacks extends Plugin {
      * @return The defined message string or an error message if the variable isn't known.
      */
     public String getMessage(String key) {
-        String msg = getConfig().getString("messages." + key);
+        String msg = getConfig().getString("messages." + key, getConfig().getDefaults().getString("messages." + key));
         if(msg.isEmpty()) {
             msg = "&cUnknown message key: &6messages." + key;
         }
