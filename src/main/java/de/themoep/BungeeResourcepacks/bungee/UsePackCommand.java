@@ -1,6 +1,7 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
 
+import com.google.common.collect.ImmutableMap;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -44,7 +45,7 @@ public class UsePackCommand extends Command {
                         if (sender != player) {
                             sender.sendMessage(player.getName() + " now uses the pack '" + pack.getName() + "'!");
                         }
-                        player.sendMessage(ChatColor.GREEN + plugin.getConfig().getString("messages.usepack", "You now use the pack %pack%!").replace("%pack%", pack.getName()));
+                        player.sendMessage(ChatColor.GREEN + plugin.getMessage("usepack", ImmutableMap.of("pack", pack.getName())));
                         plugin.getLogger().log(plugin.loglevel, sender.getName() + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                     } else {
                         sender.sendMessage(ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");

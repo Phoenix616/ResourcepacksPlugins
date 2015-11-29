@@ -5,7 +5,7 @@ import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -263,4 +263,32 @@ public class BungeeResourcepacks extends Plugin {
         return backendPackedPlayers.containsKey(playerid);
     }
 
+    /**
+     * Get a message from the config
+     * @param key The message's key
+     * @return The defined message string or an error message if the variable isn't known.
+     */
+    public String getMessage(String key) {
+        String msg = getConfig().getString("messages." + key);
+        if(msg.isEmpty()) {
+            msg = "&cUnknown message &6messages." + key;
+        }
+        return ChatColor.translateAlternateColorCodes('&', msg);
+    }
+
+    /**
+     * Get a message from the config and replace variables
+     * @param key The message's key
+     * @param replacements The replacements in a mapping variable->replacement
+     * @return The defined message string or an error message if the variable isn't known.
+     */
+    public String getMessage(String key, Map<String, String> replacements) {
+        String msg = getMessage(key);
+        if (replacements != null) {
+            for(Map.Entry<String, String> repl : replacements.entrySet()) {
+                msg = msg.replace("%" + repl.getKey() + "%", repl.getValue());
+            }
+        }
+        return msg;
+    }
 }
