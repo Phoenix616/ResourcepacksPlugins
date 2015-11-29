@@ -37,10 +37,7 @@ public class YamlConfig {
 
             createDefaultConfig();
         } else {
-            Configuration defaultCfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
-            Configuration msgCfg = new Configuration();
-            msgCfg.set("messages", defaultCfg.getSection("messages"));
-            cfg = ymlCfg.load(configFile, msgCfg);
+            cfg = ymlCfg.load(configFile);
         }
     }
 
