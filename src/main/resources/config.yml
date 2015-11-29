@@ -1,4 +1,6 @@
 debug: true
+messages:
+  usepack: You now use the pack %pack%!
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.
