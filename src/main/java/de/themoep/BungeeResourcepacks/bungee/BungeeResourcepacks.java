@@ -235,7 +235,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
             getPackManager().setUserPack(player.getUniqueId(), pack);
             sendPackInfo(player, pack);
-            getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+            getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
         } else {
             getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName() + " as he uses the unsupported protocol version " + clientVersion + "!");
             getLogger().log(Level.WARNING, "Consider blocking access to your server for clients below 1.8 if you want this plugin to work for everyone!");
