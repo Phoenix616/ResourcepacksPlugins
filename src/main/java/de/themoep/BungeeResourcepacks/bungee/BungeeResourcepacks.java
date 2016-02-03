@@ -5,6 +5,8 @@ import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
 import de.themoep.BungeeResourcepacks.core.PackManager;
 import de.themoep.BungeeResourcepacks.core.ResourcePack;
+import de.themoep.BungeeResourcepacks.core.ResourcepacksPlayer;
+import de.themoep.BungeeResourcepacks.core.ResourcepacksPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -26,7 +28,7 @@ import java.util.logging.Level;
 /**
  * Created by Phoenix616 on 18.03.2015.
  */
-public class BungeeResourcepacks extends Plugin {
+public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     private static BungeeResourcepacks instance;
     
@@ -34,7 +36,7 @@ public class BungeeResourcepacks extends Plugin {
     
     private PackManager pm;
     
-    public Level loglevel;
+    private Level loglevel;
 
     /**
      * Set of uuids of players which got send a pack by the backend server. 
@@ -50,7 +52,7 @@ public class BungeeResourcepacks extends Plugin {
     public void onEnable() {
         instance = this;
         
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResouecepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[] {getDescription().getName().toLowerCase()}));
+        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
         getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
 
         try {
@@ -212,6 +214,13 @@ public class BungeeResourcepacks extends Plugin {
             setPack(player, pack);
         }
     }
+
+    public void resendPack(UUID playerId) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if(player != null) {
+            resendPack(player);
+        }
+    }
     
     /**
      * Set the resoucepack of a connected player
@@ -230,44 +239,37 @@ public class BungeeResourcepacks extends Plugin {
         }
     }
 
+    public void setPack(UUID playerId, ResourcePack pack) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if(player != null) {
+            setPack(player, pack);
+        }
+    }
+
     public void clearPack(ProxiedPlayer player) {
-        getPackManager().clearUserPack(player.getUniqueId());
+        clearPack(player.getUniqueId());
+    }
+
+    public void clearPack(UUID playerId) {
+        getPackManager().clearUserPack(playerId);
     }
 
     public PackManager getPackManager() {
         return pm;
     }
 
-    /**
-     * Add a player's uuid to the list of players with a backend pack
-     * @param playerid The uuid of the player
-     */
-    public void setBackend(UUID playerid) {
-        backendPackedPlayers.put(playerid, false);
+    public void setBackend(UUID playerId) {
+        backendPackedPlayers.put(playerId, false);
     }
 
-    /**
-     * Remove a player's uuid from the list of players with a backend pack
-     * @param playerid The uuid of the player
-     */
-    public void unsetBackend(UUID playerid) {
-        backendPackedPlayers.remove(playerid);
+    public void unsetBackend(UUID playerId) {
+        backendPackedPlayers.remove(playerId);
     }
 
-    /**
-     * Check if a player has a pack set by a backend server
-     * @param playerid The uuid of the player
-     * @return If the player has a backend pack
-     */
-    public boolean hasBackend(UUID playerid) {
-        return backendPackedPlayers.containsKey(playerid);
+    public boolean hasBackend(UUID playerId) {
+        return backendPackedPlayers.containsKey(playerId);
     }
 
-    /**
-     * Get a message from the config
-     * @param key The message's key
-     * @return The defined message string or an error message if the variable isn't known.
-     */
     public String getMessage(String key) {
         String msg = getConfig().getString("messages." + key, getConfig().getDefaults().getString("messages." + key));
         if(msg.isEmpty()) {
@@ -276,12 +278,6 @@ public class BungeeResourcepacks extends Plugin {
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
 
-    /**
-     * Get a message from the config and replace variables
-     * @param key The message's key
-     * @param replacements The replacements in a mapping variable->replacement
-     * @return The defined message string or an error message if the variable isn't known.
-     */
     public String getMessage(String key, Map<String, String> replacements) {
         String msg = getMessage(key);
         if (replacements != null) {
@@ -290,5 +286,59 @@ public class BungeeResourcepacks extends Plugin {
             }
         }
         return msg;
+    }
+
+    public String getName() {
+        return getDescription().getName();
+    }
+
+    public String getVersion() {
+        return getDescription().getVersion();
+    }
+
+    public Level getLogLevel() {
+        return loglevel;
+    }
+
+    @Override
+    public ResourcepacksPlayer getPlayer(UUID playerId) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if(player != null) {
+            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
+        }
+        return null;
+    }
+
+    @Override
+    public ResourcepacksPlayer getPlayer(String playerName) {
+        ProxiedPlayer player = getProxy().getPlayer(playerName);
+        if(player != null) {
+            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean sendMessage(ResourcepacksPlayer player, String message) {
+        if(player != null) {
+            ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
+            if(proxyPlayer != null) {
+                proxyPlayer.sendMessage(message);
+                return true;
+            }
+        } else {
+            getProxy().getConsole().sendMessage(message);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkPermission(ResourcepacksPlayer player, String perm) {
+        ProxiedPlayer proxiedPlayer = getProxy().getPlayer(player.getUniqueId());
+        if(proxiedPlayer != null) {
+            return proxiedPlayer.hasPermission(perm);
+        }
+        return false;
+
     }
 }
