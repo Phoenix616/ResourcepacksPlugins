@@ -1,5 +1,7 @@
 package de.themoep.BungeeResourcepacks.bungee;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import de.themoep.BungeeResourcepacks.bungee.listeners.DisconnectListener;
 import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
 import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
@@ -232,11 +234,38 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
             getPackManager().setUserPack(player.getUniqueId(), pack);
+            sendPackInfo(player, pack);
             getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
         } else {
             getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName() + " as he uses the unsupported protocol version " + clientVersion + "!");
             getLogger().log(Level.WARNING, "Consider blocking access to your server for clients below 1.8 if you want this plugin to work for everyone!");
         }
+    }
+
+    /**
+      * <p>Send a plugin message to the server the player is connected to!</p>
+      * @param player The player to update the pack on the player's bukkit server
+      * @param pack The ResourcePack to send the info of the the Bukkit server, null if you want to clear it!
+      * Channel: ForceResourcepacks<br />
+      * sub-channel: packChange<br />
+      * arg1: playername<br />
+      * arg2: pack.getName();<br />
+      * arg3: pack.getUrl();<br />
+      * arg4: pack.getHash();<br />
+      */
+    public void sendPackInfo(ProxiedPlayer player, ResourcePack pack) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        if(pack != null) {
+            out.writeUTF("packChange");
+            out.writeUTF(player.getName());
+            out.writeUTF(pack.getName());
+            out.writeUTF(pack.getUrl());
+            out.writeUTF(pack.getHash());
+        } else {
+            out.writeUTF("clearPack");
+            out.writeUTF(player.getName());
+        }
+        player.getServer().sendData(getDescription().getName(), out.toByteArray());
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {

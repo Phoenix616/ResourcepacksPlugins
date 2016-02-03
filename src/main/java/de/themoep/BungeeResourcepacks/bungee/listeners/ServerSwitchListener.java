@@ -28,6 +28,10 @@ public class ServerSwitchListener implements Listener {
         if (plugin.isEnabled()) {
             final UUID playerid = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerid);
+
+            ResourcePack pack = plugin.getPackManager().getUserPack(playerid);
+            plugin.sendPackInfo(event.getPlayer(), pack);
+
             plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
                 @Override
                 public void run() {
