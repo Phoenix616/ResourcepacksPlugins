@@ -3,16 +3,23 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>de.themoep</groupId>
-    <artifactId>BungeeResourcepacks</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
-    <name>BungeeResourcepacks</name>
-    <description>Plugin to set Resource Packs on whole BungeeCord and per server</description>
+    <groupId>de.themoep.resourcepacksplugin</groupId>
+    <artifactId>parent</artifactId>
+    <version>parent</version>
+
+    <packaging>pom</packaging>
 
     <modules>
         <module>core</module>
         <module>bungee</module>
     </modules>
+
+    <repositories>
+        <repository>
+            <id>bungee-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
