@@ -1,4 +1,4 @@
-package de.themoep.BungeeResourcepacks.core;
+package de.themoep.resourcepacksplugin.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;

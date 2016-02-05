@@ -1,10 +1,8 @@
-package de.themoep.BungeeResourcepacks.bungee;
+package de.themoep.resourcepacksplugin.bungee;
 
-import de.themoep.BungeeResourcepacks.core.ResourcePack;
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlayer;
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlugin;
-import de.themoep.BungeeResourcepacks.core.commands.BungeeResourcepacksExecutor;
-import net.md_5.bungee.api.ChatColor;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.commands.BungeeResourcepacksExecutor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;

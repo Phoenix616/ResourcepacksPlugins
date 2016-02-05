@@ -1,4 +1,4 @@
-package de.themoep.BungeeResourcepacks.core;
+package de.themoep.resourcepacksplugin.core;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;

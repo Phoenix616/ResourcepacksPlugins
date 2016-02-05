@@ -1,6 +1,6 @@
-package de.themoep.BungeeResourcepacks.bungee.listeners;
+package de.themoep.resourcepacksplugin.bungee.listeners;
 
-import de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;

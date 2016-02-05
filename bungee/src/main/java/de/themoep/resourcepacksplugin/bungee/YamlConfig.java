@@ -1,4 +1,4 @@
-package de.themoep.BungeeResourcepacks.bungee;
+package de.themoep.resourcepacksplugin.bungee;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;

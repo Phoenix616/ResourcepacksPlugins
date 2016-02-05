@@ -1,14 +1,14 @@
-package de.themoep.BungeeResourcepacks.bungee;
+package de.themoep.resourcepacksplugin.bungee;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import de.themoep.BungeeResourcepacks.bungee.listeners.DisconnectListener;
-import de.themoep.BungeeResourcepacks.bungee.listeners.ServerSwitchListener;
-import de.themoep.BungeeResourcepacks.bungee.packets.ResourcePackSendPacket;
-import de.themoep.BungeeResourcepacks.core.PackManager;
-import de.themoep.BungeeResourcepacks.core.ResourcePack;
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlayer;
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
+import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
+import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.ResourcePack;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;

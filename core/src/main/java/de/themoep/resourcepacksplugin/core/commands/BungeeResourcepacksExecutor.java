@@ -1,8 +1,8 @@
-package de.themoep.BungeeResourcepacks.core.commands;
+package de.themoep.resourcepacksplugin.core.commands;
 
 
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlayer;
-import de.themoep.BungeeResourcepacks.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import net.md_5.bungee.api.ChatColor;
 
 /**

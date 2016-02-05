@@ -1,9 +1,9 @@
-package de.themoep.BungeeResourcepacks.bungee.packets;
+package de.themoep.resourcepacksplugin.bungee.packets;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
-import de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks;
-import de.themoep.BungeeResourcepacks.core.ResourcePack;
+import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
