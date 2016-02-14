@@ -83,6 +83,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public boolean loadConfig() {
         try {
             config = new YamlConfig(this, getDataFolder() + File.separator + "config.yml");
+            getLogger().log(Level.INFO, "Loading config!");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! " + getDescription().getName() + " will not be enabled!");
             e.printStackTrace();
@@ -94,11 +95,15 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         } else {
             loglevel = Level.FINE;
         }
+        getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
         
         pm = new PackManager();
         Configuration packs = getConfig().getSection("packs");
+        getLogger().log(getLogLevel(), "Loading packs:");
         for(String s : packs.getKeys()) {
-            getPackManager().addPack(new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash")));
+            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"));
+            getPackManager().addPack(pack);
+            getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
         
         String emptypackname = getConfig().getString("empty");
@@ -115,6 +120,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(globalpackname != null && !globalpackname.isEmpty()) {
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
+                getLogger().log(getLogLevel(), "Global pack: " + gp.getName() + "!");
                 getPackManager().setGlobalPack(gp);
             } else {
                 getLogger().warning("Cannot set global resourcepack as there is no pack with the name " + globalpackname + " defined!");
@@ -122,10 +128,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
         List<String> globalsecondary = getConfig().getStringList("global.secondary");
         if(globalsecondary != null) {
+            getLogger().log(getLogLevel(), "Global secondary packs:");
             for(String secondarypack : globalsecondary) {
                 ResourcePack sp = getPackManager().getByName(secondarypack);
                 if (sp != null) {
                     getPackManager().addGlobalSecondary(sp);
+                    getLogger().log(getLogLevel(), sp.getName());
                 } else {
                     getLogger().warning("Cannot add resourcepack as a global secondaray pack as there is no pack with the name " + secondarypack + " defined!");
                 }
@@ -134,23 +142,27 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         
         Configuration servers = getConfig().getSection("servers");
         for(String s : servers.getKeys()) {
+            getLogger().log(getLogLevel(), "Loading settings for server " + s + "!");
             String packname = servers.getString(s + ".pack");
             if(packname != null && !packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
                     getPackManager().addServer(s, sp);
+                    getLogger().log(getLogLevel(), "Pack: " + sp.getName() + "!");
                 } else {
                     getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
                 }
-            }  else {
-                getLogger().warning("Cannot find a pack setting for " + s + "! Please make sure you have a pack node on servers." + s + "!");
+            } else {
+                getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
             }
             List<String> serversecondary = getConfig().getStringList(s + ".secondary");
             if(serversecondary != null) {
+                getLogger().log(getLogLevel(), "Secondary packs:");
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(s);
                     if (sp != null) {
                         getPackManager().addServerSecondary(s, sp);
+                        getLogger().log(getLogLevel(), sp.getName());
                     } else {
                         getLogger().warning("Cannot add resourcepack as a secondary pack for server " + s + " as there is no pack with the name " + secondarypack + " defined!");
                     }
