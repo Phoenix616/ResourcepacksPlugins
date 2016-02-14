@@ -168,7 +168,7 @@ public class PackManager {
      * @return False if the pack already was in the list; True if not
      */
     public boolean addGlobalSecondary(String packname) {
-        return !isGlobalSecondary(packname) && getGlobalSecondary().add(packname);
+        return !isGlobalSecondary(packname) && getGlobalSecondary().add(packname.toLowerCase());
     }
 
     /**
@@ -186,7 +186,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isGlobalSecondary(String packname) {
-        return getGlobalSecondary().contains(packname);
+        return getGlobalSecondary().contains(packname.toLowerCase());
     }
 
     /**
@@ -283,7 +283,7 @@ public class PackManager {
             return false;
         }
         List<String> serverSecondaries = getServerSecondary(server);
-        serverSecondaries.add(packname);
+        serverSecondaries.add(packname.toLowerCase());
         serversecondarymap.put(server.toLowerCase(), serverSecondaries);
         return true;
     }
@@ -305,7 +305,7 @@ public class PackManager {
      * @return True if it is a global secondary pack, false if not
      */
     public boolean isServerSecondary(String server, String packname) {
-        return getServerSecondary(server).contains(packname);
+        return getServerSecondary(server).contains(packname.toLowerCase());
     }
 
     /**
