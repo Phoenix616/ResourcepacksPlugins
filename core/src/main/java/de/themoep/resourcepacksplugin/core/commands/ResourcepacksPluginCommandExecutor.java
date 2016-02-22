@@ -8,13 +8,13 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * Created by Phoenix616 on 03.02.2016.
  */
-public class BungeeResourcepacksExecutor extends PluginCommandExecutor {
+public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
 
-    public BungeeResourcepacksExecutor(ResourcepacksPlugin plugin) {
+    public ResourcepacksPluginCommandExecutor(ResourcepacksPlugin plugin) {
         super(plugin);
     }
 
-    public void execute(ResourcepacksPlayer sender, String[] args) {
+    public boolean execute(ResourcepacksPlayer sender, String[] args) {
         if (args.length > 0) {
             if(args[0].equalsIgnoreCase("reload") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.reload")) {
                 if(plugin.isEnabled()) {
@@ -27,8 +27,8 @@ public class BungeeResourcepacksExecutor extends PluginCommandExecutor {
             } else if(args[0].equalsIgnoreCase("version") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.version")) {
                 plugin.sendMessage(sender, ChatColor.GREEN + plugin.getName() + "' version: " + plugin.getVersion());
             }
-        } else {
-            plugin.sendMessage(sender, "Usage: /frp [reload|version]");
+            return true;
         }
+        return false;
     }
 }

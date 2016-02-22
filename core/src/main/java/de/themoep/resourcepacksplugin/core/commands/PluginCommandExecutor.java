@@ -14,5 +14,5 @@ public abstract class PluginCommandExecutor {
         this.plugin = plugin;
     }
 
-    abstract void execute(ResourcepacksPlayer sender, String[] args);
+    abstract boolean execute(ResourcepacksPlayer sender, String[] args);
 }

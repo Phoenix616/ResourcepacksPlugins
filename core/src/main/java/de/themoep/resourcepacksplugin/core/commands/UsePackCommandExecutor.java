@@ -10,13 +10,13 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * Created by Phoenix616 on 03.02.2016.
  */
-public class UsePackExecutor extends PluginCommandExecutor {
+public class UsePackCommandExecutor extends PluginCommandExecutor {
 
-    public UsePackExecutor(ResourcepacksPlugin plugin) {
+    public UsePackCommandExecutor(ResourcepacksPlugin plugin) {
         super(plugin);
     }
 
-    public void execute(ResourcepacksPlayer sender, String[] args) {
+    public boolean execute(ResourcepacksPlayer sender, String[] args) {
         if (args.length > 0) {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
@@ -26,13 +26,13 @@ public class UsePackExecutor extends PluginCommandExecutor {
                         player = plugin.getPlayer(args[1]);
                         if (player == null) {
                             plugin.sendMessage(sender, ChatColor.RED + "The player " + args[1] + " is not online!");
-                            return;
+                            return true;
                         }
                     } else if(sender != null) {
                         player = sender;
                     } else {
                         plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername>");
-                        return;
+                        return true;
                     }
                     ResourcePack prev = plugin.getPackManager().getUserPack(player.getUniqueId());
                     if (!pack.equals(prev)) {
@@ -51,8 +51,8 @@ public class UsePackExecutor extends PluginCommandExecutor {
             } else {
                 plugin.sendMessage(sender, ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");
             }
-        } else {
-            plugin.sendMessage(sender, "Usage: /usepack <packname> [<playername>]");
+            return true;
         }
+        return false;
     }
 }

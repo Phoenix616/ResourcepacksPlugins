@@ -43,25 +43,6 @@ public interface ResourcepacksPlugin {
     PackManager getPackManager();
 
     /**
-     * Add a player's UUID to the list of players with a backend pack
-     * @param playerId The uuid of the player
-     */
-    void setBackend(UUID playerId);
-
-    /**
-     * Remove a player's UUID from the list of players with a backend pack
-     * @param playerId The uuid of the player
-     */
-    void unsetBackend(UUID playerId);
-
-    /**
-     * Check if a player has a pack set by a backend server
-     * @param playerId The UUID of the player
-     * @return If the player has a backend pack
-     */
-    boolean hasBackend(UUID playerId);
-
-    /**
      * Get a message from the config
      * @param key The message's key
      * @return The defined message string or an error message if the variable isn't known.

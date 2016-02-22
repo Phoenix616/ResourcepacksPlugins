@@ -14,13 +14,6 @@
         <version>parent</version>
     </parent>
 
-    <repositories>
-        <repository>
-            <id>bungee-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>net.md-5</groupId>
