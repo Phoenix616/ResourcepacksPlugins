@@ -1,9 +1,9 @@
 package de.themoep.resourcepacksplugin.core.commands;
 
 
+import de.themoep.resourcepacksplugin.core.ChatColor;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
-import net.md_5.bungee.api.ChatColor;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -20,7 +20,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 if(plugin.isEnabled()) {
                     boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
                     plugin.reloadConfig(resend);
-                    plugin.sendMessage(sender, ChatColor.GREEN + "Reloaded " + plugin.getName() + "' config!" + (resend ? " Resend packs to all online players!":""));
+                    plugin.sendMessage(sender, ChatColor.GREEN + "&aReloaded " + plugin.getName() + "' config!" + (resend ? " Resend packs to all online players!":""));
                 } else {
                     plugin.sendMessage(sender, ChatColor.RED  + plugin.getName() + " is not enabled!");
                 }
