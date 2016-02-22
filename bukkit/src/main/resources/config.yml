@@ -1,0 +1,35 @@
+debug: true
+messages:
+  usepack: You now use the pack %pack%!
+packs:
+  lobbypack: 
+   # The url the client should download the resourcepack from.
+   # Has to be a direct download link! No medifaire/mega/other oneclick-hoster!
+    url: http://example.com/lobbyresourcepack.zip
+   # The sha1 hash of the resourcepack's zip file, 
+   # if not correct the client will waste bandwidth but it will still work!
+   # At least that's what the Minecraft wiki says... (Site: Server.properties#Minecraft_server_properties)
+    hash: abcdef012345678abcdef012345678abcdef0123
+  gamepack:
+    url: http://example.com/minigameresourcepack.zip
+    hash: 012345678abcdef012345678abcdef012345678a
+  # Empty pack to reset the pack to the default one
+  emptypack:
+    url: https://github.com/Phoenix616/BungeeResourcepacks/blob/master/Empty.zip?raw=true
+    hash: 3934d29cc6f7c271afdc477f6dd6b2ea90493825
+# Name of the pack to use for resetting of the pack for servers which don't have one assigned
+empty: emptypack
+server:
+  pack: lobbypack
+  # List of packs to not replace if the user already has them
+  # If no main pack is set the first one also gets used to reset 
+  # the pack if the user has a non secondary one
+  secondary: 
+  - lobbypack
+worlds:
+  lobby:
+    pack: lobbypack
+    secondary:
+    - gamepack
+  minigame:
+    pack: gamepack
