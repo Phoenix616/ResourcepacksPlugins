@@ -70,7 +70,6 @@
     </profiles>
 
     <build>
-        <directory>../target</directory>
         <finalName>${project.name}</finalName>
         <resources>
             <resource>
