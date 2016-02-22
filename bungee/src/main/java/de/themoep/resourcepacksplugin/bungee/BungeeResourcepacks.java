@@ -299,14 +299,27 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return pm;
     }
 
+    /**
+     * Add a player's UUID to the list of players with a backend pack
+     * @param playerId The uuid of the player
+     */
     public void setBackend(UUID playerId) {
         backendPackedPlayers.put(playerId, false);
     }
 
+    /**
+     * Remove a player's UUID from the list of players with a backend pack
+     * @param playerId The uuid of the player
+     */
     public void unsetBackend(UUID playerId) {
         backendPackedPlayers.remove(playerId);
     }
 
+    /**
+     * Check if a player has a pack set by a backend server
+     * @param playerId The UUID of the player
+     * @return If the player has a backend pack
+     */
     public boolean hasBackend(UUID playerId) {
         return backendPackedPlayers.containsKey(playerId);
     }

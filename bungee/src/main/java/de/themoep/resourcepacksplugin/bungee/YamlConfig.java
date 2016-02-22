@@ -28,7 +28,7 @@ public class YamlConfig {
         this.plugin = plugin;
         
         configFile = new File(configFilePath);
-        defaultCfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
+        defaultCfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("bungee-config.yml")));
 
         if (!configFile.exists()) {
             if (!configFile.getParentFile().exists()) {

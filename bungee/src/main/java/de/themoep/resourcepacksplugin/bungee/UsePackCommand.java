@@ -2,7 +2,7 @@ package de.themoep.resourcepacksplugin.bungee;
 
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
-import de.themoep.resourcepacksplugin.core.commands.UsePackExecutor;
+import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -25,6 +25,8 @@ public class UsePackCommand extends Command {
         if(sender instanceof ProxiedPlayer) {
             s = plugin.getPlayer(((ProxiedPlayer) sender).getUniqueId());
         }
-        new UsePackExecutor(plugin).execute(s, args);
+        if(!new UsePackCommandExecutor(plugin).execute(s, args)) {
+            sender.sendMessage("Usage: /usepack <packname> [<playername>]");
+        }
     }
 }
