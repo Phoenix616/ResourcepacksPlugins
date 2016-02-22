@@ -12,12 +12,17 @@
     <modules>
         <module>core</module>
         <module>bungee</module>
+        <module>bukkit</module>
     </modules>
 
     <repositories>
         <repository>
             <id>bungee-repo</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 
