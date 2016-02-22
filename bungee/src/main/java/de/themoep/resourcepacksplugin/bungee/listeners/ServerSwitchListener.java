@@ -3,12 +3,10 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -18,68 +16,42 @@ import java.util.concurrent.TimeUnit;
 public class ServerSwitchListener implements Listener {
 
     BungeeResourcepacks plugin;
-    
+
     public ServerSwitchListener(BungeeResourcepacks plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
     public void onServerSwitch(ServerSwitchEvent event) {
-        if (plugin.isEnabled()) {
-            final UUID playerid = event.getPlayer().getUniqueId();
-            plugin.unsetBackend(playerid);
+        if(plugin.isEnabled()) {
+            final UUID playerId = event.getPlayer().getUniqueId();
+            plugin.unsetBackend(playerId);
 
-            ResourcePack pack = plugin.getPackManager().getUserPack(playerid);
+            ResourcePack pack = plugin.getPackManager().getUserPack(playerId);
             plugin.sendPackInfo(event.getPlayer(), pack);
 
             plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-                    if (!plugin.hasBackend(playerid)) {
-                        ProxiedPlayer player = plugin.getProxy().getPlayer(playerid);
-                        if (player != null) {
-                            ResourcePack prev = plugin.getPackManager().getUserPack(playerid);
-                            Server server = player.getServer();
-                            ResourcePack pack = null;
-                            if(plugin.getPackManager().isGlobalSecondary(prev)) {
-                                return;
-                            }
-                            if (server != null) {
-                                if(plugin.getPackManager().isServerSecondary(server.getInfo().getName(), prev)) {
-                                    return;
-                                }
-                                pack = plugin.getPackManager().getServerPack(server.getInfo().getName());
-                            }
-                            if (pack == null) {
-                                pack = plugin.getPackManager().getGlobalPack();
-                            }
-                            if (pack == null && prev != null) {
-                                if(server != null) {
-                                    List<String> serversecondary = plugin.getPackManager().getServerSecondary(server.getInfo().getName());
-                                    if (serversecondary.size() > 0) {
-                                        pack = plugin.getPackManager().getByName(serversecondary.get(0));
-                                    }
-                                }
-                                if(pack == null) {
-                                    List<String> globalsecondary = plugin.getPackManager().getGlobalSecondary();
-                                    if (globalsecondary.size() > 0) {
-                                        pack = plugin.getPackManager().getByName(globalsecondary.get(0));
-                                    }
-                                }
-                                if(pack == null) {
-                                    pack = plugin.getPackManager().getEmptyPack();
-                                }
-                            }
-                            if (pack != null) {
-                                if (!pack.equals(prev)) {
-                                    plugin.setPack(player, pack);
-                                }
-                            }
-                        }
-                    }
+                    calculatePack(playerId);
                 }
             }, 1L, TimeUnit.SECONDS);
+        }
+    }
+
+    private void calculatePack(UUID playerId) {
+        if(!plugin.hasBackend(playerId)) {
+            ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
+            if(player != null) {
+                String serverName = "";
+                if(player.getServer() != null) {
+                    serverName = player.getServer().getInfo().getName();
+                }
+                ResourcePack pack = plugin.getPackManager().getApplicablePack(playerId, serverName);
+                if(pack != null) {
+                    plugin.setPack(player, pack);
+                }
+            }
         }
     }
 }

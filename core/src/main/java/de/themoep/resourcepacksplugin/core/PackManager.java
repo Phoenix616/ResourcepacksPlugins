@@ -317,4 +317,49 @@ public class PackManager {
         return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
+    /**
+     * Get the pack the player should have on that server
+     * @param playerId The UUID of the player
+     * @param serverName The name of the server
+     * @return The pack for that server; <tt>null</tt> if he should have none
+     */
+    public ResourcePack getApplicablePack(UUID playerId, String serverName) {
+        ResourcePack prev = getUserPack(playerId);
+        ResourcePack pack = null;
+        if(isGlobalSecondary(prev)) {
+            return null;
+        }
+        if(serverName != null && !serverName.isEmpty()) {
+            if(isServerSecondary(serverName, prev)) {
+                return null;
+            }
+            pack = getServerPack(serverName);
+        }
+        if(pack == null) {
+            pack = getGlobalPack();
+        }
+        if(pack == null && prev != null) {
+            if(serverName != null && !serverName.isEmpty()) {
+                List<String> serversecondary = getServerSecondary(serverName);
+                if(serversecondary.size() > 0) {
+                    pack = getByName(serversecondary.get(0));
+                }
+            }
+            if(pack == null) {
+                List<String> globalsecondary = getGlobalSecondary();
+                if(globalsecondary.size() > 0) {
+                    pack = getByName(globalsecondary.get(0));
+                }
+            }
+            if(pack == null) {
+                pack = getEmptyPack();
+            }
+        }
+        if(pack != null) {
+            if(!pack.equals(prev)) {
+                return pack;
+            }
+        }
+        return null;
+    }
 }
