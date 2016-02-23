@@ -60,10 +60,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         for(String s : packs.getKeys(false)) {
             ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"));
             getPackManager().addPack(pack);
-            Permission packPerm = new Permission(getName().toLowerCase() + ".pack." + pack.getName());
-            packPerm.setDefault(PermissionDefault.OP);
-            packPerm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
-            getServer().getPluginManager().addPermission(packPerm);
+            String permName = getName().toLowerCase() + ".pack." + pack.getName();
+            if(getServer().getPluginManager().getPermission(permName) == null) {
+                Permission packPerm = new Permission(permName);
+                packPerm.setDefault(PermissionDefault.OP);
+                packPerm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
+                getServer().getPluginManager().addPermission(packPerm);
+            }
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
 
