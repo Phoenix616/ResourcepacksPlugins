@@ -11,6 +11,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -54,6 +56,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ConfigurationSection packs = getConfig().getConfigurationSection("packs");
         for(String s : packs.getKeys(false)) {
             getPackManager().addPack(new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash")));
+            Permission packPerm = new Permission(getName().toLowerCase() + ".pack." + s.toLowerCase());
+            packPerm.setDefault(PermissionDefault.OP);
+            packPerm.setDescription("Permission for access to the resourcepack " + s.toLowerCase() + " via the usepack command.");
+            getServer().getPluginManager().addPermission(packPerm);
         }
 
         String emptypackname = getConfig().getString("empty");
