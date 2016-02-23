@@ -92,7 +92,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
         List<String> globalsecondary = getConfig().getStringList("server.secondary");
-        if(globalsecondary != null) {
+        if(globalsecondary != null && globalsecondary.size() > 0) {
             getLogger().log(getLogLevel(), "Server secondary packs:");
             for(String secondarypack : globalsecondary) {
                 ResourcePack sp = getPackManager().getByName(secondarypack);
@@ -121,7 +121,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
             }
             List<String> serversecondary = servers.getStringList(s + ".secondary");
-            if(serversecondary != null) {
+            if(serversecondary != null && serversecondary.size() > 0) {
                 getLogger().log(getLogLevel(), "Secondary packs:");
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(s);

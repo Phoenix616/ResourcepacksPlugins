@@ -128,7 +128,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
         }
         List<String> globalsecondary = getConfig().getStringList("global.secondary");
-        if(globalsecondary != null) {
+        if(globalsecondary != null && globalsecondary.size() > 0) {
             getLogger().log(getLogLevel(), "Global secondary packs:");
             for(String secondarypack : globalsecondary) {
                 ResourcePack sp = getPackManager().getByName(secondarypack);
@@ -157,7 +157,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
             }
             List<String> serversecondary = servers.getStringList(s + ".secondary");
-            if(serversecondary != null) {
+            if(serversecondary != null && serversecondary.size() > 0) {
                 getLogger().log(getLogLevel(), "Secondary packs:");
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(s);
