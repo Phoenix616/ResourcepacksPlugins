@@ -29,4 +29,8 @@ public enum ChatColor {
     private ChatColor(char code) {
         this.toString = new String(new char[]{'§', code});
     }
+
+    public String toString() {
+        return toString;
+    }
 }
