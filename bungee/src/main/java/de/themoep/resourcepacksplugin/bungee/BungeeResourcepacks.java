@@ -160,7 +160,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if(serversecondary != null && serversecondary.size() > 0) {
                 getLogger().log(getLogLevel(), "Secondary packs:");
                 for(String secondarypack : serversecondary) {
-                    ResourcePack sp = getPackManager().getByName(s);
+                    ResourcePack sp = getPackManager().getByName(secondarypack);
                     if (sp != null) {
                         getPackManager().addServerSecondary(s, sp);
                         getLogger().log(getLogLevel(), sp.getName());
