@@ -1,4 +1,0 @@
-name: ${project.name}
-main: de.themoep.BungeeResourcepacks.bungee.BungeeResourcepacks
-version: '${minecraft.plugin.version}'
-author: Phoenix616

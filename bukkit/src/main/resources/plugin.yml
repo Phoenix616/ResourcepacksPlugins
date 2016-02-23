@@ -1,0 +1,32 @@
+name: ${project.name}
+main: de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks
+version: '${minecraft.plugin.version}'
+author: Phoenix616
+commands:
+   wrp:
+      aliases: [worldresourcepacks]
+      description: Command description.
+      usage: /<command> [reload [resend]|version]
+      permission: worldresourcepacks.command
+      permission-message: You don't have the permission <permission>
+   usepack:
+      description: Command description.
+      usage: /<command> <packname> [<playername>]
+      permission: worldresourcepacks.command.usepack
+      permission-message: You don't have the permission <permission>
+permissions:
+   worldresourcepacks.command:
+      description: Gives permission to use the command
+      default: op
+   worldresourcepacks.command.usepack:
+      description: Gives permission to set ones pack
+      default: op
+   worldresourcepacks.command.usepack.others:
+      description: Gives permission to set the pack of other players
+      default: op
+   worldresourcepacks.command.version:
+      description: Gives permission to see the plugin's version
+      default: op
+   worldresourcepacks.command.reload:
+      description: Gives permission to reload the plugin
+      default: op
