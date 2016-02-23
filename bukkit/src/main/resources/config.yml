@@ -23,12 +23,12 @@ server:
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
   # the pack if the user has a non secondary one
-  secondary: 
-  - lobbypack
+  #secondary:
+  #- lobbypack
 worlds:
   lobby:
     pack: lobbypack
-    secondary:
-    - gamepack
+    #secondary:
+    #- gamepack
   minigame:
     pack: gamepack

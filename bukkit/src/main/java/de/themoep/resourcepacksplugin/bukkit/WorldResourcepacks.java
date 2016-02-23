@@ -70,7 +70,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
 
-        String emptypackname = getConfig().getString("empty");
+        String emptypackname = getConfig().getString("empty", null);
         if(emptypackname != null && !emptypackname.isEmpty()) {
             ResourcePack ep = getPackManager().getByName(emptypackname);
             if(ep != null) {
@@ -81,7 +81,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
 
-        String globalpackname = getConfig().getString("server.pack");
+        String globalpackname = getConfig().getString("server.pack", null);
         if(globalpackname != null && !globalpackname.isEmpty()) {
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
@@ -108,7 +108,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ConfigurationSection servers = getConfig().getConfigurationSection("worlds");
         for(String s : servers.getKeys(false)) {
             getLogger().log(getLogLevel(), "Loading settings for world " + s + "!");
-            String packname = servers.getString(s + ".pack");
+            String packname = servers.getString(s + ".pack", null);
             if(packname != null && !packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
