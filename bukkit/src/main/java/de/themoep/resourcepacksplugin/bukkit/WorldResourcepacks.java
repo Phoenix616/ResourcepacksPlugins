@@ -46,6 +46,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     public boolean loadConfig() {
         saveDefaultConfig();
+        reloadConfig();
         getLogger().log(Level.INFO, "Loading config!");
         if(getConfig().getString("debug","true").equalsIgnoreCase("true")) {
             loglevel = Level.INFO;
