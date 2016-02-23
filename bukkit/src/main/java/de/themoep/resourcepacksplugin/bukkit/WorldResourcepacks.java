@@ -120,7 +120,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }  else {
                 getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
             }
-            List<String> serversecondary = getConfig().getStringList(s + ".secondary");
+            List<String> serversecondary = servers.getStringList(s + ".secondary");
             if(serversecondary != null) {
                 getLogger().log(getLogLevel(), "Secondary packs:");
                 for(String secondarypack : serversecondary) {
