@@ -7,8 +7,7 @@ packs:
    # Has to be a direct download link! No medifaire/mega/other oneclick-hoster!
     url: http://example.com/lobbyresourcepack.zip
    # The sha1 hash of the resourcepack's zip file, 
-   # if not correct the client will waste bandwidth but it will still work!
-   # At least that's what the Minecraft wiki says... (Site: Server.properties#Minecraft_server_properties)
+   # Not supported by bukkit so it currently does not matter what you write here!
     hash: abcdef012345678abcdef012345678abcdef0123
   gamepack:
     url: http://example.com/minigameresourcepack.zip
