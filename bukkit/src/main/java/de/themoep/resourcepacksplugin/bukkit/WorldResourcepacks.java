@@ -248,6 +248,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public boolean checkPermission(ResourcepacksPlayer packPlayer, String perm) {
+        // Console
+        if(packPlayer == null)
+            return true;
         Player player = getServer().getPlayer(packPlayer.getUniqueId());
         if(player != null) {
             return player.hasPermission(perm);
