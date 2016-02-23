@@ -110,6 +110,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(emptypackname != null && !emptypackname.isEmpty()) {
             ResourcePack ep = getPackManager().getByName(emptypackname);
             if(ep != null) {
+                getLogger().log(getLogLevel(), "Empty pack: " + ep.getName());
                 getPackManager().setEmptyPack(ep);
             } else {
                 getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
