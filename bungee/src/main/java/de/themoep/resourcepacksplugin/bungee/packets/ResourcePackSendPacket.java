@@ -31,9 +31,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
         if(hash != null) {
-            this.hash = hash.substring(0, (hash.length() > 39) ? 39 : hash.length()).toLowerCase();
+            this.hash = hash.toLowerCase();
         } else {
-            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
+            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().toLowerCase();
         }
     }
 
