@@ -118,15 +118,25 @@ public class ResourcePackSendPacket extends DefinedPacket {
             ResourcePackSendPacket other = (ResourcePackSendPacket)obj;
             String this$url = this.getUrl();
             String other$url = other.getUrl();
-            if ((this$url == null && other$url != null) || !this$url.equals(other$url)) {
+            if(this$url == null && other$url == null) {
+                return true;
+            }
+            if(this$url == null || other$url == null) {
+                return false;
+            }
+            if(!this$url.equals(other$url)) {
                 return false;
             }
             String this$hash = this.getHash();
             String other$hash = other.getHash();
-            if ((this$hash == null && other$hash != null) || !this$hash.equals(other$hash)) {
+
+            if(this$hash == null && other$hash == null) {
+                return true;
+            }
+            if(this$hash == null || other$hash == null) {
                 return false;
             }
-            return true;
+            return this$hash.equals(other$hash);
         }
         return false;
     }
