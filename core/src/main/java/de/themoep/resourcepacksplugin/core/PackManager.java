@@ -338,7 +338,7 @@ public class PackManager {
         if(pack == null) {
             pack = getGlobalPack();
         }
-        if(pack == null && prev != null) {
+        if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
             if(serverName != null && !serverName.isEmpty()) {
                 List<String> serversecondary = getServerSecondary(serverName);
                 if(serversecondary.size() > 0) {
