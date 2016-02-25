@@ -198,7 +198,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     /**
      * Get whether the plugin successful enabled or not
-     * @return
+     * @return Whether or not the plugin was enabled
      */
     public boolean isEnabled() {
         return enabled;
@@ -206,7 +206,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     /**
      * Set if the plugin is enabled or not
-     * @param enabled
+     * @param enabled Set whether or not the plugin is enabled
      */
     private void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -257,14 +257,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     /**
       * <p>Send a plugin message to the server the player is connected to!</p>
+      * <p>Channel: ForceResourcepacks</p>
+      * <p>sub-channel: packChange</p>
+      * <p>arg1: player.getName()</p>
+      * <p>arg2: pack.getName();</p>
+      * <p>arg3: pack.getUrl();</p>
+      * <p>arg4: pack.getHash();</p>
       * @param player The player to update the pack on the player's bukkit server
       * @param pack The ResourcePack to send the info of the the Bukkit server, null if you want to clear it!
-      * Channel: ForceResourcepacks<br />
-      * sub-channel: packChange<br />
-      * arg1: playername<br />
-      * arg2: pack.getName();<br />
-      * arg3: pack.getUrl();<br />
-      * arg4: pack.getHash();<br />
       */
     public void sendPackInfo(ProxiedPlayer player, ResourcePack pack) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();

@@ -14,8 +14,8 @@ public interface ResourcepacksPlugin {
     boolean loadConfig();
 
     /**
-     * Reloads the configuration from the file and
-     * resends the resource pack to all online players
+     * Reloads the configuration from the file and resend the resource pack to all online players
+     * @param resend Whether or not all players should get their applicable pack resend
      */
     void reloadConfig(boolean resend);
 
@@ -52,7 +52,7 @@ public interface ResourcepacksPlugin {
     /**
      * Get a message from the config and replace variables
      * @param key The message's key
-     * @param replacements The replacements in a mapping variable->replacement
+     * @param replacements The replacements in a mapping variable-replacement
      * @return The defined message string or an error message if the variable isn't known.
      */
     String getMessage(String key, Map<String, String> replacements);

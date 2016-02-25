@@ -20,9 +20,9 @@ public class YamlConfig {
     private Plugin plugin;
     
     /**
-     * read configuration into memory
-     * @param configFilePath
-     * @throws java.io.IOException
+     * Read configuration into memory
+     * @param configFilePath The path where the config's file should be saved in
+     * @throws java.io.IOException When it could not create or load the file
      */
     public YamlConfig(Plugin plugin, String configFilePath) throws IOException {
         this.plugin = plugin;
