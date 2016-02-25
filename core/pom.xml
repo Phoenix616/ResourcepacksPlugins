@@ -6,7 +6,7 @@
 
     <artifactId>core</artifactId>
     <packaging>jar</packaging>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.3-SNAPSHOT</version>
 
     <parent>
         <groupId>de.themoep.resourcepacksplugin</groupId>
