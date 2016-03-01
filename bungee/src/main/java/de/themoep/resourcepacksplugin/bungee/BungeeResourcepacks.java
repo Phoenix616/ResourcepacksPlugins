@@ -54,27 +54,33 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void onEnable() {
         instance = this;
-        
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
-        getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
-
         try {
-            Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[] { int.class, Class.class });
-            reg.setAccessible(true);
-            try {
+            int bungeeVersion = Protocol.supportedVersions.get(Protocol.supportedVersions.size() - 1);
+            if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, Class.class});
+                reg.setAccessible(true);
+                reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
+            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9){
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, int.class, Class.class});
+                reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
-                
-                boolean loadingSuccessful = loadConfig();
-                
-                setEnabled(loadingSuccessful);
+            } else {
+                getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
+                setEnabled(false);
+                return;
+            }
 
-                getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
-                getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }            
+            getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
+            getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
+
+            setEnabled(loadConfig());
+
+            getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
+            getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         } catch (NoSuchMethodException e) {
             getLogger().log(Level.SEVERE, "Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
