@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bukkit</artifactId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>WorldResourcepacks</name>
     <description>Plugin to set Resource Packs on server per world</description>
