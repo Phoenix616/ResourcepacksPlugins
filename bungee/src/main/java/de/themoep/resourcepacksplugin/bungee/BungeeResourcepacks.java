@@ -57,10 +57,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         try {
             int bungeeVersion = Protocol.supportedVersions.get(Protocol.supportedVersions.size() - 1);
             if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
+                getLogger().log(Level.INFO, "BungeeCord 1.8 detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, Class.class});
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
             } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9){
+                getLogger().log(Level.INFO, "BungeeCord 1.9 detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, int.class, Class.class});
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
