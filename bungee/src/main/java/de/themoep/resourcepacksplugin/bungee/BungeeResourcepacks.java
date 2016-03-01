@@ -5,6 +5,8 @@ import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket18;
+import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket19;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -61,7 +63,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[] { int.class, Class.class });
             reg.setAccessible(true);
             try {
-                reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
+                reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket18.class);
+                reg.invoke(Protocol.GAME.TO_CLIENT, 0x32, ResourcePackSendPacket19.class);
                 
                 boolean loadingSuccessful = loadConfig();
                 
@@ -245,7 +248,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
-            player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
+            ResourcePackSendPacket packet;
+            if(clientVersion == ProtocolConstants.MINECRAFT_1_8) {
+                packet = new ResourcePackSendPacket18(pack.getUrl(), pack.getHash());
+            } else {
+                packet = new ResourcePackSendPacket19(pack.getUrl(), pack.getHash());
+            }
+            player.unsafe().sendPacket(packet);
             getPackManager().setUserPack(player.getUniqueId(), pack);
             sendPackInfo(player, pack);
             getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());

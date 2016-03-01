@@ -20,7 +20,7 @@ import java.util.logging.Level;
 /**
  * Created by Phoenix616 on 24.03.2015.
  */
-public class ResourcePackSendPacket extends DefinedPacket {
+public abstract class ResourcePackSendPacket extends DefinedPacket {
 
     private String url;
     private String hash;
