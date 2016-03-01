@@ -255,13 +255,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
-                ResourcePackSendPacket packet = (ResourcePackSendPacket) Protocol.GAME.TO_CLIENT.createPacket(0x48, ProtocolConstants.MINECRAFT_1_8);
-                if(packet == null) {
-                    getLogger().log(Level.SEVERE, "ResourcePackSendPacket not registered? Please check for updates!");
-                    return;
-                }
-                packet.setHash(pack.getHash());
-                packet.setUrl(pack.getUrl());
+                ResourcePackSendPacket packet = new ResourcePackSendPacket(pack.getUrl(), pack.getHash());
                 player.unsafe().sendPacket(packet);
                 getPackManager().setUserPack(player.getUniqueId(), pack);
                 sendPackInfo(player, pack);
