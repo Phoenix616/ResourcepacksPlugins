@@ -14,6 +14,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
@@ -245,13 +246,22 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public void setPack(ProxiedPlayer player, ResourcePack pack) {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
-            player.unsafe().sendPacket(new ResourcePackSendPacket(pack.getUrl(), pack.getHash()));
-            getPackManager().setUserPack(player.getUniqueId(), pack);
-            sendPackInfo(player, pack);
-            getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+            try {
+                ResourcePackSendPacket packet = (ResourcePackSendPacket) Protocol.GAME.TO_CLIENT.createPacket(0x48, clientVersion);
+                packet.setHash(pack.getHash());
+                packet.setUrl(pack.getUrl());
+                player.unsafe().sendPacket(packet);
+                getPackManager().setUserPack(player.getUniqueId(), pack);
+                sendPackInfo(player, pack);
+                getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+            } catch(BadPacketException e) {
+                getLogger().log(Level.SEVERE, "No Packet found with that id? Please check for updates!");
+            } catch(ClassCastException e) {
+                getLogger().log(Level.SEVERE, "Packet defined was not ResourcePackSendPacket? Please check for updates!");
+            }
         } else {
             getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName() + " as he uses the unsupported protocol version " + clientVersion + "!");
-            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients below 1.8 if you want this plugin to work for everyone!");
+            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients that are not 1.8 or 1.9 if you want this plugin to work for everyone!");
         }
     }
 
