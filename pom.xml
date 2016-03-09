@@ -24,6 +24,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>minebench-repo</id>
+            <url>http://repo.minebench.de/</url>
+        </repository>
     </repositories>
 
     <build>
