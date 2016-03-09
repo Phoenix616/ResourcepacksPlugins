@@ -79,6 +79,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
+            getProxy().registerChannel("Resourcepack");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -273,7 +274,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     /**
       * <p>Send a plugin message to the server the player is connected to!</p>
-      * <p>Channel: ForceResourcepacks</p>
+      * <p>Channel: Resourcepack</p>
       * <p>sub-channel: packChange</p>
       * <p>arg1: player.getName()</p>
       * <p>arg2: pack.getName();</p>
@@ -294,7 +295,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             out.writeUTF("clearPack");
             out.writeUTF(player.getName());
         }
-        player.getServer().sendData(getDescription().getName(), out.toByteArray());
+        player.getServer().sendData("Resourcepack", out.toByteArray());
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {

@@ -22,7 +22,7 @@ public class ProxyPackListener implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(String channel, Player p, byte[] message) {
-        if(!channel.equals(plugin.getName())) {
+        if(!channel.equals("Resourcepack")) {
             return;
         }
 

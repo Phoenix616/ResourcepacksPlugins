@@ -34,8 +34,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
-            getServer().getMessenger().registerOutgoingPluginChannel(this, this.getName());
-            getServer().getMessenger().registerIncomingPluginChannel(this, this.getName(), new ProxyPackListener(this));
+            getServer().getMessenger().registerOutgoingPluginChannel(this, "Resourcepack");
+            getServer().getMessenger().registerIncomingPluginChannel(this, "Resourcepack", new ProxyPackListener(this));
 
             getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
             getCommand("usepack").setExecutor(new UsePackCommand(this));
