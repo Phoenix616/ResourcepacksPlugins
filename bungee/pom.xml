@@ -40,6 +40,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>${buildNumber}</build.number>
+        <minecraft.plugin.verseion>${project.version} ${buildDescription}</minecraft.plugin.verseion>
     </properties>
 
     <profiles>
@@ -86,26 +87,6 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9.1</version>
-                <executions>
-                    <execution>
-                        <id>regex-property</id>
-                        <goals>
-                            <goal>regex-property</goal>
-                        </goals>
-                        <configuration>
-                            <name>minecraft.plugin.version</name>
-                            <value>${project.version} ${buildDescription}</value>
-                            <regex>[0-9\.]+ \(.+\)</regex>
-                            <replacement>${project.version}</replacement>
-                            <failIfNoMatch>false</failIfNoMatch>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
