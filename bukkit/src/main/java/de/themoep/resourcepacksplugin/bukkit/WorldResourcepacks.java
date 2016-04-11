@@ -190,7 +190,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param player The ProxiedPlayer to set the pack for
      * @param pack The resourcepack to set for the player
      */
-    private void setPack(Player player, ResourcePack pack) {
+    protected void setPack(Player player, ResourcePack pack) {
         player.setResourcePack(pack.getUrl());
         getPackManager().setUserPack(player.getUniqueId(), pack);
         getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());

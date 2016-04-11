@@ -252,7 +252,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * @param player The ProxiedPlayer to set the pack for
      * @param pack The resourcepack to set for the player
      */
-    private void setPack(ProxiedPlayer player, ResourcePack pack) {
+    protected void setPack(ProxiedPlayer player, ResourcePack pack) {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
