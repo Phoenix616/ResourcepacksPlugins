@@ -51,7 +51,7 @@ public class WorldSwitchListener implements Listener {
                 }
                 ResourcePack pack = plugin.getPackManager().getApplicablePack(player.getUniqueId(), worldName);
                 if(pack != null) {
-                    plugin.setPack(player, pack);
+                    plugin.setPack(player.getUniqueId(), pack);
                 }
             }
         }

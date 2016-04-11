@@ -67,6 +67,14 @@ public class YamlConfig {
         configFile.delete();
     }
 
+    public int getInt(String path) {
+        return cfg.getInt(path);
+    }
+
+    public int getInt(String path, int def) {
+        return cfg.getInt(path, def);
+    }
+
     public String getString(String path) {
         return cfg.getString(path);
     }
