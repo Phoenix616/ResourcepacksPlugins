@@ -79,7 +79,7 @@ public interface ResourcepacksPlugin {
 
     /**
      * Send a message to a player
-     * @param player The UUID of the player
+     * @param player The the player
      * @param message The message to send
      * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
      */

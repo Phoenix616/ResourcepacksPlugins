@@ -41,7 +41,8 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                             plugin.sendMessage(sender, args[1] + " now uses the pack '" + pack.getName() + "'!");
                         }
                         plugin.sendMessage(player, ChatColor.GREEN + plugin.getMessage("usepack", ImmutableMap.of("pack", pack.getName())));
-                        plugin.getLogger().log(plugin.getLogLevel(), sender.getName() + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
+                        String senderName = sender != null ? sender.getName() : "CONSOLE";
+                        plugin.getLogger().log(plugin.getLogLevel(), senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                     } else {
                         plugin.sendMessage(sender, ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
                     }
