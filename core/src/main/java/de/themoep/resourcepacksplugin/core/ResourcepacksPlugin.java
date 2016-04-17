@@ -85,5 +85,26 @@ public interface ResourcepacksPlugin {
      */
     boolean sendMessage(ResourcepacksPlayer player, String message);
 
+    /**
+     * Check whether or not a player has a permission
+     * @param resourcepacksPlayer
+     * @param perm
+     * @return
+     */
     boolean checkPermission(ResourcepacksPlayer resourcepacksPlayer, String perm);
+
+    /**
+     * Check whether or not a player has a permission
+     * @param playerId
+     * @param perm
+     * @return
+     */
+    boolean checkPermission(UUID playerId, String perm);
+
+    /**
+     * Get the format of the pack this player can maximally use
+     * @param playerId The UUID of the player
+     * @return The pack format, <tt>0</tt> if he can't use any, <tt>MAX_INT</tt> when he can use all
+     */
+    int getPlayerPackFormat(UUID playerId);
 }

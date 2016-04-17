@@ -9,6 +9,13 @@ packs:
    # The sha1 hash of the resourcepack's zip file, 
    # Not supported by bukkit so it currently does not matter what you write here!
     hash: abcdef012345678abcdef012345678abcdef0123
+   # The format version of this resourcepack
+   # 1 is for 1.8 packs
+   # 2 is for 1.9
+    format: 1
+   # Whether or not this pack will only be send to players with a certain permission
+   # permission: worldresourcepacks.pack.<packname>
+    restricted: false
   gamepack:
     url: http://example.com/minigameresourcepack.zip
     hash: 012345678abcdef012345678abcdef012345678a
@@ -23,6 +30,8 @@ server:
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
   # the pack if the user has a non secondary one
+  # Also this list will be used to select a pack if a user does not have the permission
+  # or the right version to use that pack. (From top to bottom)
   #secondary:
   #- lobbypack
 worlds:

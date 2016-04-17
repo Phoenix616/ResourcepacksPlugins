@@ -2,6 +2,7 @@ name: ${project.name}
 main: de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks
 version: '${minecraft.plugin.version}'
 author: Phoenix616
+soft-depend: [ViaVersion]
 commands:
    wrp:
       aliases: [worldresourcepacks]

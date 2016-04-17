@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PackManager {
 
+    private final ResourcepacksPlugin plugin;
     /**
      * packname -> ResourcePack
      */
@@ -56,6 +57,10 @@ public class PackManager {
      * servername -> List of the names of secondary packs
      */
     private Map<String, List<String>> serversecondarymap = new HashMap<String, List<String>>();
+
+    public PackManager(ResourcepacksPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     /**
      * Registeres a new resource pack with the packmanager
@@ -317,6 +322,13 @@ public class PackManager {
         return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
+    public void applyPack(UUID playerId, String serverName) {
+        ResourcePack pack = getApplicablePack(playerId, serverName);
+        if(pack != null) {
+            plugin.setPack(playerId, pack);
+        }
+    }
+
     /**
      * Get the pack the player should have on that server
      * @param playerId The UUID of the player
@@ -334,26 +346,34 @@ public class PackManager {
                 return null;
             }
             pack = getServerPack(serverName);
+            List<String> serverSecondary = getServerSecondary(serverName);
+            for(String secondaryPack : serverSecondary) {
+                if(pack != null) {
+                    boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
+                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, plugin.getName().toLowerCase() + ".pack." + pack.getName());
+                    if(rightFormat && hasPermission) {
+                        break;
+                    }
+                }
+                pack = getByName(secondaryPack);
+            }
         }
         if(pack == null) {
             pack = getGlobalPack();
+            List<String> globalSecondary = getGlobalSecondary();
+            for(String secondaryPack : globalSecondary) {
+                if(pack != null) {
+                    boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
+                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, plugin.getName().toLowerCase() + ".pack." + pack.getName());
+                    if(rightFormat && hasPermission) {
+                        break;
+                    }
+                }
+                pack = getByName(secondaryPack);
+            }
         }
         if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
-            if(serverName != null && !serverName.isEmpty()) {
-                List<String> serversecondary = getServerSecondary(serverName);
-                if(serversecondary.size() > 0) {
-                    pack = getByName(serversecondary.get(0));
-                }
-            }
-            if(pack == null) {
-                List<String> globalsecondary = getGlobalSecondary();
-                if(globalsecondary.size() > 0) {
-                    pack = getByName(globalsecondary.get(0));
-                }
-            }
-            if(pack == null) {
-                pack = getEmptyPack();
-            }
+            pack = getEmptyPack();
         }
         if(pack != null) {
             if(!pack.equals(prev)) {

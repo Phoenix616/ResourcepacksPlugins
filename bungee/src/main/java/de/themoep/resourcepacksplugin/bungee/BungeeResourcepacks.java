@@ -107,11 +107,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
         
-        pm = new PackManager();
+        pm = new PackManager(this);
         Configuration packs = getConfig().getSection("packs");
         getLogger().log(getLogLevel(), "Loading packs:");
         for(String s : packs.getKeys()) {
-            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"));
+            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"), packs.getInt("format", 0), packs.getBoolean("restricted", false));
             getPackManager().addPack(pack);
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
@@ -227,17 +227,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * @param player The player to set the pack for
      */
     public void resendPack(ProxiedPlayer player) {
-        ResourcePack pack = null;
-        Server server = player.getServer();
-        if(server != null) {
-            pack = getPackManager().getServerPack(server.getInfo().getName());
+        String serverName = "";
+        if(player.getServer() != null) {
+            serverName = player.getServer().getInfo().getName();
         }
-        if (pack == null) {
-            pack = getPackManager().getGlobalPack();
-        }
-        if (pack != null) {
-            setPack(player.getUniqueId(), pack);
-        }
+        getPackManager().applyPack(player.getUniqueId(), serverName);
     }
 
     public void resendPack(UUID playerId) {
@@ -405,15 +399,37 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public boolean checkPermission(ResourcepacksPlayer player, String perm) {
+     public boolean checkPermission(ResourcepacksPlayer player, String perm) {
         // Console
         if(player == null)
             return true;
-        ProxiedPlayer proxiedPlayer = getProxy().getPlayer(player.getUniqueId());
+        return checkPermission(player.getUniqueId(), perm);
+
+    }
+
+    @Override
+    public boolean checkPermission(UUID playerId, String perm) {
+        ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
         if(proxiedPlayer != null) {
             return proxiedPlayer.hasPermission(perm);
         }
         return false;
 
+    }
+
+    @Override
+    public int getPlayerPackFormat(UUID playerId) {
+        ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
+        if(proxiedPlayer != null) {
+            int version = proxiedPlayer.getPendingConnection().getVersion();
+            if(version < 47) { // pre 1.8
+                return 0;
+            } else if(version < 107) { // pre 1.9
+                return 1;
+            } else { // current
+                return 2;
+            }
+        }
+        return 0;
     }
 }

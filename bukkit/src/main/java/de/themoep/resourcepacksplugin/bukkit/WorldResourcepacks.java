@@ -8,12 +8,12 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import us.myles.ViaVersion.api.ViaVersionAPI;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     public Level loglevel;
 
+    private int serverPackFormat = Integer.MAX_VALUE;
+
+    private ViaVersionAPI viaVersion;
+
     public void onEnable() {
         if(loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
@@ -39,6 +43,25 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
             getCommand("usepack").setExecutor(new UsePackCommand(this));
+
+            try {
+                int serverVersion = Integer.valueOf(getServer().getVersion().split(".")[1]);
+                if(serverVersion < 8) {
+                    serverPackFormat = 0;
+                } else if(serverVersion < 9) {
+                    serverPackFormat = 1;
+                } else {
+                    serverPackFormat = 2;
+                }
+                getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
+            } catch(NumberFormatException e) {
+                getLogger().log(Level.WARNING, "Could not get version of the server! (" + getServer().getVersion() + "/" + getServer().getVersion().split(".")[1] + ")");
+            }
+
+            viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
+            if(viaVersion != null) {
+                getLogger().log(Level.INFO, "Detected ViaVersion " + viaVersion.getVersion());
+            }
         } else {
             getServer().getPluginManager().disablePlugin(this);
         }
@@ -55,11 +78,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
-        pm = new PackManager();
+        pm = new PackManager(this);
         ConfigurationSection packs = getConfig().getConfigurationSection("packs");
         getLogger().log(getLogLevel(), "Loading packs:");
         for(String s : packs.getKeys(false)) {
-            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"));
+            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"), packs.getInt("format", 0), packs.getBoolean("restricted", false));
             getPackManager().addPack(pack);
             String permName = getName().toLowerCase() + ".pack." + pack.getName();
             if(getServer().getPluginManager().getPermission(permName) == null) {
@@ -165,17 +188,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param player The player to set the pack for
      */
     public void resendPack(Player player) {
-        ResourcePack pack = null;
-        World world = player.getWorld();
-        if(world != null) {
-            pack = getPackManager().getServerPack(world.getName());
+        String worldName = "";
+        if(player.getWorld() != null) {
+            worldName = player.getWorld().getName();
         }
-        if (pack == null) {
-            pack = getPackManager().getGlobalPack();
-        }
-        if (pack != null) {
-            setPack(player, pack);
-        }
+        getPackManager().applyPack(player.getUniqueId(), worldName);
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {
@@ -269,16 +286,39 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return false;
     }
 
+
+
     @Override
-    public boolean checkPermission(ResourcepacksPlayer packPlayer, String perm) {
+    public boolean checkPermission(ResourcepacksPlayer player, String perm) {
         // Console
-        if(packPlayer == null)
+        if(player == null)
             return true;
-        Player player = getServer().getPlayer(packPlayer.getUniqueId());
+        return checkPermission(player.getUniqueId(), perm);
+
+    }
+
+    @Override
+    public boolean checkPermission(UUID playerId, String perm) {
+        Player player = getServer().getPlayer(playerId);
         if(player != null) {
             return player.hasPermission(perm);
         }
         return false;
 
+    }
+
+    @Override
+    public int getPlayerPackFormat(UUID playerId) {
+        if(viaVersion != null) {
+            int version = viaVersion.getPlayerVersion(playerId);
+            if(version < 47) { // pre 1.8
+                return 0;
+            } else if(version < 107) { // pre 1.9
+                return 1;
+            } else { // current
+                return 2;
+            }
+        }
+        return serverPackFormat;
     }
 }

@@ -47,10 +47,7 @@ public class ServerSwitchListener implements Listener {
                 if(player.getServer() != null) {
                     serverName = player.getServer().getInfo().getName();
                 }
-                ResourcePack pack = plugin.getPackManager().getApplicablePack(playerId, serverName);
-                if(pack != null) {
-                    plugin.setPack(player.getUniqueId(), pack);
-                }
+                plugin.getPackManager().applyPack(playerId, serverName);
             }
         }
     }

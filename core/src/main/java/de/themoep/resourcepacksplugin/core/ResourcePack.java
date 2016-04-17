@@ -13,6 +13,8 @@ public class ResourcePack {
     private String name;
     private String url;
     private String hash;
+    private int format;
+    private boolean restricted;
     private List<String> servers = new ArrayList<String>();
 
     /**
@@ -22,6 +24,40 @@ public class ResourcePack {
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      */
     public ResourcePack(String name, String url, String hash) {
+        this(name, url, hash, 0);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta
+     */
+    public ResourcePack(String name, String url, String hash, int format) {
+        this(name, url, hash, format, false);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     */
+    public ResourcePack(String name, String url, String hash, boolean restricted) {
+        this(name, url, hash, 0, restricted);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     */
+    public ResourcePack(String name, String url, String hash, int format, boolean restricted) {
         this.name = name;
         this.url = url;
         if(hash != null && hash.length() == 40) {
@@ -29,6 +65,8 @@ public class ResourcePack {
         } else {
             this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
         }
+        this.format = format;
+        this.restricted = restricted;
     }
     
     /**
@@ -53,6 +91,22 @@ public class ResourcePack {
      */
     public String getHash() {
         return hash;
+    }
+
+    /**
+     * Get the pack_format version
+     * @return The pack version as an int
+     */
+    public int getFormat() {
+        return format;
+    }
+
+    /**
+     * Whether or not this pack is restricted and a permission should be used
+     * @return <tt>true</tt> if one needs the permission, <tt>false</tt> if not
+     */
+    public boolean isRestricted() {
+        return restricted;
     }
 
     /**
