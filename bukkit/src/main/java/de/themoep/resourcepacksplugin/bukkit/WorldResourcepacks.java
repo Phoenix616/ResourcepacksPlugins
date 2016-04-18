@@ -1,5 +1,7 @@
 package de.themoep.resourcepacksplugin.bukkit;
 
+import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
@@ -7,6 +9,7 @@ import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -176,7 +179,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     }
 
-    public void resendPack(UUID playerId) {
+    public void resendPack(java.util.UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             resendPack(player);
@@ -195,7 +198,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getPackManager().applyPack(player.getUniqueId(), worldName);
     }
 
-    public void setPack(UUID playerId, ResourcePack pack) {
+    public void setPack(java.util.UUID playerId, ResourcePack pack) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             setPack(player, pack);
@@ -208,12 +211,19 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param pack The resourcepack to set for the player
      */
     protected void setPack(Player player, ResourcePack pack) {
+        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(player.getUniqueId(), pack);
+        getServer().getPluginManager().callEvent(sendEvent);
+        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
+            getLogger().log(loglevel, "Pack send event for " + player.getName() + " was cancelled!");
+            return;
+        }
+        pack = sendEvent.getPack();
         player.setResourcePack(pack.getUrl());
         getPackManager().setUserPack(player.getUniqueId(), pack);
         getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
-    public void clearPack(UUID playerId) {
+    public void clearPack(java.util.UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             clearPack(player);
@@ -320,5 +330,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
         return serverPackFormat;
+    }
+
+    @Override
+    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
+        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
+        getServer().getPluginManager().callEvent(selectEvent);
+        return selectEvent;
     }
 }

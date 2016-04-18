@@ -1,6 +1,8 @@
 package de.themoep.resourcepacksplugin.core;
 
 
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -107,4 +109,13 @@ public interface ResourcepacksPlugin {
      * @return The pack format, <tt>0</tt> if he can't use any, <tt>MAX_INT</tt> when he can use all
      */
     int getPlayerPackFormat(UUID playerId);
+
+    /**
+     * Call the ResourcePackSelectEvent on the corresponding server
+     * @param playerId The UUID of the player
+     * @param pack The ResourcePack that was selected or null if none was selected
+     * @param status The status of the selection
+     * @return The ResourcePackSelectEvent interface which might have been modified (especially the pack)
+     */
+    IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status);
 }

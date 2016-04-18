@@ -1,5 +1,7 @@
 package de.themoep.resourcepacksplugin.core;
 
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -338,6 +340,7 @@ public class PackManager {
     public ResourcePack getApplicablePack(UUID playerId, String serverName) {
         ResourcePack prev = getUserPack(playerId);
         ResourcePack pack = null;
+        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(isGlobalSecondary(prev)) {
             return null;
         }
@@ -353,6 +356,22 @@ public class PackManager {
                     boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, plugin.getName().toLowerCase() + ".pack." + pack.getName());
                     if(rightFormat && hasPermission) {
                         break;
+                    }
+                    if(status != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
+                        if(!rightFormat) {
+                            if(!hasPermission || status == IResourcePackSelectEvent.Status.NO_PERMISSION) {
+                                status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                            } else {
+                                status = IResourcePackSelectEvent.Status.WRONG_VERSION;
+                            }
+                        }
+                        if(!hasPermission) {
+                            if(!rightFormat || status == IResourcePackSelectEvent.Status.WRONG_VERSION) {
+                                status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                            } else {
+                                status = IResourcePackSelectEvent.Status.NO_PERMISSION;
+                            }
+                        }
                     }
                 }
                 pack = getByName(secondaryPack);
@@ -372,14 +391,19 @@ public class PackManager {
                 pack = getByName(secondaryPack);
             }
         }
+
+        if(pack != null) {
+            status = IResourcePackSelectEvent.Status.SUCCESS;
+        }
+
+        IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, pack, status);
+        pack = selectEvent.getPack();
         if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
             pack = getEmptyPack();
         }
-        if(pack != null) {
-            if(!pack.equals(prev)) {
-                return pack;
-            }
+        if(pack != null && pack.equals(prev)) {
+            pack = null;
         }
-        return null;
+        return pack;
     }
 }

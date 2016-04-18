@@ -2,6 +2,8 @@ package de.themoep.resourcepacksplugin.bungee;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
@@ -9,9 +11,9 @@ import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.BadPacketException;
@@ -247,6 +249,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * @param pack The resourcepack to set for the player
      */
     protected void setPack(ProxiedPlayer player, ResourcePack pack) {
+        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(player.getUniqueId(), pack);
+        getProxy().getPluginManager().callEvent(sendEvent);
+        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
+            getLogger().log(loglevel, "Pack send event for " + player.getName() + " was cancelled!");
+            return;
+        }
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
@@ -292,7 +300,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         player.getServer().sendData("Resourcepack", out.toByteArray());
     }
 
-    public void setPack(UUID playerId, ResourcePack pack) {
+    public void setPack(java.util.UUID playerId, ResourcePack pack) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if(player != null) {
             setPack(player, pack);
@@ -303,7 +311,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         clearPack(player.getUniqueId());
     }
 
-    public void clearPack(UUID playerId) {
+    public void clearPack(java.util.UUID playerId) {
         getPackManager().clearUserPack(playerId);
     }
 
@@ -315,7 +323,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Add a player's UUID to the list of players with a backend pack
      * @param playerId The uuid of the player
      */
-    public void setBackend(UUID playerId) {
+    public void setBackend(java.util.UUID playerId) {
         backendPackedPlayers.put(playerId, false);
     }
 
@@ -323,7 +331,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Remove a player's UUID from the list of players with a backend pack
      * @param playerId The uuid of the player
      */
-    public void unsetBackend(UUID playerId) {
+    public void unsetBackend(java.util.UUID playerId) {
         backendPackedPlayers.remove(playerId);
     }
 
@@ -332,7 +340,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * @param playerId The UUID of the player
      * @return If the player has a backend pack
      */
-    public boolean hasBackend(UUID playerId) {
+    public boolean hasBackend(java.util.UUID playerId) {
         return backendPackedPlayers.containsKey(playerId);
     }
 
@@ -367,7 +375,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public ResourcepacksPlayer getPlayer(UUID playerId) {
+    public ResourcepacksPlayer getPlayer(java.util.UUID playerId) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if(player != null) {
             return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
@@ -431,5 +439,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
         }
         return 0;
+    }
+
+    @Override
+    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
+        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
+        getProxy().getPluginManager().callEvent(selectEvent);
+        return selectEvent;
     }
 }
