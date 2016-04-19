@@ -21,6 +21,7 @@ public class YamlConfig {
     
     /**
      * Read configuration into memory
+     * @param plugin The plugin this yaml config is for
      * @param configFilePath The path where the config's file should be saved in
      * @throws java.io.IOException When it could not create or load the file
      */

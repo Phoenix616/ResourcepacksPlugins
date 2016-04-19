@@ -89,17 +89,17 @@ public interface ResourcepacksPlugin {
 
     /**
      * Check whether or not a player has a permission
-     * @param resourcepacksPlayer
-     * @param perm
-     * @return
+     * @param resourcepacksPlayer The player to check
+     * @param perm The permission to check for
+     * @return <tt>true</tt> if the player has the permission; <tt>false</tt> if not
      */
     boolean checkPermission(ResourcepacksPlayer resourcepacksPlayer, String perm);
 
     /**
      * Check whether or not a player has a permission
-     * @param playerId
-     * @param perm
-     * @return
+     * @param playerId The UUID of the player
+     * @param perm The permission to check for
+     * @return <tt>true</tt> if the player has the permission; <tt>false</tt> if not
      */
     boolean checkPermission(UUID playerId, String perm);
 
