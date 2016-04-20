@@ -20,7 +20,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
         if (args.length > 0) {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
-                if (plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".pack." + pack.getName().toLowerCase())) {
+                if (plugin.checkPermission(sender, pack.getPermission())) {
                     ResourcepacksPlayer player = null;
                     if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
                         player = plugin.getPlayer(args[1]);
@@ -47,7 +47,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         plugin.sendMessage(sender, ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
                     }
                 } else {
-                    plugin.sendMessage(sender, ChatColor.RED + "You don't have the permission to set the pack '" + pack.getName() + "'!");
+                    plugin.sendMessage(sender, ChatColor.RED + "You don't have the permission " + pack.getPermission() + " to set the pack '" + pack.getName() + "'!");
                 }
             } else {
                 plugin.sendMessage(sender, ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");

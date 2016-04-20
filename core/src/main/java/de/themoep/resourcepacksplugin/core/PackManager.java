@@ -353,7 +353,7 @@ public class PackManager {
             for(String secondaryPack : serverSecondary) {
                 if(pack != null) {
                     boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
-                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, plugin.getName().toLowerCase() + ".pack." + pack.getName());
+                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
                     if(rightFormat && hasPermission) {
                         break;
                     }
@@ -383,7 +383,7 @@ public class PackManager {
             for(String secondaryPack : globalSecondary) {
                 if(pack != null) {
                     boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
-                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, plugin.getName().toLowerCase() + ".pack." + pack.getName());
+                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
                     if(rightFormat && hasPermission) {
                         break;
                     }

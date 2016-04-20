@@ -113,7 +113,21 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         Configuration packs = getConfig().getSection("packs");
         getLogger().log(getLogLevel(), "Loading packs:");
         for(String s : packs.getKeys()) {
-            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"), packs.getInt("format", 0), packs.getBoolean("restricted", false));
+            Configuration packSection = packs.getSection(s);
+
+            String packName = s.toLowerCase();
+            String packUrl = packSection.getString("url", "");
+            if(packUrl.isEmpty()) {
+                getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
+                continue;
+            }
+            String packHash =  packSection.getString("hash", "");
+            int packFormat = packSection.getInt("format", 0);
+            boolean packRestricted = packSection.getBoolean("restricted", false);
+            String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
+
+            ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
             getPackManager().addPack(pack);
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }

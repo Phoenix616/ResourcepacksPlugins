@@ -85,14 +85,28 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ConfigurationSection packs = getConfig().getConfigurationSection("packs");
         getLogger().log(getLogLevel(), "Loading packs:");
         for(String s : packs.getKeys(false)) {
-            ResourcePack pack = new ResourcePack(s.toLowerCase(), packs.getString(s + ".url"), packs.getString(s + ".hash"), packs.getInt("format", 0), packs.getBoolean("restricted", false));
+            ConfigurationSection packSection = packs.getConfigurationSection(s);
+
+            String packName = s.toLowerCase();
+            String packUrl = packSection.getString("url", "");
+            if(packUrl.isEmpty()) {
+                getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
+                continue;
+            }
+            String packHash =  packSection.getString("hash", "");
+            int packFormat = packSection.getInt("format", 0);
+            boolean packRestricted = packSection.getBoolean("restricted", false);
+            String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
+
+            ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
             getPackManager().addPack(pack);
-            String permName = getName().toLowerCase() + ".pack." + pack.getName();
-            if(getServer().getPluginManager().getPermission(permName) == null) {
-                Permission packPerm = new Permission(permName);
-                packPerm.setDefault(PermissionDefault.OP);
-                packPerm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
-                getServer().getPluginManager().addPermission(packPerm);
+
+            if(getServer().getPluginManager().getPermission(packPerm) == null) {
+                Permission perm = new Permission(packPerm);
+                perm.setDefault(PermissionDefault.OP);
+                perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
+                getServer().getPluginManager().addPermission(perm);
             }
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
@@ -108,8 +122,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
 
-        String globalpackname = getConfig().getString("server.pack", null);
-        if(globalpackname != null && !globalpackname.isEmpty()) {
+        String globalpackname = getConfig().getString("server.pack", "");
+        if(!globalpackname.isEmpty()) {
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
                 getLogger().log(getLogLevel(), "Server pack: " + gp.getName() + "!");
@@ -135,8 +149,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ConfigurationSection servers = getConfig().getConfigurationSection("worlds");
         for(String s : servers.getKeys(false)) {
             getLogger().log(getLogLevel(), "Loading settings for world " + s + "!");
-            String packname = servers.getString(s + ".pack", null);
-            if(packname != null && !packname.isEmpty()) {
+            String packname = servers.getString(s + ".pack", "");
+            if(!packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
                     getPackManager().addServer(s, sp);

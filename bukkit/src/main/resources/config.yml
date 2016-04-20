@@ -16,6 +16,9 @@ packs:
    # Whether or not this pack will only be send to players with a certain permission
    # permission: worldresourcepacks.pack.<packname>
     restricted: false
+   # If you want you can define a specific permission for this pack if you don't want
+   # the default worldresourcepacks.pack.<packname> permission!
+    permission: worldresourcepacks.pack.lobbypack
   gamepack:
     url: http://example.com/minigameresourcepack.zip
     hash: 012345678abcdef012345678abcdef012345678a
