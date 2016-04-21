@@ -393,8 +393,7 @@ public class PackManager {
         return pack;
     }
 
-    private IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status oldStatus) {
-        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
+    private IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
         if(pack == null) {
             return status;
         }
@@ -403,16 +402,16 @@ public class PackManager {
         if(rightFormat && hasPermission) {
             return IResourcePackSelectEvent.Status.SUCCESS;
         }
-        if(oldStatus != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
+        if(status != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
             if(!rightFormat) {
-                if(!hasPermission || oldStatus == IResourcePackSelectEvent.Status.NO_PERMISSION) {
+                if(!hasPermission || status == IResourcePackSelectEvent.Status.NO_PERMISSION) {
                     status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
                 } else {
                     status = IResourcePackSelectEvent.Status.WRONG_VERSION;
                 }
             }
             if(!hasPermission) {
-                if(!rightFormat || oldStatus == IResourcePackSelectEvent.Status.WRONG_VERSION) {
+                if(!rightFormat || status == IResourcePackSelectEvent.Status.WRONG_VERSION) {
                     status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
                 } else {
                     status = IResourcePackSelectEvent.Status.NO_PERMISSION;
