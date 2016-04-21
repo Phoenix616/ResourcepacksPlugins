@@ -348,47 +348,33 @@ public class PackManager {
             if(isServerSecondary(serverName, prev)) {
                 return null;
             }
-            pack = getServerPack(serverName);
+            ResourcePack serverPack = getServerPack(serverName);
+            status = checkPack(playerId, serverPack, status);
+            if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                pack = serverPack;
+            }
             List<String> serverSecondary = getServerSecondary(serverName);
-            for(String secondaryPack : serverSecondary) {
-                if(pack != null) {
-                    boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
-                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
-                    if(rightFormat && hasPermission) {
-                        break;
-                    }
-                    if(status != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
-                        if(!rightFormat) {
-                            if(!hasPermission || status == IResourcePackSelectEvent.Status.NO_PERMISSION) {
-                                status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
-                            } else {
-                                status = IResourcePackSelectEvent.Status.WRONG_VERSION;
-                            }
-                        }
-                        if(!hasPermission) {
-                            if(!rightFormat || status == IResourcePackSelectEvent.Status.WRONG_VERSION) {
-                                status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
-                            } else {
-                                status = IResourcePackSelectEvent.Status.NO_PERMISSION;
-                            }
-                        }
-                    }
+            for(String secondaryName : serverSecondary) {
+                ResourcePack secondaryPack = getByName(secondaryName);
+                status = checkPack(playerId, secondaryPack, status);
+                if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                    pack = secondaryPack;
                 }
-                pack = getByName(secondaryPack);
             }
         }
         if(pack == null) {
-            pack = getGlobalPack();
+            ResourcePack globalPack = getGlobalPack();
+            status = checkPack(playerId, globalPack, status);
+            if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                pack = globalPack;
+            }
             List<String> globalSecondary = getGlobalSecondary();
-            for(String secondaryPack : globalSecondary) {
-                if(pack != null) {
-                    boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
-                    boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
-                    if(rightFormat && hasPermission) {
-                        break;
-                    }
+            for(String secondaryName : globalSecondary) {
+                ResourcePack secondaryPack = getByName(secondaryName);
+                status = checkPack(playerId, secondaryPack, status);
+                if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                    pack = secondaryPack;
                 }
-                pack = getByName(secondaryPack);
             }
         }
 
@@ -405,5 +391,34 @@ public class PackManager {
             pack = null;
         }
         return pack;
+    }
+
+    private IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status oldStatus) {
+        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
+        if(pack == null) {
+            return status;
+        }
+        boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
+        boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
+        if(rightFormat && hasPermission) {
+            return IResourcePackSelectEvent.Status.SUCCESS;
+        }
+        if(oldStatus != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
+            if(!rightFormat) {
+                if(!hasPermission || oldStatus == IResourcePackSelectEvent.Status.NO_PERMISSION) {
+                    status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                } else {
+                    status = IResourcePackSelectEvent.Status.WRONG_VERSION;
+                }
+            }
+            if(!hasPermission) {
+                if(!rightFormat || oldStatus == IResourcePackSelectEvent.Status.WRONG_VERSION) {
+                    status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                } else {
+                    status = IResourcePackSelectEvent.Status.NO_PERMISSION;
+                }
+            }
+        }
+        return status;
     }
 }
