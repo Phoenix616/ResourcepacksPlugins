@@ -7,6 +7,9 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Phoenix616 on 03.02.2016.
  */
@@ -52,8 +55,25 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             } else {
                 plugin.sendMessage(sender, ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");
             }
-            return true;
+        } else {
+            plugin.sendMessage(sender, ChatColor.GREEN + plugin.getMessage("packlisthead"));
+            List<ResourcePack> packs = plugin.getPackManager().getPacks();
+            if(packs.size() > 0) {
+                List<String> applicablePacks = new ArrayList<String>();
+                for(ResourcePack pack : packs) {
+                    if(pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
+                        applicablePacks.add(pack.getName());
+                    }
+                }
+                if(applicablePacks.size() > 0) {
+                    for(String packName : applicablePacks) {
+                        plugin.sendMessage(sender, ChatColor.YELLOW + " " + packName);
+                    }
+                    return false;
+                }
+            }
+            plugin.sendMessage(sender, ChatColor.RED + " " + plugin.getMessage("nopacks"));
         }
-        return false;
+        return true;
     }
 }

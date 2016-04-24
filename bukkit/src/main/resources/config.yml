@@ -1,6 +1,8 @@
 debug: true
 messages:
   usepack: You now use the pack %pack%!
+  packlisthead: "Packs available to you:"
+  nopacks: No packs found!
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.

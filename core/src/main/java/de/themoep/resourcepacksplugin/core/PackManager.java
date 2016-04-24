@@ -420,4 +420,12 @@ public class PackManager {
         }
         return status;
     }
+
+    /**
+     * Get a list of all packs
+     * @return A new array list of packs
+     */
+    public List<ResourcePack> getPacks() {
+        return new ArrayList<ResourcePack>(packmap.values());
+    }
 }
