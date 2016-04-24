@@ -59,15 +59,25 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             plugin.sendMessage(sender, ChatColor.GREEN + plugin.getMessage("packlisthead"));
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if(packs.size() > 0) {
-                List<String> applicablePacks = new ArrayList<String>();
+                ResourcePack userPack = plugin.getPackManager().getUserPack(sender.getUniqueId());
+                List<ResourcePack> applicablePacks = new ArrayList<ResourcePack>();
                 for(ResourcePack pack : packs) {
                     if(pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
-                        applicablePacks.add(pack.getName());
+                        applicablePacks.add(pack);
                     }
                 }
                 if(applicablePacks.size() > 0) {
-                    for(String packName : applicablePacks) {
-                        plugin.sendMessage(sender, ChatColor.YELLOW + " " + packName);
+                    for(ResourcePack pack : applicablePacks) {
+                        String msg = pack.getName();
+                        if(userPack != null && userPack.equals(pack)) {
+                            msg = ">" + msg;
+                        } else {
+                            msg = " " + msg;
+                        }
+                        if(pack.getFormat() > 0) {
+                            msg += ChatColor.GRAY + " (Format: " + pack.getFormat() + ")";
+                        }
+                        plugin.sendMessage(sender, ChatColor.YELLOW + msg);
                     }
                     return false;
                 }
