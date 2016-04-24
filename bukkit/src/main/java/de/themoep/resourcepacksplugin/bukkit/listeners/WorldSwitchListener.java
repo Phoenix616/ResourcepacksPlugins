@@ -1,7 +1,6 @@
 package de.themoep.resourcepacksplugin.bukkit.listeners;
 
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
-import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,7 +41,7 @@ public class WorldSwitchListener implements Listener {
     }
 
     private void calculatePack(UUID playerId) {
-        if(plugin.isEnabled()) {
+        if(plugin.isEnabled() && plugin.isAuthenticated(playerId)) {
             Player player = plugin.getServer().getPlayer(playerId);
             if(player != null) {
                 String worldName = "";

@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
@@ -24,8 +25,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -48,6 +51,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * This is needed so that the server does not send the bungee pack if the user has a backend one.
      */
     private Map<UUID, Boolean> backendPackedPlayers = new ConcurrentHashMap<UUID, Boolean>();
+
+    /**
+     * Set of uuids of players which were authenticated by a backend server's plugin
+     */
+    private Set<UUID> authenticatedPlayers;
 
     /**
      * Wether the plugin is enabled or not
@@ -81,6 +89,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
+            getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
             getProxy().registerChannel("Resourcepack");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -460,5 +469,28 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
         getProxy().getPluginManager().callEvent(selectEvent);
         return selectEvent;
+    }
+
+    @Override
+    public boolean isAuthenticated(UUID playerId) {
+        return authenticatedPlayers == null || authenticatedPlayers.contains(playerId);
+    }
+
+    public void useAuth(boolean b) {
+        if(b && getConfig().getBoolean("useauthme", true)) {
+            authenticatedPlayers = new HashSet<UUID>();
+        } else {
+            authenticatedPlayers = null;
+        }
+    }
+
+    public void setAuthenticated(UUID playerId, boolean b) {
+        if(authenticatedPlayers != null) {
+            if(b) {
+                authenticatedPlayers.add(playerId);
+            } else {
+                authenticatedPlayers.remove(playerId);
+            }
+        }
     }
 }

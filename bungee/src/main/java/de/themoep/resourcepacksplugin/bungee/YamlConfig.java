@@ -68,6 +68,14 @@ public class YamlConfig {
         configFile.delete();
     }
 
+    public boolean getBoolean(String path) {
+        return cfg.getBoolean(path);
+    }
+
+    public boolean getBoolean(String path, boolean def) {
+        return cfg.getBoolean(path, def);
+    }
+
     public int getInt(String path) {
         return cfg.getInt(path);
     }

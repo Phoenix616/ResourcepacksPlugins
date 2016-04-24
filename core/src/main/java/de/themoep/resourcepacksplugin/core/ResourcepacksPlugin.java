@@ -118,4 +118,11 @@ public interface ResourcepacksPlugin {
      * @return The ResourcePackSelectEvent interface which might have been modified (especially the pack)
      */
     IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status);
+
+    /**
+     * Check whether or not a certain player is currently logged in with auth plugins (currently supports AuthMe Reloaded)
+     * @param playerId The UUID of the player
+     * @return <tt>true</tt> if he is loggedin; <tt>false</tt> if not or the status is unknown
+     */
+    boolean isAuthenticated(UUID playerId);
 }

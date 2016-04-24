@@ -40,7 +40,7 @@ public class ServerSwitchListener implements Listener {
     }
 
     private void calculatePack(UUID playerId) {
-        if(!plugin.hasBackend(playerId)) {
+        if(!plugin.hasBackend(playerId) && plugin.isAuthenticated(playerId)) {
             ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
             if(player != null) {
                 String serverName = "";

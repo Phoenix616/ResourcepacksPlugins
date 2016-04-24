@@ -1,7 +1,10 @@
 package de.themoep.resourcepacksplugin.bukkit;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
@@ -10,6 +13,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import fr.xephi.authme.api.NewAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -35,6 +39,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private int serverPackFormat = Integer.MAX_VALUE;
 
     private ViaVersionAPI viaVersion;
+    private NewAPI authmeApi;
 
     public void onEnable() {
         if(loadConfig()) {
@@ -64,6 +69,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
             if(viaVersion != null) {
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaVersion.getVersion());
+            }
+
+            if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
+                authmeApi = NewAPI.getInstance();
+                getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
+                getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
             }
         } else {
             getServer().getPluginManager().disablePlugin(this);
@@ -351,5 +362,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
         getServer().getPluginManager().callEvent(selectEvent);
         return selectEvent;
+    }
+
+    @Override
+    public boolean isAuthenticated(UUID playerId) {
+        if(authmeApi == null)
+            return true;
+        Player player = getServer().getPlayer(playerId);
+        return player != null && authmeApi.isAuthenticated(player);
     }
 }
