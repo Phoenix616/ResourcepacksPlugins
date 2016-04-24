@@ -103,4 +103,8 @@ public class YamlConfig {
     public Configuration getDefaults() {
         return defaultCfg;
     }
+
+    public boolean isSet(String path) {
+        return cfg.get(path) != null;
+    }
 }

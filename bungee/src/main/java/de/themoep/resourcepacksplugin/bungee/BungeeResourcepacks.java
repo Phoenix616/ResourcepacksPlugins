@@ -55,7 +55,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     /**
      * Set of uuids of players which were authenticated by a backend server's plugin
      */
-    private Set<UUID> authenticatedPlayers;
+    private Set<UUID> authenticatedPlayers = new HashSet<UUID>();
 
     /**
      * Wether the plugin is enabled or not
@@ -117,7 +117,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             loglevel = Level.FINE;
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
-        
+
+        if(getConfig().isSet("useauth")) {
+            getLogger().log(getLogLevel(), "Use backend auth: " + getConfig().getBoolean("useauth"));
+        }
+
         pm = new PackManager(this);
         Configuration packs = getConfig().getSection("packs");
         getLogger().log(getLogLevel(), "Loading packs:");
@@ -473,24 +477,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public boolean isAuthenticated(UUID playerId) {
-        return authenticatedPlayers == null || authenticatedPlayers.contains(playerId);
-    }
-
-    public void useAuth(boolean b) {
-        if(b && getConfig().getBoolean("useauthme", true)) {
-            authenticatedPlayers = new HashSet<UUID>();
-        } else {
-            authenticatedPlayers = null;
-        }
+        return !getConfig().getBoolean("useauth", false) || authenticatedPlayers.contains(playerId);
     }
 
     public void setAuthenticated(UUID playerId, boolean b) {
-        if(authenticatedPlayers != null) {
-            if(b) {
-                authenticatedPlayers.add(playerId);
-            } else {
-                authenticatedPlayers.remove(playerId);
-            }
+        if(b) {
+            authenticatedPlayers.add(playerId);
+        } else {
+            authenticatedPlayers.remove(playerId);
         }
     }
 }

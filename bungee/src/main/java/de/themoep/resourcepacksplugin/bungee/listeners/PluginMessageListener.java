@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -23,19 +24,17 @@ public class PluginMessageListener implements Listener {
 
     @EventHandler
     public void pluginMessageReceived(PluginMessageEvent event) {
-        if(!plugin.isEnabled() || !event.getTag().equals("Resourcepack"))
+        if(!plugin.isEnabled() || !event.getTag().equals("Resourcepack") || !(event.getSender() instanceof Server))
             return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
         String subchannel = in.readUTF();
-        if("detectedAuthMe".equals(subchannel)) {
-            plugin.useAuth(true);
-        } else if("authMeLogin".equals(subchannel)) {
+        if("authMeLogin".equals(subchannel)) {
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
 
             plugin.setAuthenticated(playerId, true);
-            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("useauthme", true) && plugin.isAuthenticated(playerId)) {
+            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("useauth", false)) {
                 ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
                 if(player != null) {
                     String serverName = "";
