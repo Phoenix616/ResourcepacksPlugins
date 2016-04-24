@@ -344,17 +344,21 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public int getPlayerPackFormat(UUID playerId) {
-        if(viaVersion != null) {
-            int version = viaVersion.getPlayerVersion(playerId);
-            if(version < 47) { // pre 1.8
-                return 0;
-            } else if(version < 107) { // pre 1.9
-                return 1;
-            } else { // current
-                return 2;
+        Player player = getServer().getPlayer(playerId);
+        if(player != null) {
+            if(viaVersion != null) {
+                int version = viaVersion.getPlayerVersion(playerId);
+                if(version < 47) { // pre 1.8
+                    return 0;
+                } else if(version < 107) { // pre 1.9
+                    return 1;
+                } else { // current
+                    return 2;
+                }
             }
+            return serverPackFormat;
         }
-        return serverPackFormat;
+        return Integer.MAX_VALUE;
     }
 
     @Override

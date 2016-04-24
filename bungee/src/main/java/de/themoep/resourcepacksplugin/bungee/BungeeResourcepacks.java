@@ -461,7 +461,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 return 2;
             }
         }
-        return 0;
+        return Integer.MAX_VALUE;
     }
 
     @Override

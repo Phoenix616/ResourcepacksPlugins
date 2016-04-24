@@ -397,7 +397,7 @@ public class PackManager {
         if(pack == null) {
             return status;
         }
-        boolean rightFormat = pack.getFormat() < plugin.getPlayerPackFormat(playerId);
+        boolean rightFormat = pack.getFormat() <= plugin.getPlayerPackFormat(playerId);
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
             return IResourcePackSelectEvent.Status.SUCCESS;
