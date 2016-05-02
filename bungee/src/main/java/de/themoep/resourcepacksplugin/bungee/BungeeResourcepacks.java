@@ -446,7 +446,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public boolean checkPermission(UUID playerId, String perm) {
         ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
         if(proxiedPlayer != null) {
-            return proxiedPlayer.hasPermission(perm);
+            try {
+                return proxiedPlayer.hasPermission(perm);
+            } catch(NullPointerException e) {
+                // Catch an error some BungeePerms version apparently has
+                return false;
+            }
         }
         return false;
 
