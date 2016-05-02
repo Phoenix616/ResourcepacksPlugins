@@ -111,7 +111,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return false;
         }
 
-        if(getConfig().getString("debug","true").equalsIgnoreCase("true")) {
+        if(getConfig().getBoolean("debug",true)) {
             loglevel = Level.INFO;
         } else {
             loglevel = Level.FINE;

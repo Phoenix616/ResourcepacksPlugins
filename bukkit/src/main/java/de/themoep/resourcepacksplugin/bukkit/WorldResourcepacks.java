@@ -1,7 +1,5 @@
 package de.themoep.resourcepacksplugin.bukkit;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
@@ -86,7 +84,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         saveDefaultConfig();
         reloadConfig();
         getLogger().log(Level.INFO, "Loading config!");
-        if(getConfig().getString("debug","true").equalsIgnoreCase("true")) {
+        if(getConfig().getBoolean("debug",true)) {
             loglevel = Level.INFO;
         } else {
             loglevel = Level.FINE;
