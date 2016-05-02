@@ -26,7 +26,7 @@ packs:
     hash: 012345678abcdef012345678abcdef012345678a
   # Empty pack to reset the pack to the default one
   emptypack:
-    url: https://github.com/Phoenix616/BungeeResourcepacks/blob/master/Empty.zip?raw=true
+    url: https://github.com/Phoenix616/ResourcepacksPlugins/blob/master/Empty.zip?raw=true
     hash: 3934d29cc6f7c271afdc477f6dd6b2ea90493825
 # Name of the pack to use for resetting of the pack for servers which don't have one assigned
 empty: emptypack
