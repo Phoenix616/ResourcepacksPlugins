@@ -81,6 +81,7 @@ public class ResourcePack {
         }
         this.format = format;
         this.restricted = restricted;
+        this.permission = permission;
     }
     
     /**
