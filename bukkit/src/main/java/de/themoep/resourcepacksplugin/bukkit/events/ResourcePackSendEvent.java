@@ -12,7 +12,7 @@ import java.util.UUID;
  * Created by Phoenix616 on 18.04.2015.
  */
 public class ResourcePackSendEvent extends Event implements IResourcePackSendEvent, Cancellable {
-    private final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
 
     private boolean cancelled = false;
     private final UUID playerId;
@@ -45,6 +45,10 @@ public class ResourcePackSendEvent extends Event implements IResourcePackSendEve
 
     @Override
     public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

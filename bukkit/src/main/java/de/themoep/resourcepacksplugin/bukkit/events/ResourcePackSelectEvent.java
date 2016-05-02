@@ -11,7 +11,7 @@ import java.util.UUID;
  * Created by Phoenix616 on 18.04.2015.
  */
 public class ResourcePackSelectEvent extends Event implements IResourcePackSelectEvent {
-    private final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
 
     private final UUID playerId;
     private ResourcePack pack;
@@ -60,6 +60,10 @@ public class ResourcePackSelectEvent extends Event implements IResourcePackSelec
 
     @Override
     public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 }
