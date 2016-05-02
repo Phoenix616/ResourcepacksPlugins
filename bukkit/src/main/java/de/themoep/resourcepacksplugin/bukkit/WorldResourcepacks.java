@@ -263,8 +263,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public String getMessage(String key) {
-        String msg = getConfig().getString("messages." + key, getConfig().getDefaults().getString("messages." + key));
-        if(msg.isEmpty()) {
+        String msg = getConfig().getString("messages." + key);
+        if(msg == null || msg.isEmpty()) {
             msg = "&cUnknown message key: &6messages." + key;
         }
         return ChatColor.translateAlternateColorCodes('&', msg);

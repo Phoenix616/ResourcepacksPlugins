@@ -379,7 +379,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public String getMessage(String key) {
         String msg = getConfig().getString("messages." + key, getConfig().getDefaults().getString("messages." + key));
-        if(msg.isEmpty()) {
+        if(msg == null || msg.isEmpty()) {
             msg = "&cUnknown message key: &6messages." + key;
         }
         return ChatColor.translateAlternateColorCodes('&', msg);
