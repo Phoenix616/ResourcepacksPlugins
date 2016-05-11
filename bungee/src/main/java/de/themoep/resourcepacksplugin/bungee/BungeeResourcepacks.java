@@ -97,9 +97,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 map.setAccessible(true);
                 Object mapping18 = map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48);
                 Object mapping19 = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, Array.newInstance(mapping18.getClass(), 0).getClass());
+                Object mappingsObject = Array.newInstance(mapping18.getClass(), 2);
+                Array.set(mappingsObject, 0, mapping18);
+                Array.set(mappingsObject, 1, mapping19);
+                Object[] mappings = (Object[]) mappingsObject;
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappings.getClass());
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, new Object[]{mapping18, mapping19});
+                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappings);
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
                 setEnabled(false);
