@@ -23,8 +23,10 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,17 +67,37 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public void onEnable() {
         instance = this;
         try {
-            int bungeeVersion = Protocol.supportedVersions.get(Protocol.supportedVersions.size() - 1);
+            List<Integer> supportedVersions = new ArrayList<Integer>();
+            try {
+                Field svField = Protocol.class.getField("supportedVersions");
+                supportedVersions = (List<Integer>) svField.get(null);
+            } catch(Exception e1) {
+                // Old bungee protocol version, try new one
+            }
+            if(supportedVersions.size() == 0) {
+                Field svIdField = ProtocolConstants.class.getField("SUPPORTED_VERSION_IDS");
+                supportedVersions = (List<Integer>) svIdField.get(null);
+            }
+
+            int bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 getLogger().log(Level.INFO, "BungeeCord 1.8 detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, Class.class});
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
-            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9){
-                getLogger().log(Level.INFO, "BungeeCord 1.9 detected!");
+            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4){
+                getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, int.class, Class.class});
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
+            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4){
+                getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
+                Method map = Protocol.class.getDeclaredMethod("map", new Class[]{int.class, int.class});
+                map.setAccessible(true);
+                Object mapping = map.invoke(ProtocolConstants.MINECRAFT_1_9, 0x32);
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{Class.class, mapping.getClass()});
+                reg.setAccessible(true);
+                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mapping);
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
                 setEnabled(false);
@@ -97,6 +119,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
             getLogger().log(Level.SEVERE, "Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
+            e.printStackTrace();
+        } catch(NoSuchFieldException e) {
+            getLogger().log(Level.SEVERE, "Couldn't find the field with the supported versions! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
         }
     }
