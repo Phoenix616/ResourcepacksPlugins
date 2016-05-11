@@ -94,7 +94,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", new Class[]{int.class, int.class});
                 map.setAccessible(true);
-                Object mapping = map.invoke(ProtocolConstants.MINECRAFT_1_9, 0x32);
+                Object mapping = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{Class.class, mapping.getClass()});
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mapping);
