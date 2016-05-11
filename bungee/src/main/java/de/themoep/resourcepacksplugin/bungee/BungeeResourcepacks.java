@@ -23,6 +23,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -82,22 +83,23 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             int bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 getLogger().log(Level.INFO, "BungeeCord 1.8 detected!");
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, Class.class});
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
             } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4){
                 getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 detected!");
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{int.class, int.class, Class.class});
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
             } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4){
                 getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
-                Method map = Protocol.class.getDeclaredMethod("map", new Class[]{int.class, int.class});
+                Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
-                Object mapping = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", new Class[]{Class.class, mapping.getClass()});
+                Object mapping18 = map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48);
+                Object mapping19 = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, Array.newInstance(mapping18.getClass(), 0).getClass());
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mapping);
+                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, new Object[]{mapping18, mapping19});
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
                 setEnabled(false);
