@@ -65,6 +65,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      */
     private boolean enabled = false;
 
+    private int bungeeVersion;
+
     public void onEnable() {
         instance = this;
         try {
@@ -80,7 +82,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 supportedVersions = (List<Integer>) svIdField.get(null);
             }
 
-            int bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
+            bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 getLogger().log(Level.INFO, "BungeeCord 1.8 detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, Class.class);
@@ -523,5 +525,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         } else {
             authenticatedPlayers.remove(playerId);
         }
+    }
+
+    public int getBungeeVersion() {
+        return bungeeVersion;
     }
 }
