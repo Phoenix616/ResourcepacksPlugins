@@ -359,6 +359,7 @@ public class PackManager {
                 status = checkPack(playerId, secondaryPack, status);
                 if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                     pack = secondaryPack;
+                    break;
                 }
             }
         }
@@ -374,6 +375,7 @@ public class PackManager {
                 status = checkPack(playerId, secondaryPack, status);
                 if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                     pack = secondaryPack;
+                    break;
                 }
             }
         }
