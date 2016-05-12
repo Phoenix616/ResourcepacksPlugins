@@ -50,9 +50,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
             getCommand("usepack").setExecutor(new UsePackCommand(this));
 
+            String versionString = getServer().getBukkitVersion();
+            String versionNumberString = versionString.substring(versionString.indexOf(".") + 1, versionString.indexOf("-"));
             try {
-                String versionString = getServer().getBukkitVersion();
-                int serverVersion = Integer.valueOf(versionString.substring(versionString.indexOf(".") + 1, versionString.indexOf("-")));
+                int serverVersion = Integer.valueOf(versionNumberString);
                 if(serverVersion < 8) {
                     serverPackFormat = 0;
                 } else if(serverVersion < 9) {
@@ -62,7 +63,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 }
                 getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
             } catch(NumberFormatException e) {
-                getLogger().log(Level.WARNING, "Could not get version of the server! (" + getServer().getVersion() + "/" + getServer().getVersion().split(".")[1] + ")");
+                getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
             }
 
             viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
