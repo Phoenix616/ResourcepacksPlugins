@@ -341,11 +341,11 @@ public class PackManager {
         ResourcePack prev = getUserPack(playerId);
         ResourcePack pack = null;
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
-        if(isGlobalSecondary(prev)) {
+        if(isGlobalSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
             return null;
         }
         if(serverName != null && !serverName.isEmpty()) {
-            if(isServerSecondary(serverName, prev)) {
+            if(isServerSecondary(serverName, prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
                 return null;
             }
             ResourcePack serverPack = getServerPack(serverName);
