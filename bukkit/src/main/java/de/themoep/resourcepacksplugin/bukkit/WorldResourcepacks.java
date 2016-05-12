@@ -51,7 +51,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getCommand("usepack").setExecutor(new UsePackCommand(this));
 
             String versionString = getServer().getBukkitVersion();
-            String versionNumberString = versionString.substring(versionString.indexOf(".") + 1, versionString.indexOf("-"));
+            int firstPoint = versionString.indexOf(".");
+            int secondPoint = versionString.indexOf(".", firstPoint + 1);
+            int minus = versionString.indexOf("-", firstPoint + 1);
+            String versionNumberString = versionString.substring(firstPoint + 1, (secondPoint < minus && secondPoint != -1) ? secondPoint : minus);
             try {
                 int serverVersion = Integer.valueOf(versionNumberString);
                 if(serverVersion < 8) {
