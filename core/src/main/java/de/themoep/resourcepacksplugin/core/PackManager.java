@@ -352,14 +352,15 @@ public class PackManager {
             status = checkPack(playerId, serverPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = serverPack;
-            }
-            List<String> serverSecondary = getServerSecondary(serverName);
-            for(String secondaryName : serverSecondary) {
-                ResourcePack secondaryPack = getByName(secondaryName);
-                status = checkPack(playerId, secondaryPack, status);
-                if(status == IResourcePackSelectEvent.Status.SUCCESS) {
-                    pack = secondaryPack;
-                    break;
+            } else {
+                List<String> serverSecondary = getServerSecondary(serverName);
+                for(String secondaryName : serverSecondary) {
+                    ResourcePack secondaryPack = getByName(secondaryName);
+                    status = checkPack(playerId, secondaryPack, status);
+                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                        pack = secondaryPack;
+                        break;
+                    }
                 }
             }
         }
@@ -368,14 +369,15 @@ public class PackManager {
             status = checkPack(playerId, globalPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = globalPack;
-            }
-            List<String> globalSecondary = getGlobalSecondary();
-            for(String secondaryName : globalSecondary) {
-                ResourcePack secondaryPack = getByName(secondaryName);
-                status = checkPack(playerId, secondaryPack, status);
-                if(status == IResourcePackSelectEvent.Status.SUCCESS) {
-                    pack = secondaryPack;
-                    break;
+            } else {
+                List<String> globalSecondary = getGlobalSecondary();
+                for(String secondaryName : globalSecondary) {
+                    ResourcePack secondaryPack = getByName(secondaryName);
+                    status = checkPack(playerId, secondaryPack, status);
+                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                        pack = secondaryPack;
+                        break;
+                    }
                 }
             }
         }
