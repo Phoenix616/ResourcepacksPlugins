@@ -352,7 +352,7 @@ public class PackManager {
             status = checkPack(playerId, serverPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = serverPack;
-            } else {
+            } else if(prev != null || serverPack != null){
                 List<String> serverSecondary = getServerSecondary(serverName);
                 for(String secondaryName : serverSecondary) {
                     ResourcePack secondaryPack = getByName(secondaryName);
@@ -369,7 +369,7 @@ public class PackManager {
             status = checkPack(playerId, globalPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = globalPack;
-            } else {
+            } else if(prev != null || globalPack != null){
                 List<String> globalSecondary = getGlobalSecondary();
                 for(String secondaryName : globalSecondary) {
                     ResourcePack secondaryPack = getByName(secondaryName);
