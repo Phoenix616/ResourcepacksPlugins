@@ -109,6 +109,7 @@
                     <artifactSet>
                         <includes>
                             <include>org.mcstats.*:*</include>
+                            <include>de.themoep.resourcepacksplugin.core.*:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
