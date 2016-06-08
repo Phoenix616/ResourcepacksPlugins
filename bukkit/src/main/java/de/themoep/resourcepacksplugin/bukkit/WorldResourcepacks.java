@@ -18,8 +18,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.MetricsLite;
 import us.myles.ViaVersion.api.ViaVersionAPI;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -78,6 +80,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 authmeApi = NewAPI.getInstance();
                 getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
                 getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
+            }
+
+            try {
+                MetricsLite metrics = new MetricsLite(this);
+                metrics.start();
+            } catch(IOException e) {
+                // metrics failed to load
             }
         } else {
             getServer().getPluginManager().disablePlugin(this);

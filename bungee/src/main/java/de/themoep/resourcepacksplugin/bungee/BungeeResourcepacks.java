@@ -20,6 +20,7 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import org.mcstats.MetricsLite;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,6 +122,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
             getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
             getProxy().registerChannel("Resourcepack");
+
+            try {
+                MetricsLite metrics = new MetricsLite(this);
+                metrics.start();
+            } catch(IOException e) {
+                // metrics failed to load
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
