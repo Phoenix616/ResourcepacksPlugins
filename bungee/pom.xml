@@ -101,7 +101,7 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>org.minecrell.mcstats</pattern>
+                            <pattern>net.minecrell.mcstats</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bungee</shadedPattern>
                         </relocation>
                     </relocations>
