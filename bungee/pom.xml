@@ -36,9 +36,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.mcstats.bungee</groupId>
-            <artifactId>metrics-lite</artifactId>
-            <version>R8-SNAPSHOT</version>
+            <groupId>net.minecrell.mcstats</groupId>
+            <artifactId>statslite-bungee</artifactId>
+            <version>0.2.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -101,7 +101,7 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>org.mcstats</pattern>
+                            <pattern>org.minecrell.mcstats</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bungee</shadedPattern>
                         </relocation>
                     </relocations>
