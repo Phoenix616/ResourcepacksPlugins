@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bungee</artifactId>
-    <version>1.6.2</version>
+    <version>${plugin.version}</version>
     <packaging>jar</packaging>
     <name>BungeeResourcepacks</name>
     <description>Plugin to set Resource Packs on whole BungeeCord and per server</description>
@@ -20,19 +20,19 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.10-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord</artifactId>
-            <version>b1124</version>
+            <version>b1158</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>core</artifactId>
-            <version>1.6.2-SNAPSHOT</version>
+            <version>${plugin.version}-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
