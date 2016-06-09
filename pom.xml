@@ -15,10 +15,6 @@
         <module>bukkit</module>
     </modules>
 
-    <properties>
-        <plugin.version>1.6.3</plugin.version>
-    </properties>
-
     <repositories>
         <repository>
             <id>bungee-repo</id>
