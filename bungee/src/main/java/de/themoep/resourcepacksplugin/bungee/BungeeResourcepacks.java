@@ -48,7 +48,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     
     private PackManager pm;
     
-    private Level loglevel;
+    private Level loglevel = Level.INFO;
 
     /**
      * Set of uuids of players which got send a pack by the backend server. 
@@ -149,16 +149,21 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return false;
         }
 
-        boolean debug;
         try {
-            debug = getConfig().getString("debug", "true").toLowerCase().equals("true");
+            String debugString = getConfig().getString("debug", "true");
+            if (debugString.equalsIgnoreCase("true")) {
+                loglevel = Level.INFO;
+            } else if (debugString.equalsIgnoreCase("false")) {
+                loglevel = Level.OFF;
+            } else {
+                try {
+                    loglevel = Level.parse(debugString.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    getLogger().log(Level.SEVERE, "Wrong config value for debug!", e);
+                }
+            }
         } catch(ClassCastException e) {
-            debug = getConfig().getBoolean("debug", true);
-        }
-        if(debug) {
-            loglevel = Level.INFO;
-        } else {
-            loglevel = Level.FINE;
+            loglevel = getConfig().getBoolean("debug", true) ? Level.INFO : Level.OFF;
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 

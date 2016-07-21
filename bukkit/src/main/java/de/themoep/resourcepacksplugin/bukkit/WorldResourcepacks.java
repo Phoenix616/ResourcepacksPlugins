@@ -34,7 +34,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private PackManager pm;
 
-    public Level loglevel;
+    private Level loglevel = Level.INFO;
 
     private int serverPackFormat = Integer.MAX_VALUE;
 
@@ -97,10 +97,21 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         saveDefaultConfig();
         reloadConfig();
         getLogger().log(Level.INFO, "Loading config!");
-        if(getConfig().getBoolean("debug",true)) {
-            loglevel = Level.INFO;
-        } else {
-            loglevel = Level.FINE;
+        try {
+            String debugString = getConfig().getString("debug", "true");
+            if (debugString.equalsIgnoreCase("true")) {
+                loglevel = Level.INFO;
+            } else if (debugString.equalsIgnoreCase("false")) {
+                loglevel = Level.OFF;
+            } else {
+                try {
+                    loglevel = Level.parse(debugString.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    getLogger().log(Level.SEVERE, "Wrong config value for debug!", e);
+                }
+            }
+        } catch(ClassCastException e) {
+            loglevel = getConfig().getBoolean("debug", true) ? Level.INFO : Level.OFF;
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
