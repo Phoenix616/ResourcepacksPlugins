@@ -31,25 +31,25 @@
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit-v1_10_R1</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit-v1_9_R2</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit-v1_9_R1</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit-v1_8_R3</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
