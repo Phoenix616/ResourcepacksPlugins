@@ -13,6 +13,10 @@ public interface IResourcePackSendEvent {
 
     ResourcePack getPack();
 
+    /**
+     * Set the pack that should be send. Set to null if you want to remove all packs/send the empty one
+     * @param pack The pack to send, if it is null it will reset the pack to the empty one
+     */
     void setPack(ResourcePack pack);
 
     boolean isCancelled();
