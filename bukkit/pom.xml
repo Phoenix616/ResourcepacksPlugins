@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bukkit</artifactId>
-    <version>1.6.4</version>
+    <version>${plugin.version}</version>
     <packaging>jar</packaging>
     <name>WorldResourcepacks</name>
     <description>Plugin to set Resource Packs on server per world</description>
@@ -28,6 +28,30 @@
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>bukkit-v1_10_R1</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>bukkit-v1_9_R2</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>bukkit-v1_9_R1</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>bukkit-v1_8_R3</artifactId>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

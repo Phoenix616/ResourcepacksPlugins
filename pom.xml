@@ -12,8 +12,16 @@
     <modules>
         <module>core</module>
         <module>bungee</module>
+        <module>bukkit-v1_8_R3</module>
+        <module>bukkit-v1_9_R1</module>
+        <module>bukkit-v1_9_R2</module>
+        <module>bukkit-v1_10_R1</module>
         <module>bukkit</module>
     </modules>
+
+    <properties>
+        <plugin.version>1.6.4</plugin.version>
+    </properties>
 
     <repositories>
         <repository>

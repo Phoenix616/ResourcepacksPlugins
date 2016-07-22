@@ -2,6 +2,8 @@ package de.themoep.resourcepacksplugin.bukkit;
 
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
+import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper_fallback;
 import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
@@ -39,6 +41,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private int serverPackFormat = Integer.MAX_VALUE;
 
+    private InternalHelper internalHelper;
+
     private ViaVersionAPI viaVersion;
     private NewAPI authmeApi;
 
@@ -70,6 +74,23 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
             } catch(NumberFormatException e) {
                 getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
+            }
+
+            String packageName = getServer().getClass().getPackage().getName();
+            String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
+
+            Class<?> internalClass;
+            try {
+                internalClass = Class.forName(getClass().getPackage().getName() + ".internal.InternalHelper_" + serverVersion);
+            } catch (Exception e) {
+                internalClass = InternalHelper_fallback.class;
+            }
+            try {
+                if(InternalHelper.class.isAssignableFrom(internalClass)) {
+                    internalHelper = (InternalHelper) internalClass.getConstructor().newInstance();
+                }
+            } catch (Exception e) {
+                internalHelper = new InternalHelper_fallback();
             }
 
             viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
@@ -264,7 +285,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param pack The resourcepack to set for the player
      */
     public void sendPack(Player player, ResourcePack pack) {
-        player.setResourcePack(pack.getUrl());
+        if (!pack.getHash().isEmpty()) {
+            internalHelper.setResourcePack(player, pack.getUrl(), pack.getHash());
+        } else {
+            player.setResourcePack(pack.getUrl());
+        }
         getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
