@@ -15,6 +15,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -471,11 +472,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(player != null) {
             ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
             if(proxyPlayer != null) {
-                proxyPlayer.sendMessage(message);
+                proxyPlayer.sendMessage(TextComponent.fromLegacyText(message));
                 return true;
             }
         } else {
-            getProxy().getConsole().sendMessage(message);
+            getProxy().getConsole().sendMessage(TextComponent.fromLegacyText(message));
         }
         return false;
     }
