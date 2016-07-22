@@ -340,7 +340,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
         } else {
             getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName() + " as he uses the unsupported protocol version " + clientVersion + "!");
-            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients that are not 1.8 or 1.9 if you want this plugin to work for everyone!");
+            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
         }
     }
 
