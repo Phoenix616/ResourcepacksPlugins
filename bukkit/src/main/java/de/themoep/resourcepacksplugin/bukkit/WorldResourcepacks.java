@@ -265,7 +265,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      */
     public void sendPack(Player player, ResourcePack pack) {
         player.setResourcePack(pack.getUrl());
-        getPackManager().setUserPack(player.getUniqueId(), pack);
         getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 

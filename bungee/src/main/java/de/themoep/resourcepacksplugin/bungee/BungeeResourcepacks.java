@@ -331,7 +331,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             try {
                 ResourcePackSendPacket packet = new ResourcePackSendPacket(pack.getUrl(), pack.getHash());
                 player.unsafe().sendPacket(packet);
-                getPackManager().setUserPack(player.getUniqueId(), pack);
                 sendPackInfo(player, pack);
                 getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
             } catch(BadPacketException e) {
