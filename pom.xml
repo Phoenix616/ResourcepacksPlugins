@@ -12,11 +12,12 @@
     <modules>
         <module>core</module>
         <module>bungee</module>
+        <module>bukkit</module>
         <module>bukkit-v1_8_R3</module>
         <module>bukkit-v1_9_R1</module>
         <module>bukkit-v1_9_R2</module>
         <module>bukkit-v1_10_R1</module>
-        <module>bukkit</module>
+        <module>worldresourcepacks</module>
     </modules>
 
     <properties>
