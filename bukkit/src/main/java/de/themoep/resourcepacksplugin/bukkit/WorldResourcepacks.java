@@ -11,6 +11,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import fr.xephi.authme.api.NewAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -247,28 +248,25 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {
+        getPackManager().setPack(playerId, pack);
+    }
+
+    public void sendPack(UUID playerId, ResourcePack pack) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
-            setPack(player, pack);
+            sendPack(player, pack);
         }
     }
 
     /**
-     * Set the resoucepack of a connected player
+     * Set the resourcepack of a connected player
      * @param player The ProxiedPlayer to set the pack for
      * @param pack The resourcepack to set for the player
      */
-    protected void setPack(Player player, ResourcePack pack) {
-        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(player.getUniqueId(), pack);
-        getServer().getPluginManager().callEvent(sendEvent);
-        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
-            getLogger().log(loglevel, "Pack send event for " + player.getName() + " was cancelled!");
-            return;
-        }
-        pack = sendEvent.getPack();
+    public void sendPack(Player player, ResourcePack pack) {
         player.setResourcePack(pack.getUrl());
         getPackManager().setUserPack(player.getUniqueId(), pack);
-        getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
     public void clearPack(UUID playerId) {
@@ -389,6 +387,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
         getServer().getPluginManager().callEvent(selectEvent);
         return selectEvent;
+    }
+
+    @Override
+    public IResourcePackSendEvent callPackSendEvent(UUID playerId, ResourcePack pack) {
+        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(playerId, pack);
+        getServer().getPluginManager().callEvent(sendEvent);
+        return sendEvent;
     }
 
     @Override

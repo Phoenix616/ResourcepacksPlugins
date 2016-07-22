@@ -1,6 +1,7 @@
 package de.themoep.resourcepacksplugin.core;
 
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -324,11 +325,23 @@ public class PackManager {
         return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
-    public void applyPack(UUID playerId, String serverName) {
-        ResourcePack pack = getApplicablePack(playerId, serverName);
-        if(pack != null) {
-            plugin.setPack(playerId, pack);
+    public void setPack(UUID playerId, ResourcePack pack) {
+        IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
+        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
+            plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
+            return;
         }
+        setUserPack(playerId, sendEvent.getPack());
+        plugin.sendPack(playerId, sendEvent.getPack());
+    }
+
+    public void applyPack(UUID playerId, String serverName) {
+        ResourcePack prev = getUserPack(playerId);
+        ResourcePack pack = getApplicablePack(playerId, serverName);
+        if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
+            pack = getEmptyPack();
+        }
+        setPack(playerId, pack);
     }
 
     /**
@@ -388,9 +401,6 @@ public class PackManager {
 
         IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, pack, status);
         pack = selectEvent.getPack();
-        if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
-            pack = getEmptyPack();
-        }
         if(pack != null && pack.equals(prev)) {
             pack = null;
         }

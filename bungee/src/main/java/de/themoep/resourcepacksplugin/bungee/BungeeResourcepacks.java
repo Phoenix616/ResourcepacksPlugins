@@ -13,6 +13,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -320,17 +321,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
     
     /**
-     * Set the resoucepack of a connected player
-     * @param player The ProxiedPlayer to set the pack for
-     * @param pack The resourcepack to set for the player
+     * Send a resourcepack to a connected player
+     * @param player The ProxiedPlayer to send the pack to
+     * @param pack The resourcepack to send the pack to
      */
-    protected void setPack(ProxiedPlayer player, ResourcePack pack) {
-        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(player.getUniqueId(), pack);
-        getProxy().getPluginManager().callEvent(sendEvent);
-        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
-            getLogger().log(loglevel, "Pack send event for " + player.getName() + " was cancelled!");
-            return;
-        }
+    protected void sendPack(ProxiedPlayer player, ResourcePack pack) {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
@@ -377,9 +372,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {
+        getPackManager().setPack(playerId, pack);
+    }
+
+    public void sendPack(UUID playerId, ResourcePack pack) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if(player != null) {
-            setPack(player, pack);
+            sendPack(player, pack);
         }
     }
 
@@ -522,6 +521,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
         getProxy().getPluginManager().callEvent(selectEvent);
         return selectEvent;
+    }
+
+    @Override
+    public IResourcePackSendEvent callPackSendEvent(UUID playerId, ResourcePack pack) {
+        ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(playerId, pack);
+        getProxy().getPluginManager().callEvent(sendEvent);
+        return sendEvent;
     }
 
     @Override

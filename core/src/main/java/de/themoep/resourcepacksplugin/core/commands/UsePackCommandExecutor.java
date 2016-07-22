@@ -39,7 +39,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     }
                     ResourcePack prev = plugin.getPackManager().getUserPack(player.getUniqueId());
                     if (!pack.equals(prev)) {
-                        plugin.setPack(player.getUniqueId(), pack);
+                        plugin.sendPack(player.getUniqueId(), pack);
                         if (!player.equals(sender)) {
                             plugin.sendMessage(sender, args[1] + " now uses the pack '" + pack.getName() + "'!");
                         }

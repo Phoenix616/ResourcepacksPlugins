@@ -2,6 +2,7 @@ package de.themoep.resourcepacksplugin.core;
 
 
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
 import java.util.Map;
 import java.util.UUID;
@@ -37,8 +38,17 @@ public interface ResourcepacksPlugin {
      * Set the resoucepack of a connected player
      * @param playerId The UUID of the player to set the pack for
      * @param pack The resourcepack to set for the player
+     * @deprecated Please use {@link PackManager#setPack(UUID, ResourcePack)}!
      */
+    @Deprecated
     void setPack(UUID playerId, ResourcePack pack);
+
+    /**
+     * Internal method to send a resoucepack to a player, please use {@link PackManager#setPack(UUID, ResourcePack)}!
+     * @param playerId The UUID of the player to send the pack to
+     * @param pack The resourcepack to send to a player
+     */
+    void sendPack(UUID playerId, ResourcePack pack);
 
     void clearPack(UUID playerId);
 
@@ -118,6 +128,14 @@ public interface ResourcepacksPlugin {
      * @return The ResourcePackSelectEvent interface which might have been modified (especially the pack)
      */
     IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status);
+
+    /**
+     * Call the ResourcePackSendEvent on the corresponding server
+     * @param playerId The UUID of the player
+     * @param pack The ResourcePack that was send
+     * @return The ResourcePackSendEvent interface which might have been modified or cancelled
+     */
+    IResourcePackSendEvent callPackSendEvent(UUID playerId, ResourcePack pack);
 
     /**
      * Check whether or not a certain player is currently logged in with auth plugins (currently supports AuthMe Reloaded)
