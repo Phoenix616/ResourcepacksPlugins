@@ -376,7 +376,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         player.getServer().sendData("Resourcepack", out.toByteArray());
     }
 
-    public void setPack(java.util.UUID playerId, ResourcePack pack) {
+    public void setPack(UUID playerId, ResourcePack pack) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if(player != null) {
             setPack(player, pack);
@@ -387,7 +387,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         clearPack(player.getUniqueId());
     }
 
-    public void clearPack(java.util.UUID playerId) {
+    public void clearPack(UUID playerId) {
         getPackManager().clearUserPack(playerId);
     }
 
@@ -399,7 +399,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Add a player's UUID to the list of players with a backend pack
      * @param playerId The uuid of the player
      */
-    public void setBackend(java.util.UUID playerId) {
+    public void setBackend(UUID playerId) {
         backendPackedPlayers.put(playerId, false);
     }
 
@@ -407,7 +407,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Remove a player's UUID from the list of players with a backend pack
      * @param playerId The uuid of the player
      */
-    public void unsetBackend(java.util.UUID playerId) {
+    public void unsetBackend(UUID playerId) {
         backendPackedPlayers.remove(playerId);
     }
 
@@ -416,7 +416,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * @param playerId The UUID of the player
      * @return If the player has a backend pack
      */
-    public boolean hasBackend(java.util.UUID playerId) {
+    public boolean hasBackend(UUID playerId) {
         return backendPackedPlayers.containsKey(playerId);
     }
 
@@ -451,7 +451,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public ResourcepacksPlayer getPlayer(java.util.UUID playerId) {
+    public ResourcepacksPlayer getPlayer(UUID playerId) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if(player != null) {
             return new ResourcepacksPlayer(player.getName(), player.getUniqueId());

@@ -227,7 +227,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     }
 
-    public void resendPack(java.util.UUID playerId) {
+    public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             resendPack(player);
@@ -246,7 +246,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getPackManager().applyPack(player.getUniqueId(), worldName);
     }
 
-    public void setPack(java.util.UUID playerId, ResourcePack pack) {
+    public void setPack(UUID playerId, ResourcePack pack) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             setPack(player, pack);
@@ -271,7 +271,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getLogger().log(loglevel, "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
-    public void clearPack(java.util.UUID playerId) {
+    public void clearPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
             clearPack(player);
