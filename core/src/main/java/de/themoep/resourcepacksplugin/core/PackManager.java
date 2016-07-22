@@ -325,22 +325,31 @@ public class PackManager {
         return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
     }
 
+
+    /**
+     * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
+     * @param playerId The UUID of the player to set the pack for
+     * @param pack The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
+     */
     public void setPack(UUID playerId, ResourcePack pack) {
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
-        if(sendEvent.isCancelled() || sendEvent.getPack() == null) {
+        if (sendEvent.isCancelled()) {
             plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
             return;
         }
-        setUserPack(playerId, sendEvent.getPack());
-        plugin.sendPack(playerId, sendEvent.getPack());
+        pack = sendEvent.getPack();
+        ResourcePack prev = getUserPack(playerId);
+        if (pack == null && prev != null && !prev.equals(getEmptyPack())) {
+            pack = getEmptyPack();
+        }
+        if (pack != null) {
+            setUserPack(playerId, pack);
+            plugin.sendPack(playerId, pack);
+        }
     }
 
     public void applyPack(UUID playerId, String serverName) {
-        ResourcePack prev = getUserPack(playerId);
         ResourcePack pack = getApplicablePack(playerId, serverName);
-        if(pack == null && prev != null && !prev.equals(getEmptyPack())) {
-            pack = getEmptyPack();
-        }
         setPack(playerId, pack);
     }
 
