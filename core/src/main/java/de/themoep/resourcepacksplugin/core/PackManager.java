@@ -3,12 +3,24 @@ package de.themoep.resourcepacksplugin.core;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 25.03.2015.
@@ -450,5 +462,65 @@ public class PackManager {
      */
     public List<ResourcePack> getPacks() {
         return new ArrayList<ResourcePack>(packmap.values());
+    }
+
+    /**
+     * Download the pack files and generate sha1 hashes from them,
+     * also saves the changes to the config!
+     * @param sender The player that executed the command, null if it was the console
+     */
+    public void generateHashes(final ResourcepacksPlayer sender) {
+        plugin.runAsync(new Runnable() {
+            public void run() {
+                plugin.sendMessage(sender, ChatColor.YELLOW + "Generating hashes...");
+                int changed = 0;
+
+                for (ResourcePack pack : getPacks()) {
+                    InputStream in = null;
+                    try {
+                        Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
+                        URL url = new URL(pack.getUrl());
+                        plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
+                        in = url.openStream();
+                        Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+
+                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        md.update(Files.readAllBytes(target));
+                        String sha1 = DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
+                        plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + sha1);
+                        if (!pack.getHash().equalsIgnoreCase(sha1)) {
+                            hashmap.remove(pack.getHash());
+                            pack.setHash(sha1);
+                            hashmap.put(pack.getHash(), pack.getName().toLowerCase());
+                        }
+                        changed++;
+                        Files.deleteIfExists(target);
+                    } catch (MalformedURLException e) {
+                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
+                        continue;
+                    } catch (IOException e) {
+                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load pack from " + pack.getUrl() + "! " + e.getMessage());
+                        continue;
+                    } catch (NoSuchAlgorithmException e) {
+                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not find SHA-1?");
+                        break;
+                    } finally {
+                        if (in != null) {
+                            try {
+                                in.close();
+                            } catch (IOException e) {
+                                plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                if (changed > 0) {
+                    plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
+                    plugin.saveConfigChanges();
+                }
+            }
+        });
     }
 }

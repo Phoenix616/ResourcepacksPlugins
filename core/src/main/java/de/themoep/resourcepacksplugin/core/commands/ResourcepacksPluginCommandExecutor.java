@@ -26,6 +26,8 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 }
             } else if(args[0].equalsIgnoreCase("version") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.version")) {
                 plugin.sendMessage(sender, ChatColor.GREEN + plugin.getName() + "' version: " + plugin.getVersion());
+            } else if ("generatehashes".equalsIgnoreCase(args[0]) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.generatehashes")) {
+                plugin.getPackManager().generateHashes(sender);
             }
             return true;
         }

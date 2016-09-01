@@ -4,6 +4,8 @@ package de.themoep.resourcepacksplugin.core;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -83,6 +85,8 @@ public interface ResourcepacksPlugin {
 
     Logger getLogger();
 
+    File getDataFolder();
+
     Level getLogLevel();
 
     ResourcepacksPlayer getPlayer(UUID playerId);
@@ -96,6 +100,15 @@ public interface ResourcepacksPlugin {
      * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
      */
     boolean sendMessage(ResourcepacksPlayer player, String message);
+
+    /**
+     * Send a message to a sender
+     * @param sender The the sender
+     * @param level The level to log to if the sender is the console!
+     * @param message The message to send
+     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
+     */
+    boolean sendMessage(ResourcepacksPlayer sender, Level level, String message);
 
     /**
      * Check whether or not a player has a permission
@@ -143,4 +156,16 @@ public interface ResourcepacksPlugin {
      * @return <tt>true</tt> if he is loggedin; <tt>false</tt> if not or the status is unknown
      */
     boolean isAuthenticated(UUID playerId);
+
+    /**
+     * Run a task asynchronously
+     * @param runnable What to run
+     * @return The task id
+     */
+    int runAsync(Runnable runnable);
+
+    /**
+     * Save changes made on runtime to the config
+     */
+    void saveConfigChanges();
 }

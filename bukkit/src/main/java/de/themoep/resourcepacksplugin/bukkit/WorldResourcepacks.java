@@ -104,6 +104,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
             }
 
+            getPackManager().generateHashes(null);
+
             try {
                 MetricsLite metrics = new MetricsLite(this);
                 metrics.start();
@@ -249,6 +251,18 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     }
 
+    public void saveConfigChanges() {
+        for (ResourcePack pack : getPackManager().getPacks()) {
+            String path = "packs." + pack.getName();
+            getConfig().set(path + ".url", pack.getUrl());
+            getConfig().set(path + ".hash", pack.getHash());
+            getConfig().set(path + ".format", pack.getFormat());
+            getConfig().set(path + ".restricted", pack.isRestricted());
+            getConfig().set(path + ".permission", pack.getPermission());
+        }
+        saveConfig();
+    }
+
     public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
@@ -353,7 +367,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
-    public boolean sendMessage(ResourcepacksPlayer packPlayer, String message) {
+    public boolean sendMessage(ResourcepacksPlayer player, String message) {
+        return sendMessage(player, Level.INFO, message);
+    }
+
+    @Override
+    public boolean sendMessage(ResourcepacksPlayer packPlayer, Level level, String message) {
         if(packPlayer != null) {
             Player player = getServer().getPlayer(packPlayer.getUniqueId());
             if(player != null) {
@@ -361,7 +380,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 return true;
             }
         } else {
-            getServer().getConsoleSender().sendMessage(message);
+            getLogger().log(level, message);
         }
         return false;
     }
@@ -426,5 +445,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             return true;
         Player player = getServer().getPlayer(playerId);
         return player != null && authmeApi.isAuthenticated(player);
+    }
+
+    @Override
+    public int runAsync(Runnable runnable) {
+        return getServer().getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
     }
 }

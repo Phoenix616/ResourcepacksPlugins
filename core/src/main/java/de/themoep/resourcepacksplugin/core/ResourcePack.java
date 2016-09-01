@@ -188,4 +188,8 @@ public class ResourcePack {
             return true;
         }
     }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 }

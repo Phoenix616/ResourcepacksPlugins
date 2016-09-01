@@ -120,6 +120,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             setEnabled(loadConfig());
 
+            if (isEnabled()) {
+                getPackManager().generateHashes(null);
+            }
+
             getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
             getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
@@ -276,6 +280,18 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 resendPack(p);
             }
         }
+    }
+
+    public void saveConfigChanges() {
+        for (ResourcePack pack : getPackManager().getPacks()) {
+            String path = "packs." + pack.getName();
+            getConfig().set(path + ".url", pack.getUrl());
+            getConfig().set(path + ".hash", pack.getHash());
+            getConfig().set(path + ".format", pack.getFormat());
+            getConfig().set(path + ".restricted", pack.isRestricted());
+            getConfig().set(path + ".permission", pack.getPermission());
+        }
+        getConfig().save();
     }
     
     public static BungeeResourcepacks getInstance() {
@@ -469,6 +485,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public boolean sendMessage(ResourcepacksPlayer player, String message) {
+        return sendMessage(player, Level.INFO, message);
+    }
+
+    @Override
+    public boolean sendMessage(ResourcepacksPlayer player, Level level, String message) {
         if(player != null) {
             ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
             if(proxyPlayer != null) {
@@ -476,7 +497,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 return true;
             }
         } else {
-            getProxy().getConsole().sendMessage(TextComponent.fromLegacyText(message));
+            getLogger().log(level, message);
         }
         return false;
     }
@@ -533,6 +554,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     @Override
     public boolean isAuthenticated(UUID playerId) {
         return !getConfig().getBoolean("useauth", false) || authenticatedPlayers.contains(playerId);
+    }
+
+    @Override
+    public int runAsync(Runnable runnable) {
+        return getProxy().getScheduler().runAsync(this, runnable).getId();
     }
 
     public void setAuthenticated(UUID playerId, boolean b) {

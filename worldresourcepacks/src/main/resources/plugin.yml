@@ -7,7 +7,7 @@ commands:
    wrp:
       aliases: [worldresourcepacks]
       description: Command description.
-      usage: /<command> [reload [resend]|version]
+      usage: /<command> [generatehashes|reload [resend]|version]
       permission: worldresourcepacks.command
       permission-message: You don't have the permission <permission>
    usepack:
@@ -24,6 +24,9 @@ permissions:
       default: op
    worldresourcepacks.command.usepack.others:
       description: Gives permission to set the pack of other players
+      default: op
+   worldresourcepacks.command.generatehashes:
+      description: Gives permission to (re-)generate the sha1 hashes of the packs
       default: op
    worldresourcepacks.command.version:
       description: Gives permission to see the plugin's version
