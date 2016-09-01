@@ -107,4 +107,8 @@ public class YamlConfig {
     public boolean isSet(String path) {
         return cfg.get(path) != null;
     }
+
+    public void set(String path, Object value) {
+        cfg.set(path, value);
+    }
 }
