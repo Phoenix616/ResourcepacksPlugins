@@ -492,17 +492,18 @@ public class PackManager {
                             hashmap.remove(pack.getHash());
                             pack.setHash(sha1);
                             hashmap.put(pack.getHash(), pack.getName().toLowerCase());
+                            changed++;
                         }
-                        changed++;
                         Files.deleteIfExists(target);
                     } catch (MalformedURLException e) {
                         plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
                         continue;
                     } catch (IOException e) {
-                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load pack from " + pack.getUrl() + "! " + e.getMessage());
+                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load " + pack.getName() + "! " + e.getMessage());
                         continue;
                     } catch (NoSuchAlgorithmException e) {
                         plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not find SHA-1?");
+                        e.printStackTrace();
                         break;
                     } finally {
                         if (in != null) {
@@ -519,6 +520,8 @@ public class PackManager {
                 if (changed > 0) {
                     plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
                     plugin.saveConfigChanges();
+                } else {
+                    plugin.sendMessage(sender, ChatColor.GREEN + "No hash changed!");
                 }
             }
         });
