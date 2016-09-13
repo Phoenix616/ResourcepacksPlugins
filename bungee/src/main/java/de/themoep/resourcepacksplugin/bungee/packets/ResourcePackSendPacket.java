@@ -62,9 +62,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public void relayPacket(UserConnection usercon, PacketWrapper packet) throws Exception {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         if(plugin.isEnabled()) {
-            ResourcePack pack = plugin.getPackManager().getByUrl(getUrl());
+            ResourcePack pack = plugin.getPackManager().getByHash(getHash());
             if (pack == null) {
-                pack = plugin.getPackManager().getByHash(getHash());
+                pack = plugin.getPackManager().getByUrl(getUrl());
             }
             if (pack == null) {
                 pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()).replace(".zip", "").toLowerCase(), getUrl(), getHash());
