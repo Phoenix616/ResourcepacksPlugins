@@ -42,10 +42,10 @@ public class ProxyPackListener implements PluginMessageListener {
 
             ResourcePack pack = plugin.getPackManager().getByName(packName);
             if(pack == null) {
-                pack = plugin.getPackManager().getByUrl(packUrl);
+                pack = plugin.getPackManager().getByHash(packHash);
             }
             if(pack == null) {
-                pack = plugin.getPackManager().getByHash(packHash);
+                pack = plugin.getPackManager().getByUrl(packUrl);
             }
             if(pack == null) {
                 pack = new ResourcePack(packName, packUrl, packHash);
