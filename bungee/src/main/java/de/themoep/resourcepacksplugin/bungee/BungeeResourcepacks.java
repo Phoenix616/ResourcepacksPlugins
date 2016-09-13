@@ -196,8 +196,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
 
-            getPackManager().addPack(pack);
             getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
+
+            try {
+                getPackManager().addPack(pack);
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.SEVERE, e.getMessage());
+            }
         }
         
         String emptypackname = getConfig().getString("empty");

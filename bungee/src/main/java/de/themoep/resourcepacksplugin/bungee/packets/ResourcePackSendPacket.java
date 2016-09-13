@@ -68,7 +68,12 @@ public class ResourcePackSendPacket extends DefinedPacket {
             }
             if (pack == null) {
                 pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()).replace(".zip", "").toLowerCase(), getUrl(), getHash());
-                plugin.getPackManager().addPack(pack);
+                try {
+                    plugin.getPackManager().addPack(pack);
+                } catch (IllegalArgumentException e) {
+                    // Can only happen when pack was gotten by hash but another pack had the same url
+                    pack = plugin.getPackManager().getByUrl(getUrl());
+                }
             }
             plugin.setBackend(usercon.getUniqueId());
             plugin.getLogger().log(BungeeResourcepacks.getInstance().getLogLevel(), "Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());

@@ -81,8 +81,17 @@ public class PackManager {
      * Registers a new resource pack with the packmanager
      * @param pack The resourcepack to register
      * @return If a pack with that name was known before it returns the past pack, null if none was known
+     * @throws IllegalArgumentException when there already is a pack with the same url or hash but not name defined
      */
-    public ResourcePack addPack(ResourcePack pack) {
+    public ResourcePack addPack(ResourcePack pack) throws IllegalArgumentException {
+        ResourcePack byHash = getByHash(pack.getHash());
+        if (byHash != null && byHash.getName().equalsIgnoreCase(pack.getName())) {
+            throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
+        }
+        ResourcePack byUrl = getByUrl(pack.getUrl());
+        if (byUrl != null && byUrl.getName().equalsIgnoreCase(pack.getName())) {
+            throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
+        }
         hashmap.put(pack.getHash(), pack.getName().toLowerCase());
         urlmap.put(pack.getUrl(), pack.getName().toLowerCase());
         return packmap.put(pack.getName().toLowerCase(), pack);

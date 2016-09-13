@@ -158,7 +158,14 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
 
-            getPackManager().addPack(pack);
+            getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
+
+            try {
+                getPackManager().addPack(pack);
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.SEVERE, e.getMessage());
+                continue;
+            }
 
             if(getServer().getPluginManager().getPermission(packPerm) == null) {
                 Permission perm = new Permission(packPerm);
@@ -166,7 +173,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
                 getServer().getPluginManager().addPermission(perm);
             }
-            getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
         }
 
         String emptypackname = getConfig().getString("empty", null);

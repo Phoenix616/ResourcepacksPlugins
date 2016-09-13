@@ -42,14 +42,15 @@ public class ProxyPackListener implements PluginMessageListener {
 
             ResourcePack pack = plugin.getPackManager().getByName(packName);
             if(pack == null) {
-                pack = plugin.getPackManager().getByHash(packHash);
-            }
-            if(pack == null) {
-                pack = plugin.getPackManager().getByUrl(packUrl);
-            }
-            if(pack == null) {
                 pack = new ResourcePack(packName, packUrl, packHash);
-                plugin.getPackManager().addPack(pack);
+                try {
+                    plugin.getPackManager().addPack(pack);
+                } catch (IllegalArgumentException e) {
+                    pack = plugin.getPackManager().getByHash(packHash);
+                    if(pack == null) {
+                        pack = plugin.getPackManager().getByUrl(packUrl);
+                    }
+                }
             }
 
             plugin.getLogger().log(plugin.getLogLevel(), "BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.getName());
