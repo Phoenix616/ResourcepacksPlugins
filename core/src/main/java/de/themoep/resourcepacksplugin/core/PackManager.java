@@ -78,7 +78,7 @@ public class PackManager {
     }
 
     /**
-     * Registeres a new resource pack with the packmanager
+     * Registers a new resource pack with the packmanager
      * @param pack The resourcepack to register
      * @return If a pack with that name was known before it returns the past pack, null if none was known
      */
@@ -354,7 +354,7 @@ public class PackManager {
         if (pack == null && prev != null && !prev.equals(getEmptyPack())) {
             pack = getEmptyPack();
         }
-        if (pack != null) {
+        if (pack != null && pack != prev) {
             setUserPack(playerId, pack);
             plugin.sendPack(playerId, pack);
         }
@@ -376,11 +376,11 @@ public class PackManager {
         ResourcePack pack = null;
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(isGlobalSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-            return null;
+            return prev;
         }
         if(serverName != null && !serverName.isEmpty()) {
             if(isServerSecondary(serverName, prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                return null;
+                return prev;
             }
             ResourcePack serverPack = getServerPack(serverName);
             status = checkPack(playerId, serverPack, status);
@@ -421,11 +421,7 @@ public class PackManager {
         }
 
         IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, pack, status);
-        pack = selectEvent.getPack();
-        if(pack != null && pack.equals(prev)) {
-            pack = null;
-        }
-        return pack;
+        return selectEvent.getPack();
     }
 
     private IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
