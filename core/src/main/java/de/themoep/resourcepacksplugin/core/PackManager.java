@@ -85,11 +85,11 @@ public class PackManager {
      */
     public ResourcePack addPack(ResourcePack pack) throws IllegalArgumentException {
         ResourcePack byHash = getByHash(pack.getHash());
-        if (byHash != null && byHash.getName().equalsIgnoreCase(pack.getName())) {
+        if (byHash != null && !byHash.getName().equalsIgnoreCase(pack.getName())) {
             throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
         }
         ResourcePack byUrl = getByUrl(pack.getUrl());
-        if (byUrl != null && byUrl.getName().equalsIgnoreCase(pack.getName())) {
+        if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
             throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
         }
         hashmap.put(pack.getHash(), pack.getName().toLowerCase());
