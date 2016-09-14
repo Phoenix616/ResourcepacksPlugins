@@ -21,7 +21,7 @@
     </modules>
 
     <properties>
-        <plugin.version>1.6.7</plugin.version>
+        <plugin.version>1.6.8</plugin.version>
     </properties>
 
     <repositories>
