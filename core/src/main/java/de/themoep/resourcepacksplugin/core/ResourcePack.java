@@ -149,9 +149,11 @@ public class ResourcePack {
     }
 
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == null) {
+            return false;
+        } else if (o == this) {
             return true;
-        } else if(!(o instanceof ResourcePack)) {
+        } else if (!(o instanceof ResourcePack)) {
             return false;
         } else {
             ResourcePack other = (ResourcePack)o;
