@@ -353,17 +353,20 @@ public class PackManager {
      * @param pack The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
      */
     public void setPack(UUID playerId, ResourcePack pack) {
+        ResourcePack prev = getUserPack(playerId);
+        if (pack != null && pack.equals(prev)) {
+            return;
+        }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
             plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
             return;
         }
         pack = sendEvent.getPack();
-        ResourcePack prev = getUserPack(playerId);
         if (pack == null && prev != null && !prev.equals(getEmptyPack())) {
             pack = getEmptyPack();
         }
-        if (pack != null && pack != prev) {
+        if (pack != null && !pack.equals(prev)) {
             setUserPack(playerId, pack);
             plugin.sendPack(playerId, pack);
         }
