@@ -120,7 +120,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             setEnabled(loadConfig());
 
-            if (isEnabled()) {
+            if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
                 getPackManager().generateHashes(null);
             }
 

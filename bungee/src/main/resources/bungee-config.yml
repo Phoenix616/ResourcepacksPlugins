@@ -1,4 +1,6 @@
 debug: true
+# Whether or not resourcepack file hashes should be generated on startup:
+autogeneratehashes: true
 messages:
   usepack: You now use the pack %pack%!
   packlisthead: "Packs available to you:"

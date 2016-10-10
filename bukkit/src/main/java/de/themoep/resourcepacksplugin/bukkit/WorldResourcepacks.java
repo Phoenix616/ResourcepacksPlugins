@@ -104,7 +104,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
             }
 
-            getPackManager().generateHashes(null);
+            if (getConfig().getBoolean("autogeneratehashes", true)) {
+                getPackManager().generateHashes(null);
+            }
 
             try {
                 MetricsLite metrics = new MetricsLite(this);
