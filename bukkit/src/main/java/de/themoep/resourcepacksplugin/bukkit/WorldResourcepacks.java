@@ -15,6 +15,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import fr.xephi.authme.api.NewAPI;
+import fr.xephi.authme.events.LoginEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -96,12 +97,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
             if(viaVersion != null) {
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaVersion.getVersion());
-            }
-
-            if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
-                authmeApi = NewAPI.getInstance();
-                getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
-                getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {
@@ -240,6 +235,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                     }
                 }
             }
+        }
+
+        if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
+            authmeApi = NewAPI.getInstance();
+            getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
+            LoginEvent.getHandlerList().unregister(this);
+            getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
         }
         return true;
     }
