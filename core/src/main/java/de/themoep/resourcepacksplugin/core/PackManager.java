@@ -484,6 +484,9 @@ public class PackManager {
                 int changed = 0;
 
                 for (ResourcePack pack : getPacks()) {
+                    if (pack.getName().startsWith("backend-")) {
+                        continue;
+                    }
                     InputStream in = null;
                     try {
                         Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
