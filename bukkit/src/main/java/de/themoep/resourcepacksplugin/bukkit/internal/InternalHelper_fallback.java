@@ -1,5 +1,6 @@
 package de.themoep.resourcepacksplugin.bukkit.internal;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,28 +11,49 @@ import java.lang.reflect.Method;
  */
 public class InternalHelper_fallback implements InternalHelper {
 
-
     private Method setPackWithHashMethod = null;
+
+    private Method getHandle = null;
+    private Method setResourcePack = null;
 
     public InternalHelper_fallback() {
         try {
             setPackWithHashMethod = Player.class.getDeclaredMethod("setResourcePack", String.class, String.class);
         } catch (NoSuchMethodException e) {
-            // Old version, method not there
+            // Old version, method still not there
+            String packageName = Bukkit.getServer().getClass().getPackage().getName();
+            String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
+
+            try {
+                Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
+                getHandle = craftPlayer.getDeclaredMethod("getHandle");
+
+                Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
+                setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (NoSuchMethodException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
     @Override
     public void setResourcePack(Player player, String url, String hash) {
-        if (setPackWithHashMethod != null) {
-            try {
+        try {
+            if (setPackWithHashMethod != null) {
                 setPackWithHashMethod.invoke(player, url, hash);
                 return;
-            } catch (InvocationTargetException e) {
-                // invokation failed
-            } catch (IllegalAccessException e) {
-                // not allowed to acces it?
+            } else if (getHandle != null && setResourcePack != null) {
+                Object entityPlayer = getHandle.invoke(player);
+                setResourcePack.invoke(entityPlayer, url, hash);
+                return;
             }
+        } catch (InvocationTargetException e) {
+            // invokation failed
+        } catch (IllegalAccessException e) {
+            // not allowed to access it?
         }
         player.setResourcePack(url);
     }
