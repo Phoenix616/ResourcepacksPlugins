@@ -6,7 +6,7 @@
 
     <artifactId>core</artifactId>
     <packaging>jar</packaging>
-    <version>${plugin.version}-SNAPSHOT</version>
+    <version>${plugin.version}</version>
 
     <parent>
         <groupId>de.themoep.resourcepacksplugin</groupId>

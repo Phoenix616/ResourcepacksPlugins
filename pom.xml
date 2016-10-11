@@ -21,7 +21,7 @@
     </modules>
 
     <properties>
-        <plugin.version>1.6.8</plugin.version>
+        <plugin.version>1.6.9-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
