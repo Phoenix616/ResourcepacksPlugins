@@ -12,6 +12,7 @@ import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import net.md_5.bungee.api.ChatColor;
@@ -49,6 +50,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private YamlConfig config;
     
     private PackManager pm;
+
+    private UserManager um;
     
     private Level loglevel = Level.INFO;
 
@@ -123,6 +126,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
                 getPackManager().generateHashes(null);
             }
+
+            um = new UserManager(this);
 
             getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
@@ -408,11 +413,15 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     public void clearPack(UUID playerId) {
-        getPackManager().clearUserPack(playerId);
+        getUserManager().clearUserPack(playerId);
     }
 
     public PackManager getPackManager() {
         return pm;
+    }
+
+    public UserManager getUserManager() {
+        return um;
     }
 
     /**

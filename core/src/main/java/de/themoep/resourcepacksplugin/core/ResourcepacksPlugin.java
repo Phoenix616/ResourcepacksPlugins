@@ -56,6 +56,8 @@ public interface ResourcepacksPlugin {
 
     PackManager getPackManager();
 
+    UserManager getUserManager();
+
     /**
      * Get a message from the config
      * @param key The message's key

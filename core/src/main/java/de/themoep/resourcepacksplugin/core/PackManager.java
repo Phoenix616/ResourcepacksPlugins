@@ -44,11 +44,6 @@ public class PackManager {
     private Map<String, String> urlmap = new HashMap<String, String>();
 
     /**
-     * playerid -> packname 
-     */
-    private Map<UUID, String> usermap = new ConcurrentHashMap<UUID, String>();
-
-    /**
      * Name of the empty pack, null if none is set
      */
     private ResourcePack empty = null;
@@ -240,10 +235,11 @@ public class PackManager {
      * Get the resourcepack of a user
      * @param playerid The UUID of this player
      * @return The resourcepack the player has selected, null if he has none/isn't known
+     * @deprecated Use {@link UserManager#getUserPack} instead!
      */
+    @Deprecated
     public ResourcePack getUserPack(UUID playerid) {
-        String name = usermap.get(playerid);
-        return (name == null) ? null : getByName(name);
+        return plugin.getUserManager().getUserPack(playerid);
     }
     
     /**
@@ -251,20 +247,22 @@ public class PackManager {
      * @param playerid The UUID of this player
      * @param pack The resourcepack of the user
      * @return The resourcepack the player had selected previous, null if he had none before
+     * @deprecated Use {@link UserManager#setUserPack} instead!
      */
+    @Deprecated
     public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
-        String previous = usermap.put(playerid, pack.getName());
-        return (previous == null) ? null : getByName(previous);
+        return plugin.getUserManager().setUserPack(playerid, pack);
     }
 
     /**
      * Clear the resourcepack of a user
      * @param playerid The UUID of this player
      * @return The resourcepack the player had selected previous, null if he had none before
+     * @deprecated Use {@link UserManager#clearUserPack} instead!
      */
+    @Deprecated
     public ResourcePack clearUserPack(UUID playerid) {
-        String previous = usermap.remove(playerid);
-        return (previous == null) ? null : getByName(previous);
+        return plugin.getUserManager().clearUserPack(playerid);
     }
     
 
@@ -353,7 +351,7 @@ public class PackManager {
      * @param pack The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
      */
     public void setPack(UUID playerId, ResourcePack pack) {
-        ResourcePack prev = getUserPack(playerId);
+        ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         if (pack != null && pack.equals(prev)) {
             return;
         }
@@ -367,7 +365,7 @@ public class PackManager {
             pack = getEmptyPack();
         }
         if (pack != null && !pack.equals(prev)) {
-            setUserPack(playerId, pack);
+            plugin.getUserManager().setUserPack(playerId, pack);
             plugin.sendPack(playerId, pack);
         }
     }
@@ -384,7 +382,7 @@ public class PackManager {
      * @return The pack for that server; <tt>null</tt> if he should have none
      */
     public ResourcePack getApplicablePack(UUID playerId, String serverName) {
-        ResourcePack prev = getUserPack(playerId);
+        ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         ResourcePack pack = null;
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(isGlobalSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {

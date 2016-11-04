@@ -54,7 +54,7 @@ public class ProxyPackListener implements PluginMessageListener {
             }
 
             plugin.getLogger().log(plugin.getLogLevel(), "BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.getName());
-            plugin.getPackManager().setUserPack(player.getUniqueId(), pack);
+            plugin.getUserManager().setUserPack(player.getUniqueId(), pack);
         } else if(subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
             Player player = plugin.getServer().getPlayer(playerName);

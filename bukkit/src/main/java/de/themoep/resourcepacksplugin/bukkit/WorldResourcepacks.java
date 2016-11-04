@@ -12,6 +12,7 @@ import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import fr.xephi.authme.api.NewAPI;
@@ -37,6 +38,8 @@ import java.util.logging.Level;
 public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugin {
 
     private PackManager pm;
+
+    private UserManager um;
 
     private Level loglevel = Level.INFO;
 
@@ -102,6 +105,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (getConfig().getBoolean("autogeneratehashes", true)) {
                 getPackManager().generateHashes(null);
             }
+
+            um = new UserManager(this);
 
             try {
                 MetricsLite metrics = new MetricsLite(this);
@@ -325,11 +330,15 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void clearPack(Player player) {
-        getPackManager().clearUserPack(player.getUniqueId());
+        getUserManager().clearUserPack(player.getUniqueId());
     }
 
     public PackManager getPackManager() {
         return pm;
+    }
+
+    public UserManager getUserManager() {
+        return um;
     }
 
     public String getMessage(String key) {

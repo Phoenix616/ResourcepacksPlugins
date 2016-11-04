@@ -37,7 +37,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername>");
                         return true;
                     }
-                    ResourcePack prev = plugin.getPackManager().getUserPack(player.getUniqueId());
+                    ResourcePack prev = plugin.getUserManager().getUserPack(player.getUniqueId());
                     if (!pack.equals(prev)) {
                         plugin.getPackManager().setPack(player.getUniqueId(), pack);
                         if (!player.equals(sender)) {
@@ -59,7 +59,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             plugin.sendMessage(sender, ChatColor.GREEN + plugin.getMessage("packlisthead"));
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if(packs.size() > 0) {
-                ResourcePack userPack = plugin.getPackManager().getUserPack(sender.getUniqueId());
+                ResourcePack userPack = plugin.getUserManager().getUserPack(sender.getUniqueId());
                 List<ResourcePack> applicablePacks = new ArrayList<ResourcePack>();
                 for(ResourcePack pack : packs) {
                     if(pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
