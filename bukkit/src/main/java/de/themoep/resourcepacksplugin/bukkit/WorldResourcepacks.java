@@ -260,6 +260,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getLogger().log(Level.INFO, "Reloaded config.");
         if(isEnabled() && resend) {
             getLogger().log(Level.INFO, "Resending packs for all online players!");
+            um = new UserManager(this);
             for(Player p : getServer().getOnlinePlayers()) {
                 resendPack(p);
             }
