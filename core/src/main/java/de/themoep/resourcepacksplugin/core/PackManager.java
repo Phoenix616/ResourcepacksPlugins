@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -534,5 +533,24 @@ public class PackManager {
                 }
             }
         });
+    }
+
+    /**
+     * Get the format of the pack a player can maximally use
+     * @param version The Protocol version to get the format for
+     * @return The pack format; <tt>-1</tt> if the player has an unknown version
+     */
+    public int getPackFormat(int version) {
+        if (version < 0) {
+            return -1;
+        } else if(version < 47) { // pre 1.8
+            return 0;
+        } else if(version < 49) { // pre 1.9 / 15w31a
+            return 1;
+        } else if (version < 210){ // pre 1.11
+            return 2;
+        } else { // 1.11 301
+            return 3;
+        }
     }
 }

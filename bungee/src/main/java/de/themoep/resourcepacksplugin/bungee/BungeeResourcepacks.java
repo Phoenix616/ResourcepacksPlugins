@@ -540,16 +540,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public int getPlayerPackFormat(UUID playerId) {
         ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
         if(proxiedPlayer != null) {
-            int version = proxiedPlayer.getPendingConnection().getVersion();
-            if(version < 47) { // pre 1.8
-                return 0;
-            } else if(version < 107) { // pre 1.9
-                return 1;
-            } else { // current
-                return 2;
-            }
+            return getPackManager().getPackFormat(proxiedPlayer.getPendingConnection().getVersion());
         }
-        return Integer.MAX_VALUE;
+        return -1;
     }
 
     @Override

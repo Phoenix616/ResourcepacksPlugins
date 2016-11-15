@@ -21,7 +21,7 @@
     </modules>
 
     <properties>
-        <plugin.version>1.6.10-SNAPSHOT</plugin.version>
+        <plugin.version>1.6.11-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
@@ -48,6 +48,10 @@
         <repository>
             <id>minecrell-repo</id>
             <url>http://repo.minecrell.net/releases</url>
+        </repository>
+        <repository>
+            <id>viaversion-repo</id>
+            <url>https://repo.viaversion.com/</url>
         </repository>
     </repositories>
 

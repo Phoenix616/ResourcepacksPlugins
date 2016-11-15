@@ -51,7 +51,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private NewAPI authmeApi;
 
     public void onEnable() {
-        if(loadConfig()) {
+        if (loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
@@ -68,12 +68,14 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             String versionNumberString = versionString.substring(firstPoint + 1, (secondPoint < minus && secondPoint != -1) ? secondPoint : minus);
             try {
                 int serverVersion = Integer.valueOf(versionNumberString);
-                if(serverVersion < 8) {
+                if (serverVersion < 8) {
                     serverPackFormat = 0;
-                } else if(serverVersion < 9) {
+                } else if (serverVersion < 9) {
                     serverPackFormat = 1;
-                } else {
+                } else if (serverVersion < 11) {
                     serverPackFormat = 2;
+                } else {
+                    serverPackFormat = 3;
                 }
                 getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
             } catch(NumberFormatException e) {
@@ -430,19 +432,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public int getPlayerPackFormat(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
-            if(viaVersion != null) {
-                int version = viaVersion.getPlayerVersion(playerId);
-                if(version < 47) { // pre 1.8
-                    return 0;
-                } else if(version < 107) { // pre 1.9
-                    return 1;
-                } else { // current
-                    return 2;
-                }
+            if (viaVersion != null) {
+                return getPackManager().getPackFormat(viaVersion.getPlayerVersion(playerId));
             }
             return serverPackFormat;
         }
-        return Integer.MAX_VALUE;
+        return -1;
     }
 
     @Override

@@ -131,7 +131,7 @@ public interface ResourcepacksPlugin {
     /**
      * Get the format of the pack this player can maximally use
      * @param playerId The UUID of the player
-     * @return The pack format, <tt>0</tt> if he can't use any, <tt>MAX_INT</tt> when he can use all
+     * @return The pack format
      */
     int getPlayerPackFormat(UUID playerId);
 
