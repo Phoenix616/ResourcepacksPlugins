@@ -17,6 +17,7 @@
         <module>bukkit-v1_9_R1</module>
         <module>bukkit-v1_9_R2</module>
         <module>bukkit-v1_10_R1</module>
+        <module>bukkit-v1_11_R1</module>
         <module>worldresourcepacks</module>
     </modules>
 
