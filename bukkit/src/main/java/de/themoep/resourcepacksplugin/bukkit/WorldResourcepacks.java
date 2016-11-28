@@ -24,7 +24,8 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.MetricsLite;
-import us.myles.ViaVersion.api.ViaVersionAPI;
+import us.myles.ViaVersion.ViaVersionPlugin;
+import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +48,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private InternalHelper internalHelper;
 
-    private ViaVersionAPI viaVersion;
+    private ViaAPI viaApi;
     private NewAPI authmeApi;
 
     public void onEnable() {
@@ -99,9 +100,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 internalHelper = new InternalHelper_fallback();
             }
 
-            viaVersion = (ViaVersionAPI) getServer().getPluginManager().getPlugin("ViaVersion");
-            if(viaVersion != null) {
-                getLogger().log(Level.INFO, "Detected ViaVersion " + viaVersion.getVersion());
+            ViaVersionPlugin viaPlugin = (ViaVersionPlugin) getServer().getPluginManager().getPlugin("ViaVersion");
+            if(viaPlugin != null) {
+                viaApi = viaPlugin.getApi();
+                getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {
@@ -432,8 +434,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public int getPlayerPackFormat(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
-            if (viaVersion != null) {
-                return getPackManager().getPackFormat(viaVersion.getPlayerVersion(playerId));
+            if (viaApi != null) {
+                return getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
             }
             return serverPackFormat;
         }

@@ -22,7 +22,7 @@
     </modules>
 
     <properties>
-        <plugin.version>1.6.11-SNAPSHOT</plugin.version>
+        <plugin.version>1.6.12-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
