@@ -22,7 +22,8 @@
     </modules>
 
     <properties>
-        <plugin.version>1.6.12-SNAPSHOT</plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <plugin.version>1.6.13-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
