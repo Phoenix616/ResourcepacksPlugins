@@ -84,7 +84,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     public void read(ByteBuf buf) {
         this.url = readString(buf);
-        this.hash = readString(buf);
+        try {
+            this.hash = readString(buf);
+        } catch (IndexOutOfBoundsException ignored) {} // No hash
     }
 
     public void write(ByteBuf buf) {
