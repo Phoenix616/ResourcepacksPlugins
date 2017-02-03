@@ -160,11 +160,18 @@ public interface ResourcepacksPlugin {
     boolean isAuthenticated(UUID playerId);
 
     /**
+     * Run a sync task
+     * @param runnable What to run
+     * @return The task id
+     */
+    int runTask(Runnable runnable);
+
+    /**
      * Run a task asynchronously
      * @param runnable What to run
      * @return The task id
      */
-    int runAsync(Runnable runnable);
+    int runAsyncTask(Runnable runnable);
 
     /**
      * Save changes made on runtime to the config

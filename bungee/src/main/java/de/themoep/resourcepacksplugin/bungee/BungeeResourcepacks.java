@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -565,7 +566,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public int runAsync(Runnable runnable) {
+    public int runTask(Runnable runnable) {
+        return getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.MICROSECONDS).getId();
+    }
+
+    @Override
+    public int runAsyncTask(Runnable runnable) {
         return getProxy().getScheduler().runAsync(this, runnable).getId();
     }
 

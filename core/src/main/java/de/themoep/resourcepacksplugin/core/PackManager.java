@@ -475,7 +475,7 @@ public class PackManager {
      * @param sender The player that executed the command, null if it was the console
      */
     public void generateHashes(final ResourcepacksPlayer sender) {
-        plugin.runAsync(new Runnable() {
+        plugin.runAsyncTask(new Runnable() {
             public void run() {
                 plugin.sendMessage(sender, ChatColor.YELLOW + "Generating hashes...");
                 int changed = 0;
@@ -527,7 +527,7 @@ public class PackManager {
 
                 if (changed > 0) {
                     plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
-                    plugin.saveConfigChanges();
+                    plugin.runTask(() -> plugin.saveConfigChanges());
                 } else {
                     plugin.sendMessage(sender, ChatColor.GREEN + "No hash changed!");
                 }

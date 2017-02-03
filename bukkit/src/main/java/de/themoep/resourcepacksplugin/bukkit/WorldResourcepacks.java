@@ -465,7 +465,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
-    public int runAsync(Runnable runnable) {
+    public int runTask(Runnable runnable) {
+        return getServer().getScheduler().runTask(this, runnable).getTaskId();
+    }
+
+    @Override
+    public int runAsyncTask(Runnable runnable) {
         return getServer().getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
     }
 }
