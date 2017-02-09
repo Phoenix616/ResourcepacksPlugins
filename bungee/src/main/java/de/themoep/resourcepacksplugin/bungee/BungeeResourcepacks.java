@@ -411,11 +411,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     public void clearPack(ProxiedPlayer player) {
-        clearPack(player.getUniqueId());
+        getUserManager().clearUserPack(player.getUniqueId());
+        sendPackInfo(player, null);
     }
 
     public void clearPack(UUID playerId) {
         getUserManager().clearUserPack(playerId);
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if (player != null) {
+            sendPackInfo(player, null);
+        }
     }
 
     public PackManager getPackManager() {
