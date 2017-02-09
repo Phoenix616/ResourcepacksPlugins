@@ -328,10 +328,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void clearPack(UUID playerId) {
-        Player player = getServer().getPlayer(playerId);
-        if(player != null) {
-            clearPack(player);
-        }
+        getUserManager().clearUserPack(playerId);
     }
 
     public void clearPack(Player player) {
