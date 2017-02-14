@@ -1,5 +1,6 @@
 package de.themoep.resourcepacksplugin.bukkit.internal;
 
+import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.entity.Player;
 
 /**
@@ -7,6 +8,6 @@ import org.bukkit.entity.Player;
  */
 public interface InternalHelper {
 
-    void setResourcePack(Player player, String url, String hash);
+    void setResourcePack(Player player, ResourcePack pack);
 
 }

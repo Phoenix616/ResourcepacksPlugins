@@ -2,8 +2,10 @@ package de.themoep.resourcepacksplugin.core;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,7 +14,7 @@ import java.util.List;
 public class ResourcePack {
     private String name;
     private String url;
-    private String hash;
+    private byte[] hash;
     private int format;
     private boolean restricted;
     private String permission;
@@ -75,9 +77,9 @@ public class ResourcePack {
         this.name = name;
         this.url = url;
         if(hash != null && hash.length() == 40) {
-            this.hash = hash;
+            setHash(hash);
         } else {
-            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
+            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).asBytes();
         }
         this.format = format;
         this.restricted = restricted;
@@ -105,7 +107,20 @@ public class ResourcePack {
      * @return The 40 digit lowercase hash
      */
     public String getHash() {
+        return BaseEncoding.base16().lowerCase().encode(hash);
+    }
+
+
+    public void setHash(String hash) {
+        this.hash = BaseEncoding.base16().lowerCase().decode(hash);
+    }
+
+    public byte[] getRawHash() {
         return hash;
+    }
+
+    public void setRawHash(byte[] hash) {
+        this.hash = hash;
     }
 
     /**
@@ -177,21 +192,17 @@ public class ResourcePack {
                 return false;
             }
 
-            String this$hash = this.getHash();
-            String other$hash = other.getHash();
+            byte[] this$hash = this.getRawHash();
+            byte[] other$hash = other.getRawHash();
             if (this$hash == null) {
                 if (other$hash != null) {
                     return false;
                 }
-            } else if (!this$hash.equals(other$hash)) {
+            } else if (!Arrays.equals(this$hash, other$hash)) {
                 return false;
             }
 
             return true;
         }
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
     }
 }

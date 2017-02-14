@@ -1,8 +1,10 @@
 package de.themoep.resourcepacksplugin.bukkit.internal;
 
+import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -18,7 +20,7 @@ public class InternalHelper_fallback implements InternalHelper {
 
     public InternalHelper_fallback() {
         try {
-            setPackWithHashMethod = Player.class.getDeclaredMethod("setResourcePack", String.class, String.class);
+            setPackWithHashMethod = Player.class.getDeclaredMethod("setResourcePack", String.class, Array.class);
         } catch (NoSuchMethodException e) {
             // Old version, method still not there
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
@@ -40,14 +42,14 @@ public class InternalHelper_fallback implements InternalHelper {
     }
 
     @Override
-    public void setResourcePack(Player player, String url, String hash) {
+    public void setResourcePack(Player player, ResourcePack pack) {
         try {
             if (setPackWithHashMethod != null) {
-                setPackWithHashMethod.invoke(player, url, hash);
+                setPackWithHashMethod.invoke(player, pack.getUrl(), pack.getRawHash());
                 return;
             } else if (getHandle != null && setResourcePack != null) {
                 Object entityPlayer = getHandle.invoke(player);
-                setResourcePack.invoke(entityPlayer, url, hash);
+                setResourcePack.invoke(entityPlayer, pack.getUrl(), pack.getHash());
                 return;
             }
         } catch (InvocationTargetException e) {
@@ -55,6 +57,6 @@ public class InternalHelper_fallback implements InternalHelper {
         } catch (IllegalAccessException e) {
             // not allowed to access it?
         }
-        player.setResourcePack(url);
+        player.setResourcePack(pack.getUrl());
     }
 }

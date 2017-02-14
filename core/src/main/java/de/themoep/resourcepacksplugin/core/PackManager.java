@@ -1,9 +1,10 @@
 package de.themoep.resourcepacksplugin.core;
 
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -484,24 +486,22 @@ public class PackManager {
                     if (pack.getName().startsWith("backend-")) {
                         continue;
                     }
+                    Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
                     InputStream in = null;
                     try {
-                        Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
                         URL url = new URL(pack.getUrl());
                         plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
                         in = url.openStream();
                         Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
 
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
-                        md.update(Files.readAllBytes(target));
-                        String sha1 = DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
-                        plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + sha1);
-                        if (!pack.getHash().equalsIgnoreCase(sha1)) {
+                        byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
+                        if (!Arrays.equals(pack.getRawHash(), hash)) {
                             hashmap.remove(pack.getHash());
-                            pack.setHash(sha1);
+                            pack.setRawHash(hash);
                             hashmap.put(pack.getHash(), pack.getName().toLowerCase());
                             changed++;
                         }
+                        plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + pack.getHash());
                         Files.deleteIfExists(target);
                     } catch (MalformedURLException e) {
                         plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
@@ -509,10 +509,6 @@ public class PackManager {
                     } catch (IOException e) {
                         plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load " + pack.getName() + "! " + e.getMessage());
                         continue;
-                    } catch (NoSuchAlgorithmException e) {
-                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not find SHA-1?");
-                        e.printStackTrace();
-                        break;
                     } finally {
                         if (in != null) {
                             try {

@@ -319,8 +319,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param pack The resourcepack to set for the player
      */
     public void sendPack(Player player, ResourcePack pack) {
-        if (!pack.getHash().isEmpty()) {
-            internalHelper.setResourcePack(player, pack.getUrl(), pack.getHash());
+        if (pack.getRawHash().length != 0) {
+            internalHelper.setResourcePack(player, pack);
         } else {
             player.setResourcePack(pack.getUrl());
         }
