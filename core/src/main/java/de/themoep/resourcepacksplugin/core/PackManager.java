@@ -13,11 +13,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,42 +31,33 @@ public class PackManager {
     /**
      * packname -> ResourcePack
      */
-    private Map<String, ResourcePack> packmap = new HashMap<String, ResourcePack>();
+    private Map<String, ResourcePack> packNames = new LinkedHashMap<>();
 
     /**
      * packhash -> packname 
      */
-    private Map<String, String> hashmap = new HashMap<String, String>();
+    private Map<String, ResourcePack> packHashes = new HashMap<>();
     
     /**
      * packurl -> packname 
      */
-    private Map<String, String> urlmap = new HashMap<String, String>();
+    private Map<String, ResourcePack> packUrls = new HashMap<>();
 
     /**
-     * Name of the empty pack, null if none is set
+     * The empty pack, null if none is set
      */
     private ResourcePack empty = null;
     
     /**
      * Name of the global pack, null if none is set
      */
-    private ResourcePack global = null;
-
-    /**
-     * List of the names of global secondary packs
-     */
-    private List<String> globalSecondary = new ArrayList<String>();
+    private PackAssignment global = new PackAssignment();
     
     /**
-     * servername -> packname 
+     * servername -> pack assignment
      */
-    private Map<String, String> servermap = new HashMap<String, String>();
+    private Map<String, PackAssignment> servers = new HashMap<>();
 
-    /**
-     * servername -> List of the names of secondary packs
-     */
-    private Map<String, List<String>> serversecondarymap = new HashMap<String, List<String>>();
 
     public PackManager(ResourcepacksPlugin plugin) {
         this.plugin = plugin;
@@ -88,9 +78,9 @@ public class PackManager {
         if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
             throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
         }
-        hashmap.put(pack.getHash(), pack.getName().toLowerCase());
-        urlmap.put(pack.getUrl(), pack.getName().toLowerCase());
-        return packmap.put(pack.getName().toLowerCase(), pack);
+        packHashes.put(pack.getHash(), pack);
+        packUrls.put(pack.getUrl(), pack);
+        return packNames.put(pack.getName().toLowerCase(), pack);
     }
 
     /**
@@ -99,7 +89,7 @@ public class PackManager {
      * @return The resourcepack with that name, null if there is none
      */
     public ResourcePack getByName(String name) {
-        return packmap.get(name.toLowerCase());
+        return name != null ? packNames.get(name.toLowerCase()) : null;
     }
     
     /**
@@ -108,8 +98,16 @@ public class PackManager {
      * @return The resourcepack with that hash, null if there is none
      */
     public ResourcePack getByHash(String hash) {
-        String name = hashmap.get(hash);
-        return (name == null) ? null : getByName(name);
+        return packHashes.get(hash);
+    }
+
+    /**
+     * Get the resourcepack by its hash
+     * @param hash The hash of the pack to get
+     * @return The resourcepack with that hash, null if there is none
+     */
+    public ResourcePack getByHash(byte[] hash) {
+        return packHashes.get(BaseEncoding.base16().lowerCase().encode(hash));
     }
 
     /**
@@ -118,8 +116,7 @@ public class PackManager {
      * @return The resourcepack with that url, null if there is none
      */
     public ResourcePack getByUrl(String url) {
-        String name = urlmap.get(url);
-        return (name == null) ? null : getByName(name);
+        return packUrls.get(url);
     }
 
     /**
@@ -154,10 +151,12 @@ public class PackManager {
      * Set the global Resource Pack
      * @param pack The pack to set as global
      * @return The previous global pack, null if none was set
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#setPack(ResourcePack)}
      */
+    @Deprecated
     public ResourcePack setGlobalPack(ResourcePack pack) {
         ResourcePack rp = getGlobalPack();
-        global = pack;
+        getGlobalAssignment().setPack(pack);
         return rp;
     }
 
@@ -165,7 +164,9 @@ public class PackManager {
      * Set the global Resource Pack
      * @param packname The name of the pack to set as global
      * @return The previous global pack, null if none was set
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#setPack(String)}
      */
+    @Deprecated
     public ResourcePack setGlobalPack(String packname) {
         return setGlobalPack(getByName(packname));
     }
@@ -173,63 +174,76 @@ public class PackManager {
     /**
      * Get the global Resource Pack
      * @return The global pack, null if none is set
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#getPack()}
      */
+    @Deprecated
     public ResourcePack getGlobalPack() {
-        return global;
+        return getByName(getGlobalAssignment().getPack());
     }
 
     /**
      * Add a secondary global Resource Pack
      * @param pack The pack to add to the list of secondary ones
      * @return False if the pack already was in the list; True if not
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#addSecondary(ResourcePack)}
      */
+    @Deprecated
     public boolean addGlobalSecondary(ResourcePack pack) {
-        return addGlobalSecondary(pack.getName());
+        return getGlobalAssignment().addSecondary(pack);
     }
 
     /**
      * Add a secondary global Resource Pack
      * @param packname The name of the pack to add to the list of secondary ones
      * @return False if the pack already was in the list; True if not
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#addSecondary(String)}
      */
+    @Deprecated
     public boolean addGlobalSecondary(String packname) {
-        return !isGlobalSecondary(packname) && getGlobalSecondary().add(packname.toLowerCase());
+        return getGlobalAssignment().addSecondary(packname);
     }
 
     /**
      * Get if a pack is in the list of secondary global Resource Packs
      * @param pack The pack to check
      * @return True if it is a global secondary pack, false if not
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#isSecondary(ResourcePack)}
      */
+    @Deprecated
     public boolean isGlobalSecondary(ResourcePack pack) {
-        return pack != null && isGlobalSecondary(pack.getName());
+        return getGlobalAssignment().isSecondary(pack);
     }
 
     /**
      * Get if a pack is in the list of secondary global Resource Packs
      * @param packname The name of the pack to check
      * @return True if it is a global secondary pack, false if not
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#isSecondary(String)}
      */
+    @Deprecated
     public boolean isGlobalSecondary(String packname) {
-        return getGlobalSecondary().contains(packname.toLowerCase());
+        return getGlobalAssignment().isSecondary(packname);
     }
 
     /**
      * Get the list of global seconday packs
      * @return A list of packnames that are global secondary packs
+     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#getSecondaries()}
      */
+    @Deprecated
     public List<String> getGlobalSecondary() {
-        return globalSecondary;
+        return new ArrayList<>(global.getSecondaries());
     }
     
     /**
      * Get the resourcepack of a server
      * @param server The name of the server, "!global" for the global pack
      * @return The resourcepack of the server, null if there is none
+     * @deprecated Use {@link PackManager#getAssignment(String)} ()} and {@link PackAssignment#getPack()}
      */
+    @Deprecated
     public ResourcePack getServerPack(String server) {
-        String name = servermap.get(server.toLowerCase());
-        return (name == null) ? null : getByName(name);
+        return getByName(getAssignment(server).getPack());
     }
     
     /**
@@ -271,23 +285,52 @@ public class PackManager {
      * Add a server to a resourcepack
      * @param server The server this pack should be active on
      * @param pack The resourcepack
+     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#setPack(ResourcePack)}
      */
+    @Deprecated
     public void addServer(String server, ResourcePack pack) {
-        pack.addServer(server);
-        servermap.put(server.toLowerCase(), pack.getName().toLowerCase());
+        getAssignment(server).setPack(pack);
     }
-    
+
+    /**
+     * Get the global assignment
+     * @return  The global PackAssignment
+     */
+    public PackAssignment getGlobalAssignment() {
+        return global;
+    }
+
+    /**
+     * Add a new assignment to a server/world
+     * @param server        The name of the server/world
+     * @param assignment    The new PackAssignment
+     * @return              The previous assignment or null if there was none
+     */
+    public PackAssignment addAssignment(String server, PackAssignment assignment) {
+        return servers.put(server.toLowerCase(), assignment);
+    }
+
+    /**
+     * Get the assignment of a server/world
+     * @param server    The name of the server/world
+     * @return          The PackAssignment; an empty one if there is none
+     */
+    public PackAssignment getAssignment(String server) {
+        PackAssignment assignment = servers.get(server.toLowerCase());
+        if (assignment == null) {
+            assignment = new PackAssignment();
+            addAssignment(server, assignment);
+        }
+        return assignment;
+    }
+
     /**
      * Removes the pack of a server
      * @param server The server the pack should get removed from
      * @return True if the server had a pack, false if not
      */
     public boolean removeServer(String server) {
-        String packname = servermap.remove(server.toLowerCase());
-        if(packname != null && packmap.containsKey(packname)) {
-            return packmap.get(packname).removeServer(server);
-        }
-        return false;
+        return servers.remove(server.toLowerCase()) != null;
     }
 
     /**
@@ -295,25 +338,23 @@ public class PackManager {
      * @param server The server to add a secondary pack to
      * @param pack The pack to add to the list of secondary ones
      * @return False if the pack already was in the list; True if not
+     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#addSecondary(ResourcePack)}
      */
+    @Deprecated
     public boolean addServerSecondary(String server, ResourcePack pack) {
-        return addServerSecondary(server, pack.getName());
+        return getAssignment(server).addSecondary(pack);
     }
 
     /**
-     * Add a secondary global Resource Pack
+     * Add a secondary server Resource Pack
      * @param server The server to add a secondary pack to
      * @param packname The name of the pack to add to the list of secondary ones
      * @return False if the pack already was in the list; True if not
+     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#addSecondary(String)}
      */
+    @Deprecated
     public boolean addServerSecondary(String server, String packname) {
-        if(isServerSecondary(server, packname)) {
-            return false;
-        }
-        List<String> serverSecondaries = getServerSecondary(server);
-        serverSecondaries.add(packname.toLowerCase());
-        serversecondarymap.put(server.toLowerCase(), serverSecondaries);
-        return true;
+        return getAssignment(server).addSecondary(packname);
     }
 
     /**
@@ -321,9 +362,11 @@ public class PackManager {
      * @param server The check the secondary pack of
      * @param pack The pack to check
      * @return True if it is a global secondary pack, false if not
+     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#isSecondary(ResourcePack)}
      */
+    @Deprecated
     public boolean isServerSecondary(String server, ResourcePack pack) {
-        return pack != null && isServerSecondary(server, pack.getName());
+        return getAssignment(server).isSecondary(pack);
     }
 
     /**
@@ -331,20 +374,23 @@ public class PackManager {
      * @param server The server to add a secondary pack to
      * @param packname The name of the pack to check
      * @return True if it is a global secondary pack, false if not
+     * @deprecated Use {@link PackManager#getAssignment(String)} and {@link PackAssignment#isSecondary(String)}
      */
+    @Deprecated
     public boolean isServerSecondary(String server, String packname) {
-        return getServerSecondary(server).contains(packname.toLowerCase());
+        return getAssignment(server).isSecondary(packname);
     }
 
     /**
      * Get the list of secondary packs of a specific server
      * @param server The name of the server
      * @return The list of secondary packs; empty if none found
+     * @deprecated Use {@link PackManager#getAssignment(String)} and {@link PackAssignment#getSecondaries()}
      */
+    @Deprecated
     public List<String> getServerSecondary(String server) {
-        return serversecondarymap.containsKey(server.toLowerCase()) ? serversecondarymap.get(server.toLowerCase()) : new ArrayList<String>();
+        return new ArrayList<>(getAssignment(server).getSecondaries());
     }
-
 
     /**
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
@@ -371,6 +417,11 @@ public class PackManager {
         }
     }
 
+    /**
+     * Apply the pack that a player should have on that server/world
+     * @param playerId      The UUID of the player
+     * @param serverName    The name of the server/world
+     */
     public void applyPack(UUID playerId, String serverName) {
         ResourcePack pack = getApplicablePack(playerId, serverName);
         setPack(playerId, pack);
@@ -468,7 +519,7 @@ public class PackManager {
      * @return A new array list of packs
      */
     public List<ResourcePack> getPacks() {
-        return new ArrayList<ResourcePack>(packmap.values());
+        return new ArrayList<>(packNames.values());
     }
 
     /**
@@ -477,56 +528,52 @@ public class PackManager {
      * @param sender The player that executed the command, null if it was the console
      */
     public void generateHashes(final ResourcepacksPlayer sender) {
-        plugin.runAsyncTask(new Runnable() {
-            public void run() {
-                plugin.sendMessage(sender, ChatColor.YELLOW + "Generating hashes...");
-                int changed = 0;
+        plugin.runAsyncTask(() -> {
+            plugin.sendMessage(sender, ChatColor.YELLOW + "Generating hashes...");
+            int changed = 0;
 
-                for (ResourcePack pack : getPacks()) {
-                    if (pack.getName().startsWith("backend-")) {
-                        continue;
+            for (ResourcePack pack : getPacks()) {
+                if (pack.getName().startsWith("backend-")) {
+                    continue;
+                }
+                Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
+                InputStream in = null;
+                try {
+                    URL url = new URL(pack.getUrl());
+                    plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
+                    in = url.openStream();
+                    Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+
+                    byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
+                    if (!Arrays.equals(pack.getRawHash(), hash)) {
+                        packHashes.remove(pack.getHash());
+                        pack.setRawHash(hash);
+                        packHashes.put(pack.getHash(), pack);
+                        changed++;
                     }
-                    Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
-                    InputStream in = null;
-                    try {
-                        URL url = new URL(pack.getUrl());
-                        plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
-                        in = url.openStream();
-                        Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-
-                        byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
-                        if (!Arrays.equals(pack.getRawHash(), hash)) {
-                            hashmap.remove(pack.getHash());
-                            pack.setRawHash(hash);
-                            hashmap.put(pack.getHash(), pack.getName().toLowerCase());
-                            changed++;
-                        }
-                        plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + pack.getHash());
-                        Files.deleteIfExists(target);
-                    } catch (MalformedURLException e) {
-                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
-                        continue;
-                    } catch (IOException e) {
-                        plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load " + pack.getName() + "! " + e.getMessage());
-                        continue;
-                    } finally {
-                        if (in != null) {
-                            try {
-                                in.close();
-                            } catch (IOException e) {
-                                plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + e.getMessage());
-                                e.printStackTrace();
-                            }
+                    plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + pack.getHash());
+                    Files.deleteIfExists(target);
+                } catch (MalformedURLException e) {
+                    plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
+                } catch (IOException e) {
+                    plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load " + pack.getName() + "! " + e.getMessage());
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + e.getMessage());
+                            e.printStackTrace();
                         }
                     }
                 }
+            }
 
-                if (changed > 0) {
-                    plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
-                    plugin.runTask(() -> plugin.saveConfigChanges());
-                } else {
-                    plugin.sendMessage(sender, ChatColor.GREEN + "No hash changed!");
-                }
+            if (changed > 0) {
+                plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
+                plugin.runTask(plugin::saveConfigChanges);
+            } else {
+                plugin.sendMessage(sender, ChatColor.GREEN + "No hash changed!");
             }
         });
     }

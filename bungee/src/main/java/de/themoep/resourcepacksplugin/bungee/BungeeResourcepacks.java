@@ -60,12 +60,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Set of uuids of players which got send a pack by the backend server. 
      * This is needed so that the server does not send the bungee pack if the user has a backend one.
      */
-    private Map<UUID, Boolean> backendPackedPlayers = new ConcurrentHashMap<UUID, Boolean>();
+    private Map<UUID, Boolean> backendPackedPlayers = new ConcurrentHashMap<>();
 
     /**
      * Set of uuids of players which were authenticated by a backend server's plugin
      */
-    private Set<UUID> authenticatedPlayers = new HashSet<UUID>();
+    private Set<UUID> authenticatedPlayers = new HashSet<>();
 
     /**
      * Wether the plugin is enabled or not
@@ -77,7 +77,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public void onEnable() {
         instance = this;
         try {
-            List<Integer> supportedVersions = new ArrayList<Integer>();
+            List<Integer> supportedVersions = new ArrayList<>();
             try {
                 Field svField = Protocol.class.getField("supportedVersions");
                 supportedVersions = (List<Integer>) svField.get(null);
@@ -227,7 +227,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
                 getLogger().log(getLogLevel(), "Global pack: " + gp.getName() + "!");
-                getPackManager().setGlobalPack(gp);
+                getPackManager().getGlobalAssignment().setPack(gp);
             } else {
                 getLogger().warning("Cannot set global resourcepack as there is no pack with the name " + globalpackname + " defined!");
             }
@@ -238,7 +238,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             for(String secondarypack : globalsecondary) {
                 ResourcePack sp = getPackManager().getByName(secondarypack);
                 if (sp != null) {
-                    getPackManager().addGlobalSecondary(sp);
+                    getPackManager().getGlobalAssignment().addSecondary(sp);
                     getLogger().log(getLogLevel(), sp.getName());
                 } else {
                     getLogger().warning("Cannot add resourcepack as a global secondaray pack as there is no pack with the name " + secondarypack + " defined!");
@@ -253,7 +253,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if(packname != null && !packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
-                    getPackManager().addServer(s, sp);
+                    getPackManager().getAssignment(s).setPack(sp);
                     getLogger().log(getLogLevel(), "Pack: " + sp.getName() + "!");
                 } else {
                     getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
@@ -267,7 +267,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(secondarypack);
                     if (sp != null) {
-                        getPackManager().addServerSecondary(s, sp);
+                        getPackManager().getAssignment(s).addSecondary(sp);
                         getLogger().log(getLogLevel(), sp.getName());
                     } else {
                         getLogger().warning("Cannot add resourcepack as a secondary pack for server " + s + " as there is no pack with the name " + secondarypack + " defined!");

@@ -18,7 +18,6 @@ public class ResourcePack {
     private int format;
     private boolean restricted;
     private String permission;
-    private List<String> servers = new ArrayList<String>();
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
@@ -145,22 +144,6 @@ public class ResourcePack {
      */
     public String getPermission() {
         return permission;
-    }
-
-    /**
-     * Don't use this method! Use PackManager.addServer() instead!
-     */
-    void addServer(String name) {
-        if(!this.servers.contains(name.toLowerCase())) {
-            this.servers.add(name.toLowerCase());
-        }
-    }
-    
-    /**
-     * Don't use this method! Use PackManager.removeServer() instead!
-     */
-    boolean removeServer(String server) {
-        return this.servers.remove(server.toLowerCase());
     }
 
     public boolean equals(Object o) {

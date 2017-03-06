@@ -197,7 +197,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             ResourcePack gp = getPackManager().getByName(globalpackname);
             if(gp != null) {
                 getLogger().log(getLogLevel(), "Server pack: " + gp.getName() + "!");
-                getPackManager().setGlobalPack(gp);
+                getPackManager().getGlobalAssignment().setPack(gp);
             } else {
                 getLogger().warning("Cannot set server resourcepack as there is no pack with the name " + globalpackname + " defined!");
             }
@@ -208,7 +208,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             for(String secondarypack : globalsecondary) {
                 ResourcePack sp = getPackManager().getByName(secondarypack);
                 if (sp != null) {
-                    getPackManager().addGlobalSecondary(sp);
+                    getPackManager().getGlobalAssignment().addSecondary(sp);
                     getLogger().log(getLogLevel(), sp.getName());
                 } else {
                     getLogger().warning("Cannot add resourcepack as a server secondary pack as there is no pack with the name " + secondarypack + " defined!");
@@ -223,7 +223,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if(!packname.isEmpty()) {
                 ResourcePack sp = getPackManager().getByName(packname);
                 if(sp != null) {
-                    getPackManager().addServer(s, sp);
+                    getPackManager().getAssignment(s).setPack(sp);
                     getLogger().log(getLogLevel(), "Pack: " + sp.getName() + "!");
                 } else {
                     getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
@@ -237,7 +237,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 for(String secondarypack : serversecondary) {
                     ResourcePack sp = getPackManager().getByName(secondarypack);
                     if (sp != null) {
-                        getPackManager().addServerSecondary(s, sp);
+                        getPackManager().getAssignment(s).addSecondary(sp);
                         getLogger().log(getLogLevel(), sp.getName());
                     } else {
                         getLogger().warning("Cannot add resourcepack as a secondary pack for world " + s + " as there is no pack with the name " + secondarypack + " defined!");
