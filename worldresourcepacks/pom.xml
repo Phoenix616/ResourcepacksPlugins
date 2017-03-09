@@ -64,6 +64,12 @@
             <version>R8-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit-lite</artifactId>
+            <version>1.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -125,7 +131,11 @@
                     <relocations>
                         <relocation>
                             <pattern>org.mcstats</pattern>
-                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit</shadedPattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit.mcstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

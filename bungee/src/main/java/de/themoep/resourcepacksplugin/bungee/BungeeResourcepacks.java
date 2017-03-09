@@ -24,6 +24,7 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.minecrell.mcstats.BungeeStatsLite;
+import org.bstats.MetricsLite;
 
 import java.io.File;
 import java.io.IOException;
@@ -136,8 +137,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
             getProxy().registerChannel("Resourcepack");
 
-            BungeeStatsLite stats = new BungeeStatsLite(this);
-            stats.start();
+            new BungeeStatsLite(this).start();
+            new MetricsLite(this);
 
         } catch (IllegalAccessException e) {
             e.printStackTrace();

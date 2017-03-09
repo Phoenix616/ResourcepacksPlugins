@@ -55,6 +55,10 @@
             <id>viaversion-repo</id>
             <url>https://repo.viaversion.com/</url>
         </repository>
+        <repository>
+            <id>bstats-repo</id>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
     </repositories>
 
     <build>
