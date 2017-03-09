@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class WorldSwitchListener implements Listener {
 
-    WorldResourcepacks plugin;
+    private final WorldResourcepacks plugin;
 
     public WorldSwitchListener(WorldResourcepacks plugin) {
         this.plugin = plugin;
@@ -23,21 +23,30 @@ public class WorldSwitchListener implements Listener {
 
     @EventHandler
     public void onWorldSwitch(PlayerChangedWorldEvent event) {
-        calculatePack(event.getPlayer().getUniqueId());
+        handleEvent(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        final UUID playerId = event.getPlayer().getUniqueId();
-        // Send out pack after the proxy server sent us the info about the previous pack
-        // Also helps to wait till the client properly loaded to display the confirmation dialog
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                calculatePack(playerId);
-            }
-        }.runTaskLater(plugin, 10);
+        handleEvent(event.getPlayer());
+    }
 
+    private void handleEvent(Player player) {
+        final UUID playerId = player.getUniqueId();
+
+        long sendDelay = -1;
+        if (player.getWorld() != null) {
+            sendDelay = plugin.getPackManager().getAssignment(player.getWorld().getName()).getSendDelay();
+        }
+        if (sendDelay < 0) {
+            sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+        }
+
+        if (sendDelay > 0) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> calculatePack(playerId), sendDelay);
+        } else {
+            calculatePack(playerId);
+        }
     }
 
     private void calculatePack(UUID playerId) {

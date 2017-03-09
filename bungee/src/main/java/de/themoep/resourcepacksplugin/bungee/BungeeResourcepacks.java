@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -222,60 +223,23 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
         }
 
-        String globalpackname = getConfig().getString("global.pack");
-        if(globalpackname != null && !globalpackname.isEmpty()) {
-            ResourcePack gp = getPackManager().getByName(globalpackname);
-            if(gp != null) {
-                getLogger().log(getLogLevel(), "Global pack: " + gp.getName() + "!");
-                getPackManager().getGlobalAssignment().setPack(gp);
-            } else {
-                getLogger().warning("Cannot set global resourcepack as there is no pack with the name " + globalpackname + " defined!");
-            }
-        }
-        List<String> globalsecondary = getConfig().getStringList("global.secondary");
-        if(globalsecondary != null && globalsecondary.size() > 0) {
-            getLogger().log(getLogLevel(), "Global secondary packs:");
-            for(String secondarypack : globalsecondary) {
-                ResourcePack sp = getPackManager().getByName(secondarypack);
-                if (sp != null) {
-                    getPackManager().getGlobalAssignment().addSecondary(sp);
-                    getLogger().log(getLogLevel(), sp.getName());
-                } else {
-                    getLogger().warning("Cannot add resourcepack as a global secondaray pack as there is no pack with the name " + secondarypack + " defined!");
-                }
-            }
-        }
+        getLogger().log(Level.INFO, "Loading global assignment...");
+        getPackManager().setGlobalAssignment(getPackManager().loadAssignment(getValues(getConfig().getSection("global"))));
         
         Configuration servers = getConfig().getSection("servers");
-        for(String s : servers.getKeys()) {
-            getLogger().log(getLogLevel(), "Loading settings for server " + s + "!");
-            String packname = servers.getString(s + ".pack");
-            if(packname != null && !packname.isEmpty()) {
-                ResourcePack sp = getPackManager().getByName(packname);
-                if(sp != null) {
-                    getPackManager().getAssignment(s).setPack(sp);
-                    getLogger().log(getLogLevel(), "Pack: " + sp.getName() + "!");
-                } else {
-                    getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
-                }
-            } else {
-                getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
-            }
-            List<String> serversecondary = servers.getStringList(s + ".secondary");
-            if(serversecondary != null && serversecondary.size() > 0) {
-                getLogger().log(getLogLevel(), "Secondary packs:");
-                for(String secondarypack : serversecondary) {
-                    ResourcePack sp = getPackManager().getByName(secondarypack);
-                    if (sp != null) {
-                        getPackManager().getAssignment(s).addSecondary(sp);
-                        getLogger().log(getLogLevel(), sp.getName());
-                    } else {
-                        getLogger().warning("Cannot add resourcepack as a secondary pack for server " + s + " as there is no pack with the name " + secondarypack + " defined!");
-                    }
-                }
-            }
+        for(String server : servers.getKeys()) {
+            getLogger().log(getLogLevel(), "Loading settings for server " + server + "...");
+            getPackManager().addAssignment(server, getPackManager().loadAssignment(getValues(servers.getSection(server))));
         }
         return true;
+    }
+
+    private Map<String, Object> getValues(Configuration config) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (String key : config.getKeys()) {
+            map.put(key, config.get(key));
+        }
+        return map;
     }
 
     /**

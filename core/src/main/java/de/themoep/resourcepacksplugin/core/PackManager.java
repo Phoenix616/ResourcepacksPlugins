@@ -301,6 +301,14 @@ public class PackManager {
     }
 
     /**
+     * Set the global assignment
+     * @param assignment    The PackAssignment that you want to set
+     */
+    public void setGlobalAssignment(PackAssignment assignment) {
+        this.global = assignment;
+    }
+
+    /**
      * Add a new assignment to a server/world
      * @param server        The name of the server/world
      * @param assignment    The new PackAssignment
@@ -320,6 +328,55 @@ public class PackManager {
         if (assignment == null) {
             assignment = new PackAssignment();
             addAssignment(server, assignment);
+        }
+        return assignment;
+    }
+
+    /**
+     * Load an assignment from a map representing the section in the config
+     * @param config    A map representing the config section
+     * @return          The PackAssignment
+     */
+    public PackAssignment loadAssignment(Map<String, Object> config) {
+        PackAssignment assignment = new PackAssignment();
+        if(config.get("pack") != null) {
+            if (!(config.get("pack") instanceof String)) {
+                plugin.getLogger().log(Level.WARNING, "'pack' option has to be a String!");
+            } else if (!((String) config.get("pack")).isEmpty()) {
+                ResourcePack pack = getByName((String) config.get("pack"));
+                if (pack != null) {
+                    assignment.setPack(pack);
+                    plugin.getLogger().log(plugin.getLogLevel(), "Pack: " + pack.getName());
+                } else {
+                    plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                }
+            }
+        }
+        if(config.get("secondary") != null) {
+            if (!(config.get("secondary") instanceof List)
+                    || !((List) config.get("secondary")).isEmpty()
+                    && !(((List) config.get("secondary")).get(0) instanceof String)){
+                plugin.getLogger().log(Level.WARNING, "'secondary' option has to be a String List!");
+            } else {
+                plugin.getLogger().log(plugin.getLogLevel(), "Secondary packs:");
+                List<String> secondary = (List<String>) config.get("secondary");
+                for(String secondaryPack : secondary) {
+                    ResourcePack pack = getByName(secondaryPack);
+                    if (pack != null) {
+                        assignment.addSecondary(pack);
+                        plugin.getLogger().log(plugin.getLogLevel(), "- " + pack.getName());
+                    } else {
+                        plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                    }
+                }
+            }
+        }
+        if (config.get("send-delay") != null) {
+            if (!(config.get("send-delay") instanceof Long) && !(config.get("send-dely") instanceof Long)) {
+                plugin.getLogger().log(Level.WARNING, "'send-delay' option has to be an Integer or Long!");
+            } else {
+                assignment.setSendDelay((Long) config.get("send-delay"));
+            }
         }
         return assignment;
     }

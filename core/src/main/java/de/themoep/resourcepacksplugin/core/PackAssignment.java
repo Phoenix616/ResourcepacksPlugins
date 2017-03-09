@@ -9,6 +9,7 @@ public class PackAssignment {
 
     private String pack = null;
     private LinkedHashSet<String> secondaries = new LinkedHashSet<>();
+    private long sendDelay = -1;
 
     /**
      * Set the main pack of this assignment
@@ -101,6 +102,22 @@ public class PackAssignment {
      * @return  <tt>true</tt> if it has no packs or secondaries; <tt>false</tt> if it has some
      */
     public boolean isEmpty() {
-        return pack == null && secondaries.isEmpty();
+        return pack == null && secondaries.isEmpty() && sendDelay == -1;
+    }
+
+    /**
+     * Set the delay in ticks  to wait before sending the packs from this assignment
+     * @param sendDelay The delay in ticks
+     */
+    public void setSendDelay(long sendDelay) {
+        this.sendDelay = sendDelay;
+    }
+
+    /**
+     * Get the delay in ticks to wait before sending the packs from this assignment
+     * @return  The delay in ticks; -1 if there was no special one configured
+     */
+    public long getSendDelay() {
+        return sendDelay;
     }
 }

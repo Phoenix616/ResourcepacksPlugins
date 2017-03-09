@@ -192,58 +192,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
 
-        String globalpackname = getConfig().getString("server.pack", "");
-        if(!globalpackname.isEmpty()) {
-            ResourcePack gp = getPackManager().getByName(globalpackname);
-            if(gp != null) {
-                getLogger().log(getLogLevel(), "Server pack: " + gp.getName() + "!");
-                getPackManager().getGlobalAssignment().setPack(gp);
-            } else {
-                getLogger().warning("Cannot set server resourcepack as there is no pack with the name " + globalpackname + " defined!");
-            }
-        }
-        List<String> globalsecondary = getConfig().getStringList("server.secondary");
-        if(globalsecondary != null && globalsecondary.size() > 0) {
-            getLogger().log(getLogLevel(), "Server secondary packs:");
-            for(String secondarypack : globalsecondary) {
-                ResourcePack sp = getPackManager().getByName(secondarypack);
-                if (sp != null) {
-                    getPackManager().getGlobalAssignment().addSecondary(sp);
-                    getLogger().log(getLogLevel(), sp.getName());
-                } else {
-                    getLogger().warning("Cannot add resourcepack as a server secondary pack as there is no pack with the name " + secondarypack + " defined!");
-                }
-            }
-        }
+        getLogger().log(Level.INFO, "Loading global assignment...");
+        getPackManager().setGlobalAssignment(getPackManager().loadAssignment(getConfig().getConfigurationSection("server").getValues(true)));
 
-        ConfigurationSection servers = getConfig().getConfigurationSection("worlds");
-        for(String s : servers.getKeys(false)) {
-            getLogger().log(getLogLevel(), "Loading settings for world " + s + "!");
-            String packname = servers.getString(s + ".pack", "");
-            if(!packname.isEmpty()) {
-                ResourcePack sp = getPackManager().getByName(packname);
-                if(sp != null) {
-                    getPackManager().getAssignment(s).setPack(sp);
-                    getLogger().log(getLogLevel(), "Pack: " + sp.getName() + "!");
-                } else {
-                    getLogger().warning("Cannot set resourcepack for " + s + " as there is no pack with the name " + packname + " defined!");
-                }
-            }  else {
-                getLogger().log(getLogLevel(), "No pack setting for " + s + "!");
-            }
-            List<String> serversecondary = servers.getStringList(s + ".secondary");
-            if(serversecondary != null && serversecondary.size() > 0) {
-                getLogger().log(getLogLevel(), "Secondary packs:");
-                for(String secondarypack : serversecondary) {
-                    ResourcePack sp = getPackManager().getByName(secondarypack);
-                    if (sp != null) {
-                        getPackManager().getAssignment(s).addSecondary(sp);
-                        getLogger().log(getLogLevel(), sp.getName());
-                    } else {
-                        getLogger().warning("Cannot add resourcepack as a secondary pack for world " + s + " as there is no pack with the name " + secondarypack + " defined!");
-                    }
-                }
-            }
+        ConfigurationSection worlds = getConfig().getConfigurationSection("worlds");
+        for(String world : worlds.getKeys(false)) {
+            getLogger().log(getLogLevel(), "Loading settings for world " + world + "...");
+            getPackManager().addAssignment(world, getPackManager().loadAssignment(worlds.getConfigurationSection(world).getValues(true)));
         }
 
         if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {

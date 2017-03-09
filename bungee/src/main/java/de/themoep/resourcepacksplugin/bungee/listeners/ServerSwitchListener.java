@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerSwitchListener implements Listener {
 
-    BungeeResourcepacks plugin;
+    private final BungeeResourcepacks plugin;
 
     public ServerSwitchListener(BungeeResourcepacks plugin) {
         this.plugin = plugin;
@@ -30,12 +30,19 @@ public class ServerSwitchListener implements Listener {
             ResourcePack pack = plugin.getUserManager().getUserPack(playerId);
             plugin.sendPackInfo(event.getPlayer(), pack);
 
-            plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    calculatePack(playerId);
-                }
-            }, 1L, TimeUnit.SECONDS);
+            long sendDelay = -1;
+            if (event.getPlayer().getServer() != null) {
+                sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getServer().getInfo().getName()).getSendDelay();
+            }
+            if (sendDelay < 0) {
+                sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+            }
+
+            if (sendDelay > 0) {
+                plugin.getProxy().getScheduler().schedule(plugin, () -> calculatePack(playerId), sendDelay * 50, TimeUnit.MILLISECONDS);
+            } else {
+                calculatePack(playerId);
+            }
         }
     }
 

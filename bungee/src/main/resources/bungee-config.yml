@@ -41,6 +41,8 @@ global:
   # or the right version to use that pack. (From top to bottom)
   secondary: 
   - lobbypack
+  # Delay in ticks before sending the pack to a player after he logs in/switches to the server
+  send-delay: 20
 servers:
   lobby:
     pack: lobbypack
