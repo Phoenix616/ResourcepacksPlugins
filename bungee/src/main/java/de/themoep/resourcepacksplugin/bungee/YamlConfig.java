@@ -7,6 +7,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
@@ -31,15 +32,8 @@ public class YamlConfig {
         configFile = new File(configFilePath);
         defaultCfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("bungee-config.yml")));
 
-        if (!configFile.exists()) {
-            if (!configFile.getParentFile().exists()) {
-                configFile.getParentFile().mkdirs();
-            }
-            configFile.createNewFile();
-
-            createDefaultConfig();
-        } else {
-            cfg = ymlCfg.load(configFile);
+        if (!createDefaultConfig()) {
+            cfg = ymlCfg.load(configFile, defaultCfg);
         }
     }
 
@@ -55,10 +49,19 @@ public class YamlConfig {
         }
     }
     
-    public void createDefaultConfig() {
-        cfg = defaultCfg;
-
-        save();
+    public boolean createDefaultConfig() throws IOException {
+        if ((configFile.getParentFile().exists() || configFile.getParentFile().mkdirs())
+                && configFile.createNewFile()) {
+            InputStream stream = plugin.getResourceAsStream(configFile.getName());
+            if (stream != null) {
+                cfg = ymlCfg.load(new InputStreamReader(stream), defaultCfg);
+            } else {
+                cfg = new Configuration();
+            }
+            save();
+            return true;
+        }
+        return false;
     }    
     
     /**
