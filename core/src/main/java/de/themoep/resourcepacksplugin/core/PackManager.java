@@ -372,10 +372,11 @@ public class PackManager {
             }
         }
         if (config.get("send-delay") != null) {
-            if (!(config.get("send-delay") instanceof Long) && !(config.get("send-dely") instanceof Long)) {
+            if (!(config.get("send-delay") instanceof Integer) && !(config.get("send-dely") instanceof Long)) {
                 plugin.getLogger().log(Level.WARNING, "'send-delay' option has to be an Integer or Long!");
             } else {
                 assignment.setSendDelay((Long) config.get("send-delay"));
+                plugin.getLogger().log(plugin.getLogLevel(), "Send delay: " + assignment.getSendDelay());
             }
         }
         return assignment;
