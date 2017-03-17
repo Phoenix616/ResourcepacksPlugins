@@ -350,6 +350,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
       * @param pack The ResourcePack to send the info of the the Bukkit server, null if you want to clear it!
       */
     public void sendPackInfo(ProxiedPlayer player, ResourcePack pack) {
+        if (player.getServer() == null) {
+            return;
+        }
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         if(pack != null) {
             out.writeUTF("packChange");
