@@ -7,6 +7,8 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -15,6 +17,7 @@ import java.util.logging.Level;
 public class ProxyPackListener implements PluginMessageListener {
 
     private final WorldResourcepacks plugin;
+    private Map<String, ProxyPackReaction> subChannels = new HashMap<>();
 
     public ProxyPackListener(WorldResourcepacks plugin) {
         this.plugin = plugin;
@@ -58,15 +61,27 @@ public class ProxyPackListener implements PluginMessageListener {
         } else if(subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
             Player player = plugin.getServer().getPlayer(playerName);
-            if(player == null || !player.isOnline()) {
+            if (player == null || !player.isOnline()) {
                 return;
             }
 
             plugin.getLogger().log(plugin.getLogLevel(), "BungeeCord proxy send command to clear the pack of player " + player.getName());
             plugin.clearPack(player);
-
+        } else if (subChannels.containsKey(subchannel)) {
+            subChannels.get(subchannel).execute(p, in);
         } else {
             plugin.getLogger().log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your BungeeCord!");
         }
     }
+
+    /**
+     * Register a new sub channel with this listener on the channel "Resourcepack"
+     * @param name      The name of the sub channel, case sensitive
+     * @param reaction  The reaction that should happen
+     * @return          The previously registered Reaction or null
+     */
+    public ProxyPackReaction registerSubChannel(String name, ProxyPackReaction reaction) {
+        return subChannels.put(name, reaction);
+    }
+
 }

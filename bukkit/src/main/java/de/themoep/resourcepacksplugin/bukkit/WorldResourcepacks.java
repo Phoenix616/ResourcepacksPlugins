@@ -48,6 +48,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private ViaAPI viaApi;
     private NewAPI authmeApi;
+    private ProxyPackListener proxyPackListener;
 
     public void onEnable() {
         if (loadConfig()) {
@@ -55,7 +56,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
             getServer().getMessenger().registerOutgoingPluginChannel(this, "Resourcepack");
-            getServer().getMessenger().registerIncomingPluginChannel(this, "Resourcepack", new ProxyPackListener(this));
+            proxyPackListener = new ProxyPackListener(this);
+            getServer().getMessenger().registerIncomingPluginChannel(this, "Resourcepack", proxyPackListener);
 
             getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
             getCommand("usepack").setExecutor(new UsePackCommand(this));
@@ -424,5 +426,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public int runAsyncTask(Runnable runnable) {
         return getServer().getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
+    }
+
+    /**
+     * Get the listener that listens on the "Resourcepack" channel to register new sub channels
+     * @return  The ProxyPackListener
+     */
+    public ProxyPackListener getProxyPackListener() {
+        return proxyPackListener;
     }
 }
