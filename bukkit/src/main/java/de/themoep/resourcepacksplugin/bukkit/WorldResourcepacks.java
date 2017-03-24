@@ -8,6 +8,7 @@ import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
+import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -149,38 +150,42 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         pm = new PackManager(this);
         ConfigurationSection packs = getConfig().getConfigurationSection("packs");
-        getLogger().log(getLogLevel(), "Loading packs:");
-        for(String s : packs.getKeys(false)) {
-            ConfigurationSection packSection = packs.getConfigurationSection(s);
+        if (packs != null) {
+            getLogger().log(getLogLevel(), "Loading packs:");
+            for (String s : packs.getKeys(false)) {
+                ConfigurationSection packSection = packs.getConfigurationSection(s);
 
-            String packName = s.toLowerCase();
-            String packUrl = packSection.getString("url", "");
-            if(packUrl.isEmpty()) {
-                getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
-                continue;
+                String packName = s.toLowerCase();
+                String packUrl = packSection.getString("url", "");
+                if (packUrl.isEmpty()) {
+                    getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
+                    continue;
+                }
+                String packHash = packSection.getString("hash", "");
+                int packFormat = packSection.getInt("format", 0);
+                boolean packRestricted = packSection.getBoolean("restricted", false);
+                String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
+
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
+                getLogger().log(Level.INFO, pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
+
+                try {
+                    getPackManager().addPack(pack);
+                } catch (IllegalArgumentException e) {
+                    getLogger().log(Level.SEVERE, e.getMessage());
+                    continue;
+                }
+
+                if (getServer().getPluginManager().getPermission(packPerm) == null) {
+                    Permission perm = new Permission(packPerm);
+                    perm.setDefault(PermissionDefault.OP);
+                    perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
+                    getServer().getPluginManager().addPermission(perm);
+                }
             }
-            String packHash =  packSection.getString("hash", "");
-            int packFormat = packSection.getInt("format", 0);
-            boolean packRestricted = packSection.getBoolean("restricted", false);
-            String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
-
-            ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
-
-            getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
-
-            try {
-                getPackManager().addPack(pack);
-            } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, e.getMessage());
-                continue;
-            }
-
-            if(getServer().getPluginManager().getPermission(packPerm) == null) {
-                Permission perm = new Permission(packPerm);
-                perm.setDefault(PermissionDefault.OP);
-                perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
-                getServer().getPluginManager().addPermission(perm);
-            }
+        } else {
+            getLogger().log(Level.WARNING, "No packs defined!");
         }
 
         String emptypackname = getConfig().getString("empty", null);
@@ -192,15 +197,35 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             } else {
                 getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
             }
+        } else {
+            getLogger().log(Level.WARNING, "No empty pack defined!");
         }
 
-        getLogger().log(Level.INFO, "Loading global assignment...");
-        getPackManager().setGlobalAssignment(getPackManager().loadAssignment(getConfig().getConfigurationSection("server").getValues(true)));
+        ConfigurationSection server = getConfig().getConfigurationSection("server");
+        if (server != null) {
+            getLogger().log(Level.INFO, "Loading global assignment...");
+            PackAssignment serverAssignment = getPackManager().loadAssignment(server.getValues(true));
+            getPackManager().setGlobalAssignment(serverAssignment);
+            getLogger().log(Level.INFO, "Global assignment: " + serverAssignment);
+        } else {
+            getLogger().log(Level.INFO, "No global assignment defined!");
+        }
 
         ConfigurationSection worlds = getConfig().getConfigurationSection("worlds");
-        for(String world : worlds.getKeys(false)) {
-            getLogger().log(getLogLevel(), "Loading settings for world " + world + "...");
-            getPackManager().addAssignment(world, getPackManager().loadAssignment(worlds.getConfigurationSection(world).getValues(true)));
+        if (worlds != null) {
+            for (String world : worlds.getKeys(false)) {
+                ConfigurationSection worldSection = worlds.getConfigurationSection(world);
+                if (worldSection != null) {
+                    getLogger().log(Level.INFO, "Loading assignment for world " + world + "...");
+                    PackAssignment worldAssignment = getPackManager().loadAssignment(worldSection.getValues(true));
+                    getPackManager().addAssignment(world, worldAssignment);
+                    getLogger().log(Level.INFO, "Assignment for world " + world + ": " + worldAssignment);
+                } else {
+                    getLogger().log(Level.WARNING, "Config has entry for world " + world + " but it is not a configuration section?");
+                }
+            }
+        } else {
+            getLogger().log(Level.INFO, "No world assignments defined!");
         }
 
         if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {

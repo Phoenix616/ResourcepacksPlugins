@@ -1,5 +1,6 @@
 package de.themoep.resourcepacksplugin.core;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 /**
@@ -119,5 +120,19 @@ public class PackAssignment {
      */
     public long getSendDelay() {
         return sendDelay;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder(getClass().getSimpleName()).append("{")
+                .append("pack=").append(pack)
+                .append(", secondaries=[");
+        for (Iterator<String> it = secondaries.iterator(); it.hasNext();) {
+            s.append(it.next());
+            if (it.hasNext()) {
+                s.append(", ");
+            }
+        }
+        return s.append("], sendDelay=").append(sendDelay).append("}").toString();
     }
 }

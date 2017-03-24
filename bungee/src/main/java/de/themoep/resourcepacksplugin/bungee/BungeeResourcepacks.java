@@ -8,6 +8,7 @@ import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -187,50 +188,74 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         pm = new PackManager(this);
         Configuration packs = getConfig().getSection("packs");
-        getLogger().log(getLogLevel(), "Loading packs:");
-        for(String s : packs.getKeys()) {
-            Configuration packSection = packs.getSection(s);
+        if (!packs.getKeys().isEmpty()) {
+            getLogger().log(Level.INFO, "Loading packs:");
+            for (String s : packs.getKeys()) {
+                Configuration packSection = packs.getSection(s);
 
-            String packName = s.toLowerCase();
-            String packUrl = packSection.getString("url", "");
-            if(packUrl.isEmpty()) {
-                getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
-                continue;
+                String packName = s.toLowerCase();
+                String packUrl = packSection.getString("url", "");
+                if (packUrl.isEmpty()) {
+                    getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
+                    continue;
+                }
+                String packHash = packSection.getString("hash", "");
+                int packFormat = packSection.getInt("format", 0);
+                boolean packRestricted = packSection.getBoolean("restricted", false);
+                String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
+
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
+                getLogger().log(Level.INFO, pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
+
+                try {
+                    getPackManager().addPack(pack);
+                } catch (IllegalArgumentException e) {
+                    getLogger().log(Level.SEVERE, e.getMessage());
+                }
             }
-            String packHash =  packSection.getString("hash", "");
-            int packFormat = packSection.getInt("format", 0);
-            boolean packRestricted = packSection.getBoolean("restricted", false);
-            String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
-
-            ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
-
-            getLogger().log(getLogLevel(), pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
-
-            try {
-                getPackManager().addPack(pack);
-            } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, e.getMessage());
-            }
+        } else {
+            getLogger().log(Level.WARNING, "No packs defined!");
         }
         
         String emptypackname = getConfig().getString("empty");
         if(emptypackname != null && !emptypackname.isEmpty()) {
             ResourcePack ep = getPackManager().getByName(emptypackname);
             if(ep != null) {
-                getLogger().log(getLogLevel(), "Empty pack: " + ep.getName());
+                getLogger().log(Level.INFO, "Empty pack: " + ep.getName());
                 getPackManager().setEmptyPack(ep);
             } else {
-                getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+                getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
             }
+        } else {
+            getLogger().log(Level.WARNING, "No empty pack defined!");
         }
 
-        getLogger().log(Level.INFO, "Loading global assignment...");
-        getPackManager().setGlobalAssignment(getPackManager().loadAssignment(getValues(getConfig().getSection("global"))));
+        Configuration globalSection = getConfig().getSection("global");
+        if (!globalSection.getKeys().isEmpty()) {
+            getLogger().log(Level.INFO, "Loading global assignment...");
+            PackAssignment globalAssignment = getPackManager().loadAssignment(getValues(getConfig().getSection("global")));
+            getPackManager().setGlobalAssignment(globalAssignment);
+            getLogger().log(Level.INFO, "Global assignment: " + globalAssignment);
+        } else {
+            getLogger().log(Level.INFO, "No global assignment defined!");
+        }
         
         Configuration servers = getConfig().getSection("servers");
-        for(String server : servers.getKeys()) {
-            getLogger().log(getLogLevel(), "Loading settings for server " + server + "...");
-            getPackManager().addAssignment(server, getPackManager().loadAssignment(getValues(servers.getSection(server))));
+        if (!servers.getKeys().isEmpty()) {
+            for (String server : servers.getKeys()) {
+                Configuration serverSection = servers.getSection(server);
+                if (!serverSection.getKeys().isEmpty()) {
+                    getLogger().log(Level.INFO, "Loading settings for server " + server + "...");
+                    PackAssignment serverAssignment = getPackManager().loadAssignment(getValues(serverSection));
+                    getPackManager().addAssignment(server, serverAssignment);
+                    getLogger().log(Level.INFO, "Assignment for server " + server + ": " + serverAssignment);
+                } else {
+                    getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
+                }
+            }
+        } else {
+            getLogger().log(Level.INFO, "No server assignments defined!");
         }
         return true;
     }
