@@ -2,6 +2,7 @@ package de.themoep.resourcepacksplugin.bungee;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import de.themoep.bungeeplugin.FileConfiguration;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
@@ -51,7 +52,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     private static BungeeResourcepacks instance;
     
-    private YamlConfig config;
+    private FileConfiguration config;
     
     private PackManager pm;
 
@@ -156,7 +157,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public boolean loadConfig() {
         try {
-            config = new YamlConfig(this, getDataFolder() + File.separator + "config.yml");
+            config = new FileConfiguration(this, new File(getDataFolder(), "config.yml"), "bungee-config.yml");
             getLogger().log(Level.INFO, "Loading config!");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! " + getDescription().getName() + " will not be enabled!");
@@ -293,14 +294,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getConfig().set(path + ".restricted", pack.isRestricted());
             getConfig().set(path + ".permission", pack.getPermission());
         }
-        getConfig().save();
+        getConfig().saveConfig();
     }
     
     public static BungeeResourcepacks getInstance() {
         return instance;
     }
     
-    public YamlConfig getConfig() {
+    public FileConfiguration getConfig() {
         return config;
     }
 
