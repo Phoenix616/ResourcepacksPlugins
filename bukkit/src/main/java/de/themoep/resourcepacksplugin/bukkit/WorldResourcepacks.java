@@ -149,7 +149,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
         pm = new PackManager(this);
-        if (getConfig().contains("packs", true) && getConfig().isConfigurationSection("packs")) {
+        if (getConfig().isSet("packs") && getConfig().isConfigurationSection("packs")) {
             getLogger().log(getLogLevel(), "Loading packs:");
             ConfigurationSection packs = getConfig().getConfigurationSection("packs");
             for (String s : packs.getKeys(false)) {
@@ -200,7 +200,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.WARNING, "No empty pack defined!");
         }
 
-        if (getConfig().contains("server", true) && getConfig().isConfigurationSection("server")) {
+        if (getConfig().isSet("server") && getConfig().isConfigurationSection("server")) {
             getLogger().log(Level.INFO, "Loading global assignment...");
             ConfigurationSection server = getConfig().getConfigurationSection("server");
             PackAssignment serverAssignment = getPackManager().loadAssignment(server.getValues(true));
@@ -210,7 +210,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.INFO, "No global assignment defined!");
         }
 
-        if (getConfig().contains("worlds", true) && getConfig().isConfigurationSection("worlds")) {
+        if (getConfig().isSet("worlds") && getConfig().isConfigurationSection("worlds")) {
             getLogger().log(Level.INFO, "Loading world assignments...");
             ConfigurationSection worlds = getConfig().getConfigurationSection("worlds");
             for (String world : worlds.getKeys(false)) {
