@@ -188,9 +188,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
 
         pm = new PackManager(this);
-        Configuration packs = getConfig().getSection("packs");
-        if (!packs.getKeys().isEmpty()) {
+        if (getConfig().isSet("packs", true) && getConfig().isSection("packs")) {
             getLogger().log(Level.INFO, "Loading packs:");
+            Configuration packs = getConfig().getSection("packs");
             for (String s : packs.getKeys()) {
                 Configuration packSection = packs.getSection(s);
 
@@ -232,22 +232,23 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.WARNING, "No empty pack defined!");
         }
 
-        Configuration globalSection = getConfig().getSection("global");
-        if (!globalSection.getKeys().isEmpty()) {
+        if (getConfig().isSet("global", true) && getConfig().isSection("global")) {
             getLogger().log(Level.INFO, "Loading global assignment...");
-            PackAssignment globalAssignment = getPackManager().loadAssignment(getValues(getConfig().getSection("global")));
+            Configuration globalSection = getConfig().getSection("global");
+            PackAssignment globalAssignment = getPackManager().loadAssignment(getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
             getLogger().log(Level.INFO, "Global assignment: " + globalAssignment);
         } else {
             getLogger().log(Level.INFO, "No global assignment defined!");
         }
-        
-        Configuration servers = getConfig().getSection("servers");
-        if (!servers.getKeys().isEmpty()) {
+
+        if (getConfig().isSet("servers", true) && getConfig().isSection("servers")) {
+            getLogger().log(Level.INFO, "Loading server assignments...");
+            Configuration servers = getConfig().getSection("servers");
             for (String server : servers.getKeys()) {
                 Configuration serverSection = servers.getSection(server);
                 if (!serverSection.getKeys().isEmpty()) {
-                    getLogger().log(Level.INFO, "Loading settings for server " + server + "...");
+                    getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment(getValues(serverSection));
                     getPackManager().addAssignment(server, serverAssignment);
                     getLogger().log(Level.INFO, "Assignment for server " + server + ": " + serverAssignment);

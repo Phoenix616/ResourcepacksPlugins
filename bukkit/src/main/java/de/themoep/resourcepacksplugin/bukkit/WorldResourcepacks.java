@@ -149,12 +149,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
         pm = new PackManager(this);
-        ConfigurationSection packs = getConfig().getConfigurationSection("packs");
-        if (packs != null) {
+        if (getConfig().contains("packs", true) && getConfig().isConfigurationSection("packs")) {
             getLogger().log(getLogLevel(), "Loading packs:");
+            ConfigurationSection packs = getConfig().getConfigurationSection("packs");
             for (String s : packs.getKeys(false)) {
                 ConfigurationSection packSection = packs.getConfigurationSection(s);
-
                 String packName = s.toLowerCase();
                 String packUrl = packSection.getString("url", "");
                 if (packUrl.isEmpty()) {
@@ -201,9 +200,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.WARNING, "No empty pack defined!");
         }
 
-        ConfigurationSection server = getConfig().getConfigurationSection("server");
-        if (server != null) {
+        if (getConfig().contains("server", true) && getConfig().isConfigurationSection("server")) {
             getLogger().log(Level.INFO, "Loading global assignment...");
+            ConfigurationSection server = getConfig().getConfigurationSection("server");
             PackAssignment serverAssignment = getPackManager().loadAssignment(server.getValues(true));
             getPackManager().setGlobalAssignment(serverAssignment);
             getLogger().log(Level.INFO, "Global assignment: " + serverAssignment);
@@ -211,8 +210,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.INFO, "No global assignment defined!");
         }
 
-        ConfigurationSection worlds = getConfig().getConfigurationSection("worlds");
-        if (worlds != null) {
+        if (getConfig().contains("worlds", true) && getConfig().isConfigurationSection("worlds")) {
+            getLogger().log(Level.INFO, "Loading world assignments...");
+            ConfigurationSection worlds = getConfig().getConfigurationSection("worlds");
             for (String world : worlds.getKeys(false)) {
                 ConfigurationSection worldSection = worlds.getConfigurationSection(world);
                 if (worldSection != null) {
