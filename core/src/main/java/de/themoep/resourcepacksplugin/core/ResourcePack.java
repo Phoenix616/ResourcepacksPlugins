@@ -111,7 +111,7 @@ public class ResourcePack {
 
 
     public void setHash(String hash) {
-        this.hash = BaseEncoding.base16().lowerCase().decode(hash);
+        this.hash = BaseEncoding.base16().lowerCase().decode(hash.toLowerCase());
     }
 
     public byte[] getRawHash() {
