@@ -165,11 +165,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 boolean packRestricted = packSection.getBoolean("restricted", false);
                 String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
 
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
-
-                getLogger().log(Level.INFO, pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
-
                 try {
+                    getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
+                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
                     getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
                     getLogger().log(Level.SEVERE, e.getMessage());
@@ -179,8 +178,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 if (getServer().getPluginManager().getPermission(packPerm) == null) {
                     Permission perm = new Permission(packPerm);
                     perm.setDefault(PermissionDefault.OP);
-                    perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command.");
-                    getServer().getPluginManager().addPermission(perm);
+                    perm.setDescription("Permission for access to the resourcepack " + packName + " via the usepack command.");
+                    try {
+                        getServer().getPluginManager().addPermission(perm);
+                    } catch (IllegalArgumentException ignored) {} // Permission already registered
                 }
             }
         } else {

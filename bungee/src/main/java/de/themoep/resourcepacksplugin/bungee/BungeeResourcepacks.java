@@ -205,11 +205,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 boolean packRestricted = packSection.getBoolean("restricted", false);
                 String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
 
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
-
-                getLogger().log(Level.INFO, pack.getName() + " - " + pack.getUrl() + " - " + pack.getHash());
-
                 try {
+                    getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
+                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+
                     getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
                     getLogger().log(Level.SEVERE, e.getMessage());
