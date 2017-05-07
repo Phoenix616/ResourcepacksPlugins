@@ -44,10 +44,6 @@
             <url>http://ci.xephi.fr/plugin/repository/everything/</url>
         </repository>
         <repository>
-            <id>mcstats-repo</id>
-            <url>http://repo.mcstats.org/content/repositories/public</url>
-        </repository>
-        <repository>
             <id>minecrell-repo</id>
             <url>http://repo.minecrell.net/releases</url>
         </repository>
