@@ -17,10 +17,11 @@ public class InternalHelper_fallback implements InternalHelper {
 
     private Method getHandle = null;
     private Method setResourcePack = null;
+    private boolean hasSetResourcePack = false;
 
     public InternalHelper_fallback() {
         try {
-            setPackWithHashMethod = Player.class.getDeclaredMethod("setResourcePack", String.class, Array.class);
+            hasSetResourcePack = Player.class.getDeclaredMethod("setResourcePack", String.class, Array.class) != null;
         } catch (NoSuchMethodException e) {
             // Old version, method still not there
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
@@ -43,6 +44,11 @@ public class InternalHelper_fallback implements InternalHelper {
 
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
+        if (hasSetResourcePack) {
+            player.setResourcePack(pack.getUrl(), pack.getRawHash());
+            return;
+        }
+
         try {
             if (setPackWithHashMethod != null) {
                 setPackWithHashMethod.invoke(player, pack.getUrl(), pack.getRawHash());
