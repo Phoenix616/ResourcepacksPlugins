@@ -110,9 +110,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 map.setAccessible(true);
                 Object mapping18 = map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48);
                 Object mapping19 = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
+                Object mapping112 = map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33);
                 Object mappingsObject = Array.newInstance(mapping18.getClass(), 2);
                 Array.set(mappingsObject, 0, mapping18);
                 Array.set(mappingsObject, 1, mapping19);
+                Array.set(mappingsObject, 2, mapping18);
                 Object[] mappings = (Object[]) mappingsObject;
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappings.getClass());
                 reg.setAccessible(true);
