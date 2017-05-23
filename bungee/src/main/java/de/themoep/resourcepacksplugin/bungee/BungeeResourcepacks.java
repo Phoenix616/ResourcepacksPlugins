@@ -108,17 +108,19 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
-                Object mapping18 = map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48);
-                Object mapping19 = map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32);
-                Object mapping112 = map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33);
-                Object mappingsObject = Array.newInstance(mapping18.getClass(), 2);
-                Array.set(mappingsObject, 0, mapping18);
-                Array.set(mappingsObject, 1, mapping19);
-                Array.set(mappingsObject, 2, mapping18);
-                Object[] mappings = (Object[]) mappingsObject;
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappings.getClass());
+                Object[] mappings = {
+                        map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48),
+                        map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32),
+                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33)
+                };
+                Object mappingsObject = Array.newInstance(mappings[0].getClass(), mappings.length);
+                for (int i = 0; i < mappings.length; i++) {
+                    Array.set(mappingsObject, i, mappings[i]);
+                }
+                Object[] mappingsArray = (Object[]) mappingsObject;
+                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappings);
+                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappingsArray);
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
                 setEnabled(false);
