@@ -59,10 +59,10 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             plugin.sendMessage(sender, ChatColor.GREEN + plugin.getMessage("packlisthead"));
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if(packs.size() > 0) {
-                ResourcePack userPack = plugin.getUserManager().getUserPack(sender.getUniqueId());
-                List<ResourcePack> applicablePacks = new ArrayList<ResourcePack>();
+                ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
+                List<ResourcePack> applicablePacks = new ArrayList<>();
                 for(ResourcePack pack : packs) {
-                    if(pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
+                    if(sender == null || pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
                         applicablePacks.add(pack);
                     }
                 }
