@@ -23,7 +23,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.version>1.6.13-SNAPSHOT</plugin.version>
+        <plugin.version>1.6.14-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
