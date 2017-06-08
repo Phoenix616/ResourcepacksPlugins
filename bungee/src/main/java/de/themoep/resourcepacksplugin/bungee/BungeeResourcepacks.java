@@ -122,8 +122,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 reg.setAccessible(true);
                 try {
                     reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappingsArray);
-                } catch (NullPointerException e) {
-                    getLogger().log(Level.SEVERE, "The BungeeCord version " + bungeeVersion + " is not supported! Please look for an update!");
+                } catch (Throwable t) {
+                    getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!");
                     setEnabled(false);
                     return;
                 }
