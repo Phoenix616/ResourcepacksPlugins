@@ -120,9 +120,15 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappingsArray);
+                try {
+                    reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappingsArray);
+                } catch (NullPointerException e) {
+                    getLogger().log(Level.SEVERE, "The BungeeCord version " + bungeeVersion + " is not supported! Please look for an update!");
+                    setEnabled(false);
+                    return;
+                }
             } else {
-                getLogger().log(Level.SEVERE, "Unsupported BungeeCord version found! You need at least 1.8 for this plugin to work!");
+                getLogger().log(Level.SEVERE, "Unsupported BungeeCord version (" + bungeeVersion + ") found! You need at least 1.8 for this plugin to work!");
                 setEnabled(false);
                 return;
             }
