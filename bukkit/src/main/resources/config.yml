@@ -50,3 +50,5 @@ worlds:
     #- gamepack
   minigame:
     pack: gamepack
+    # Use a regex to target all worlds with a certain name
+    regex: 'minigame_.*'

@@ -50,3 +50,5 @@ servers:
     - gamepack
   minigame:
     pack: gamepack
+    # Use a regex to target all servers with a certain name
+    regex: 'minigame_.*'

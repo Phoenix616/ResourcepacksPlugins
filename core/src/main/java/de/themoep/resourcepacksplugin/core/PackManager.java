@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by Phoenix616 on 25.03.2015.
@@ -51,12 +53,17 @@ public class PackManager {
     /**
      * Name of the global pack, null if none is set
      */
-    private PackAssignment global = new PackAssignment();
+    private PackAssignment global = new PackAssignment("global");
     
     /**
-     * servername -> pack assignment
+     * server-/worldname -> pack assignment
      */
-    private Map<String, PackAssignment> servers = new HashMap<>();
+    private Map<String, PackAssignment> literalAssignments = new HashMap<>();
+
+    /**
+     * server-/worldname -> pack assignment
+     */
+    private Map<String, PackAssignment> regexAssignments = new LinkedHashMap<>();
 
 
     public PackManager(ResourcepacksPlugin plugin) {
@@ -310,12 +317,14 @@ public class PackManager {
 
     /**
      * Add a new assignment to a server/world
-     * @param server        The name of the server/world
      * @param assignment    The new PackAssignment
      * @return              The previous assignment or null if there was none
      */
-    public PackAssignment addAssignment(String server, PackAssignment assignment) {
-        return servers.put(server.toLowerCase(), assignment);
+    public PackAssignment addAssignment(PackAssignment assignment) {
+        if (assignment.getRegex() != null) {
+            return regexAssignments.put(assignment.getName().toLowerCase(), assignment);
+        }
+        return literalAssignments.put(assignment.getName().toLowerCase(), assignment);
     }
 
     /**
@@ -324,21 +333,38 @@ public class PackManager {
      * @return          The PackAssignment; an empty one if there is none
      */
     public PackAssignment getAssignment(String server) {
-        PackAssignment assignment = servers.get(server.toLowerCase());
-        if (assignment == null) {
-            assignment = new PackAssignment();
-            addAssignment(server, assignment);
+        PackAssignment assignment = literalAssignments.get(server.toLowerCase());
+        if (assignment != null) {
+            return assignment;
         }
-        return assignment;
+        for (PackAssignment regexAssignment : regexAssignments.values()) {
+            if (regexAssignment.getRegex().matcher(server).matches()) {
+                return regexAssignment;
+            }
+        }
+        return new PackAssignment("empty");
     }
 
     /**
      * Load an assignment from a map representing the section in the config
+     * @param name      The name of the assignment
      * @param config    A map representing the config section
      * @return          The PackAssignment
      */
-    public PackAssignment loadAssignment(Map<String, Object> config) {
-        PackAssignment assignment = new PackAssignment();
+    public PackAssignment loadAssignment(String name, Map<String, Object> config) {
+        PackAssignment assignment = new PackAssignment(name);
+        if (config.get("regex") != null) {
+            if (!(config.get("regex") instanceof String)) {
+                plugin.getLogger().log(Level.WARNING, "'regex' option has to be a String!");
+            } else {
+                try {
+                    assignment.setRegex(Pattern.compile(((String) config.get("regex"))));
+                    plugin.getLogger().log(plugin.getLogLevel(), "Regex: " + assignment.getRegex().toString());
+                } catch (PatternSyntaxException e) {
+                    plugin.getLogger().log(Level.WARNING, "The assignment's regex '" + config.get("regex") + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
+                }
+            }
+        }
         if(config.get("pack") != null) {
             if (!(config.get("pack") instanceof String)) {
                 plugin.getLogger().log(Level.WARNING, "'pack' option has to be a String!");
@@ -387,8 +413,22 @@ public class PackManager {
      * @param server The server the pack should get removed from
      * @return True if the server had a pack, false if not
      */
+    @Deprecated
     public boolean removeServer(String server) {
-        return servers.remove(server.toLowerCase()) != null;
+        return removeAssignment(server);
+    }
+
+    /**
+     * Removes the assignment of a server/world
+     * @param key   The name of the server/world the pack should get removed from
+     * @return True if there was a pack for that key, false if not
+     */
+    public boolean removeAssignment(String key) {
+        if (literalAssignments.remove(key.toLowerCase()) != null) {
+            regexAssignments.remove(key);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -494,41 +534,51 @@ public class PackManager {
     public ResourcePack getApplicablePack(UUID playerId, String serverName) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         ResourcePack pack = null;
+        ResourcepacksPlayer player = plugin.getPlayer(playerId);
+        if (player == null) {
+            player = new ResourcepacksPlayer("uuid:" + playerId, playerId);
+        }
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
-        if(isGlobalSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+        if(getGlobalAssignment().isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
             return prev;
         }
         if(serverName != null && !serverName.isEmpty()) {
-            if(isServerSecondary(serverName, prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            PackAssignment assignment = getAssignment(serverName);
+            if(assignment.isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
                 return prev;
             }
-            ResourcePack serverPack = getServerPack(serverName);
+            ResourcePack serverPack = getByName(assignment.getPack());
             status = checkPack(playerId, serverPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = serverPack;
+                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
             } else if(prev != null || serverPack != null){
-                List<String> serverSecondary = getServerSecondary(serverName);
-                for(String secondaryName : serverSecondary) {
+                for(String secondaryName : assignment.getSecondaries()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                         pack = secondaryPack;
+                        plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
                         break;
                     }
                 }
             }
         }
         if(pack == null) {
-            ResourcePack globalPack = getGlobalPack();
+            ResourcePack globalPack = getByName(getGlobalAssignment().getPack());
             status = checkPack(playerId, globalPack, status);
             if(status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = globalPack;
+                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
             } else if(prev != null || globalPack != null){
                 List<String> globalSecondary = getGlobalSecondary();
                 for(String secondaryName : globalSecondary) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                        plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
                         pack = secondaryPack;
                         break;
                     }
