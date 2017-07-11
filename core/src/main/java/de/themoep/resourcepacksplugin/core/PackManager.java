@@ -8,6 +8,7 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -649,7 +650,9 @@ public class PackManager {
                 try {
                     URL url = new URL(pack.getUrl());
                     plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
-                    in = url.openStream();
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestProperty("User-Agent", plugin.getName() + "/" + plugin.getVersion());
+                    in = con.getInputStream();
                     Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
 
                     byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
