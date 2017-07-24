@@ -24,6 +24,20 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
                 if (plugin.checkPermission(sender, pack.getPermission())) {
+                    String tempStr = null;
+                    if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.temporary")) {
+                        tempStr = args[args.length -1];
+                    }
+                    boolean temp = false;
+                    if ("false".equalsIgnoreCase(tempStr)) {
+                        temp = false;
+                    } else if ("true".equalsIgnoreCase(tempStr)) {
+                        temp = true;
+                    } else if (tempStr != null && args.length > 2) {
+                        plugin.sendMessage(sender, ChatColor.RED + tempStr + " is not a valid Boolean temporary value! (true/false)");
+                        return true;
+                    }
+
                     ResourcepacksPlayer player = null;
                     if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
                         player = plugin.getPlayer(args[1]);
@@ -34,12 +48,10 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     } else if(sender != null) {
                         player = sender;
                     } else {
-                        plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername>");
+                        plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
                         return true;
                     }
-                    ResourcePack prev = plugin.getUserManager().getUserPack(player.getUniqueId());
-                    if (!pack.equals(prev)) {
-                        plugin.getPackManager().setPack(player.getUniqueId(), pack);
+                    if (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
                         if (!player.equals(sender)) {
                             plugin.sendMessage(sender, args[1] + " now uses the pack '" + pack.getName() + "'!");
                         }

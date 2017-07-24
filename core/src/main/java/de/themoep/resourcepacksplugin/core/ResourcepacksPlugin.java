@@ -177,4 +177,19 @@ public interface ResourcepacksPlugin {
      * Save changes made on runtime to the config
      */
     void saveConfigChanges();
+
+    /**
+     * Set the pack that the player should get when logging in when no other pack applies
+     * and that gets used instead of the empty pack on reset
+     * @param playerId  UUID of the player
+     * @param packName  Name of the pack
+     */
+    void setStoredPack(UUID playerId, String packName);
+
+    /**
+     * Get the pack that a certain player has stored
+     * @param playerId  The UUID of the player
+     * @return The name of the pack or <tt>null</tt> if none was stored
+     */
+    String getStoredPack(UUID playerId);
 }

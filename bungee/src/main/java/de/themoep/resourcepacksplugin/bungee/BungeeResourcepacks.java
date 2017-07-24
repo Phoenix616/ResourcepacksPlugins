@@ -53,6 +53,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private static BungeeResourcepacks instance;
     
     private FileConfiguration config;
+
+    private FileConfiguration storedPacks;
     
     private PackManager pm;
 
@@ -170,9 +172,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             config = new FileConfiguration(this, new File(getDataFolder(), "config.yml"), "bungee-config.yml");
             getLogger().log(Level.INFO, "Loading config!");
         } catch (IOException e) {
-            getLogger().severe("Unable to load configuration! " + getDescription().getName() + " will not be enabled!");
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Unable to load configuration! " + getDescription().getName() + " will not be enabled!", e);
             return false;
+        }
+
+        try {
+            storedPacks = new FileConfiguration(this, new File(getDataFolder(), "players.yml"));
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Unable to load players.yml! Stored player packs will not work!", e);
         }
 
         try {
@@ -306,7 +313,20 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
         getConfig().saveConfig();
     }
-    
+
+    @Override
+    public void setStoredPack(UUID playerId, String packName) {
+        if (storedPacks != null) {
+            storedPacks.set("players." + playerId, packName);
+            storedPacks.saveConfig();
+        }
+    }
+
+    @Override
+    public String getStoredPack(UUID playerId) {
+        return storedPacks != null ? storedPacks.getString("players." + playerId.toString()) : null;
+    }
+
     public static BungeeResourcepacks getInstance() {
         return instance;
     }

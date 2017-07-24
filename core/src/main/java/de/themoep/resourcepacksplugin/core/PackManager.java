@@ -493,27 +493,47 @@ public class PackManager {
 
     /**
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
-     * @param playerId The UUID of the player to set the pack for
-     * @param pack The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
+     * @param playerId  The UUID of the player to set the pack for
+     * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
+     * @return <tt>true</tt> if the pack was set; <tt>false</tt> if not
      */
-    public void setPack(UUID playerId, ResourcePack pack) {
+    public boolean setPack(UUID playerId, ResourcePack pack) {
+        return setPack(playerId, pack, true);
+    }
+
+    /**
+     * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
+     * @param playerId  The UUID of the player to set the pack for
+     * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
+     * @param temporary Should the pack be removed on log out or stored?
+     * @return <tt>true</tt> if the pack was set; <tt>false</tt> if not
+     */
+    public boolean setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
+        if (!temporary) {
+            plugin.setStoredPack(playerId, pack.equals(getEmptyPack()) ? null : pack.getName());
+        }
         if (pack != null && pack.equals(prev)) {
-            return;
+            return false;
         }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
             plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
-            return;
+            return false;
         }
         pack = sendEvent.getPack();
-        if (pack == null && prev != null && !prev.equals(getEmptyPack())) {
+        if (pack == null && prev != null) {
+            pack = getByName(plugin.getStoredPack(playerId));
+        }
+        if (pack == null && prev != null) {
             pack = getEmptyPack();
         }
         if (pack != null && !pack.equals(prev)) {
             plugin.getUserManager().setUserPack(playerId, pack);
             plugin.sendPack(playerId, pack);
+            return true;
         }
+        return false;
     }
 
     /**

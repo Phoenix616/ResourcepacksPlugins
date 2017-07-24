@@ -26,7 +26,7 @@ public class UsePackCommand extends Command {
             s = plugin.getPlayer(((ProxiedPlayer) sender).getUniqueId());
         }
         if(!new UsePackCommandExecutor(plugin).execute(s, args)) {
-            sender.sendMessage("Usage: /usepack <packname> [<playername>]");
+            sender.sendMessage("Usage: /usepack <packname> [<playername>] [<temp>]");
         }
     }
 }

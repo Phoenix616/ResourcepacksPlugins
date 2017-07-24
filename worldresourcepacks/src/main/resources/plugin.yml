@@ -12,7 +12,7 @@ commands:
       permission-message: You don't have the permission <permission>
    usepack:
       description: Command description.
-      usage: /<command> <packname> [<playername>]
+      usage: /<command> <packname> [<playername>] [<temp>]
       permission: worldresourcepacks.command.usepack
       permission-message: You don't have the permission <permission>
 permissions:
@@ -24,6 +24,9 @@ permissions:
       default: op
    worldresourcepacks.command.usepack.others:
       description: Gives permission to set the pack of other players
+      default: op
+   worldresourcepacks.command.usepack.temporary:
+      description: Gives permission to set whether or not the pack should only be temporary set and not stored
       default: op
    worldresourcepacks.command.generatehashes:
       description: Gives permission to (re-)generate the sha1 hashes of the packs

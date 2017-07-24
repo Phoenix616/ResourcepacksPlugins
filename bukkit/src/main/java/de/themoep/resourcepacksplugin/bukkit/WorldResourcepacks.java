@@ -37,6 +37,8 @@ import java.util.logging.Level;
  */
 public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugin {
 
+    private ConfigAccessor storedPacks;
+
     private PackManager pm;
 
     private UserManager um;
@@ -52,6 +54,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private ProxyPackListener proxyPackListener;
 
     public void onEnable() {
+        storedPacks = new ConfigAccessor(this, "players.yml");
         if (loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
@@ -129,6 +132,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public boolean loadConfig() {
         saveDefaultConfig();
         reloadConfig();
+        storedPacks.reloadConfig();
         getLogger().log(Level.INFO, "Loading config!");
         try {
             String debugString = getConfig().getString("debug", "true");
@@ -264,6 +268,17 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getConfig().set(path + ".permission", pack.getPermission());
         }
         saveConfig();
+    }
+
+    @Override
+    public void setStoredPack(UUID playerId, String packName) {
+        storedPacks.getConfig().set("players." + playerId, packName);
+        storedPacks.saveConfig();
+    }
+
+    @Override
+    public String getStoredPack(UUID playerId) {
+        return storedPacks.getConfig().getString("players." + playerId);
     }
 
     public void resendPack(UUID playerId) {
