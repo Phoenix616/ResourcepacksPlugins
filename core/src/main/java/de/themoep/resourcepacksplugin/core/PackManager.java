@@ -524,6 +524,9 @@ public class PackManager {
         pack = sendEvent.getPack();
         if (pack == null && prev != null) {
             pack = getByName(plugin.getStoredPack(playerId));
+            if (pack != null) {
+                plugin.getLogger().log(plugin.getLogLevel(), playerId + " has the pack " + pack.getName() + " stored!");
+            }
         }
         if (pack == null && prev != null) {
             pack = getEmptyPack();
