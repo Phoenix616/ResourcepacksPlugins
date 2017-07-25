@@ -522,7 +522,7 @@ public class PackManager {
             return false;
         }
         pack = sendEvent.getPack();
-        if (pack == null && prev != null) {
+        if (pack == null) {
             pack = getByName(plugin.getStoredPack(playerId));
             if (pack != null) {
                 plugin.getLogger().log(plugin.getLogLevel(), playerId + " has the pack " + pack.getName() + " stored!");
