@@ -113,7 +113,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 Object[] mappings = {
                         map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48),
                         map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32),
-                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33)
+                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33),
+                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34)
                 };
                 Object mappingsObject = Array.newInstance(mappings[0].getClass(), mappings.length);
                 for (int i = 0; i < mappings.length; i++) {
