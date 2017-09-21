@@ -36,10 +36,13 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     } else if (tempStr != null && args.length > 2) {
                         plugin.sendMessage(sender, ChatColor.RED + tempStr + " is not a valid Boolean temporary value! (true/false)");
                         return true;
+                    } else {
+                        // temporary value is not true or false
+                        tempStr = null;
                     }
 
                     ResourcepacksPlayer player = null;
-                    if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
+                    if ((args.length > 2 || (tempStr == null && args.length > 1)) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
                         player = plugin.getPlayer(args[1]);
                         if (player == null) {
                             plugin.sendMessage(sender, ChatColor.RED + "The player " + args[1] + " is not online!");
