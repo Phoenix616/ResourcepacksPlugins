@@ -192,4 +192,10 @@ public interface ResourcepacksPlugin {
      * @return The name of the pack or <tt>null</tt> if none was stored
      */
     String getStoredPack(UUID playerId);
+
+    /**
+     * Get whether or not the default /usepack behaviour is to apply temporary opr permanent
+     * @return <tt>true</tt> if it's temporary, <tt>false</tt> if not
+     */
+    boolean isUsepackTemporary();
 }

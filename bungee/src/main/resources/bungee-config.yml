@@ -1,6 +1,8 @@
 debug: true
 # Whether or not resourcepack file hashes should be generated on startup:
 autogeneratehashes: true
+# Whether /usepack should apply packs temporary or permanent when run without any argument:
+usepack-is-temporary: true
 messages:
   usepack: You now use the pack %pack%!
   packlisthead: "Packs available to you:"

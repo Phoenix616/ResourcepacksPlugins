@@ -281,6 +281,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return storedPacks.getConfig().getString("players." + playerId);
     }
 
+    @Override
+    public boolean isUsepackTemporary() {
+        return getConfig().getBoolean("usepack-is-temporary");
+    }
+
     public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {

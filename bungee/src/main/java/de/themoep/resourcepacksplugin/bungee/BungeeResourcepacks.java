@@ -328,6 +328,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return storedPacks != null ? storedPacks.getString("players." + playerId.toString()) : null;
     }
 
+    @Override
+    public boolean isUsepackTemporary() {
+        return getConfig().getBoolean("usepack-is-temporary");
+    }
+
     public static BungeeResourcepacks getInstance() {
         return instance;
     }

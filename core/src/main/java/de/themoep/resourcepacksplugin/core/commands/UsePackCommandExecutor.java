@@ -28,7 +28,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.temporary")) {
                         tempStr = args[args.length -1];
                     }
-                    boolean temp = false;
+                    boolean temp = plugin.isUsepackTemporary();
                     if ("false".equalsIgnoreCase(tempStr)) {
                         temp = false;
                     } else if ("true".equalsIgnoreCase(tempStr)) {
