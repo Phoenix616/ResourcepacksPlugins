@@ -19,6 +19,14 @@ public class PackAssignment {
         this.name = name;
     }
 
+    public PackAssignment(PackAssignment assignment) {
+        this(assignment.getName());
+        this.pack = assignment.getPack();
+        this.secondaries = assignment.getSecondaries();
+        this.sendDelay = assignment.getSendDelay();
+        this.regex = assignment.getRegex();
+    }
+
     /**
      * Set the main pack of this assignment
      * @param pack  The main pack

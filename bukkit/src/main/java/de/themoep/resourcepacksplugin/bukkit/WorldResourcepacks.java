@@ -39,7 +39,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private ConfigAccessor storedPacks;
 
-    private PackManager pm;
+    private PackManager pm = new PackManager(this);
 
     private UserManager um;
 
@@ -152,7 +152,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
-        pm = new PackManager(this);
+        getPackManager().init();
         if (getConfig().isSet("packs") && getConfig().isConfigurationSection("packs")) {
             getLogger().log(getLogLevel(), "Loading packs:");
             ConfigurationSection packs = getConfig().getConfigurationSection("packs");

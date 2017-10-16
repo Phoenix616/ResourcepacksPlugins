@@ -34,17 +34,17 @@ public class PackManager {
     /**
      * packname -> ResourcePack
      */
-    private Map<String, ResourcePack> packNames = new LinkedHashMap<>();
+    private Map<String, ResourcePack> packNames;
 
     /**
      * packhash -> packname 
      */
-    private Map<String, ResourcePack> packHashes = new HashMap<>();
+    private Map<String, ResourcePack> packHashes;
     
     /**
      * packurl -> packname 
      */
-    private Map<String, ResourcePack> packUrls = new HashMap<>();
+    private Map<String, ResourcePack> packUrls;
 
     /**
      * The empty pack, null if none is set
@@ -59,16 +59,29 @@ public class PackManager {
     /**
      * server-/worldname -> pack assignment
      */
-    private Map<String, PackAssignment> literalAssignments = new HashMap<>();
+    private Map<String, PackAssignment> literalAssignments;
 
     /**
      * server-/worldname -> pack assignment
      */
-    private Map<String, PackAssignment> regexAssignments = new LinkedHashMap<>();
+    private Map<String, PackAssignment> regexAssignments;
 
 
     public PackManager(ResourcepacksPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * Initialize this pack manager
+     */
+    public void init() {
+        packNames = new LinkedHashMap<>();
+        packHashes = new HashMap<>();
+        packUrls = new HashMap<>();
+        empty = null;
+        global = new PackAssignment("global");
+        literalAssignments = new HashMap<>();
+        regexAssignments = new LinkedHashMap<>();
     }
 
     /**

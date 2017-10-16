@@ -56,7 +56,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     private FileConfiguration storedPacks;
     
-    private PackManager pm;
+    private PackManager pm = new PackManager(this);
 
     private UserManager um;
     
@@ -205,7 +205,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(getLogLevel(), "Use backend auth: " + getConfig().getBoolean("useauth"));
         }
 
-        pm = new PackManager(this);
+        getPackManager().init();
         if (getConfig().isSet("packs", true) && getConfig().isSection("packs")) {
             getLogger().log(Level.INFO, "Loading packs:");
             Configuration packs = getConfig().getSection("packs");
@@ -282,7 +282,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private Map<String, Object> getValues(Configuration config) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String key : config.getKeys()) {
-            map.put(key, config.get(key));
+            Object value = config.get(key);
+            if (value instanceof Configuration) {
+                map.put(key, getValues((Configuration) value));
+            } else {
+                map.put(key, value);
+            }
         }
         return map;
     }
