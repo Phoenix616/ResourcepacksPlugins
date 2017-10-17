@@ -28,6 +28,7 @@ import us.myles.ViaVersion.ViaVersionPlugin;
 import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -124,6 +125,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
 
             new org.bstats.MetricsLite(this);
+
+            startupMessage();
         } else {
             getServer().getPluginManager().disablePlugin(this);
         }
@@ -207,8 +210,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         if (getConfig().isSet("server") && getConfig().isConfigurationSection("server")) {
             getLogger().log(Level.INFO, "Loading global assignment...");
-            ConfigurationSection server = getConfig().getConfigurationSection("server");
-            PackAssignment serverAssignment = getPackManager().loadAssignment("global", server.getValues(true));
+            ConfigurationSection serverSection = getConfig().getConfigurationSection("server");
+            PackAssignment serverAssignment = getPackManager().loadAssignment("global", getValues(serverSection));
             getPackManager().setGlobalAssignment(serverAssignment);
             getLogger().log(Level.INFO, "Loaded global assignment " + serverAssignment);
         } else {
@@ -222,7 +225,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 ConfigurationSection worldSection = worlds.getConfigurationSection(world);
                 if (worldSection != null) {
                     getLogger().log(Level.INFO, "Loading assignment for world " + world + "...");
-                    PackAssignment worldAssignment = getPackManager().loadAssignment(world, worldSection.getValues(true));
+                    PackAssignment worldAssignment = getPackManager().loadAssignment(world, getValues(worldSection));
                     getPackManager().addAssignment(worldAssignment);
                     getLogger().log(Level.INFO, "Loaded assignment " + worldAssignment);
                 } else {
@@ -240,6 +243,20 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
         }
         return true;
+    }
+
+    private Map<String, Object> getValues(ConfigurationSection config) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (String key : config.getKeys(false)) {
+            if (config.get(key, null) != null) {
+                if (config.isConfigurationSection(key)) {
+                    map.put(key, getValues(config.getConfigurationSection(key)));
+                } else {
+                    map.put(key, config.get(key));
+                }
+            }
+        }
+        return map;
     }
 
     /**

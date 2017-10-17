@@ -155,6 +155,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             new BungeeStatsLite(this).start();
             new MetricsLite(this);
 
+            startupMessage();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {

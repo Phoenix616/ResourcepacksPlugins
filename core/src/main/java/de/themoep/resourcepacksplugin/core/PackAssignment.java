@@ -1,8 +1,8 @@
 package de.themoep.resourcepacksplugin.core;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 06.03.2017.
@@ -140,18 +140,12 @@ public class PackAssignment {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder(getClass().getSimpleName()).append("{")
-                .append("name=").append(name)
-                .append(", pack=").append(pack)
-                .append(", secondaries=[");
-        for (Iterator<String> it = secondaries.iterator(); it.hasNext();) {
-            s.append(it.next());
-            if (it.hasNext()) {
-                s.append(", ");
-            }
-        }
-        s.append("], sendDelay=").append(sendDelay);
-        if (regex != null) {
-            s.append(", regex=").append(regex.toString());
+                .append("name=").append(getName())
+                .append(", pack=").append(getPack())
+                .append(", secondaries=[").append(getSecondaries().stream().collect(Collectors.joining(", ")))
+                .append("], sendDelay=").append(getSendDelay());
+        if (getRegex() != null) {
+            s.append(", regex=").append(getRegex().toString());
         }
         return s.append("}").toString();
     }

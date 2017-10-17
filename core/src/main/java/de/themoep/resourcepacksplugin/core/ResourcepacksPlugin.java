@@ -5,7 +5,6 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -15,6 +14,21 @@ import java.util.logging.Logger;
  * Created by Phoenix616 on 03.02.2016.
  */
 public interface ResourcepacksPlugin {
+
+    default void startupMessage() {
+        getLogger().log(getLogLevel(), "");
+        getLogger().log(getLogLevel(), "  If you enjoy my " + getName() + " plugin then you might also be");
+        getLogger().log(getLogLevel(), "  interested in the more advanced ForceResourcepacks version!");
+        getLogger().log(getLogLevel(), "");
+        getLogger().log(getLogLevel(), "  Besides getting additional features like WorldGuard support and");
+        getLogger().log(getLogLevel(), "  the ability to force a player to accept the resources pack you");
+        getLogger().log(getLogLevel(), "  will also support the continued development of this plugin!");
+        getLogger().log(getLogLevel(), "");
+        getLogger().log(getLogLevel(), "  Check it out here on spigotmc.org: https://s.moep.tv/frp");
+        getLogger().log(getLogLevel(), "");
+        getLogger().log(getLogLevel(), "  - Phoenix616");
+        getLogger().log(getLogLevel(), "");
+    }
 
     boolean loadConfig();
 
