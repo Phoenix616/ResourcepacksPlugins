@@ -110,15 +110,18 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
-                Object[] mappings = {
-                        map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48),
-                        map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32),
-                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33),
-                        map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34)
-                };
-                Object mappingsObject = Array.newInstance(mappings[0].getClass(), mappings.length);
-                for (int i = 0; i < mappings.length; i++) {
-                    Array.set(mappingsObject, i, mappings[i]);
+                List<Object> mappings = new ArrayList<>();
+                mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48));
+                mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32));
+                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12)) {
+                    mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33));
+                }
+                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12_1)) {
+                    mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34));
+                }
+                Object mappingsObject = Array.newInstance(mappings.get(0).getClass(), mappings.size());
+                for (int i = 0; i < mappings.size(); i++) {
+                    Array.set(mappingsObject, i, mappings.get(i));
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
