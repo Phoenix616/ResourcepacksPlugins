@@ -1,14 +1,13 @@
 package de.themoep.resourcepacksplugin.core.commands;
 
-
 import com.google.common.collect.ImmutableMap;
 import de.themoep.resourcepacksplugin.core.ChatColor;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -23,7 +22,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
         if (args.length > 0) {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
-                if (plugin.checkPermission(sender, pack.getPermission())) {
+                if (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())) {
                     String tempStr = null;
                     if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.temporary")) {
                         tempStr = args[args.length -1];
@@ -65,7 +64,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         plugin.sendMessage(sender, ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
                     }
                 } else {
-                    plugin.sendMessage(sender, ChatColor.RED + "You don't have the permission " + pack.getPermission() + " to set the pack '" + pack.getName() + "'!");
+                    plugin.sendMessage(sender, ChatColor.RED + "You don't have the permission " + pack.getPermission() + " to set the restricted pack '" + pack.getName() + "'!");
                 }
             } else {
                 plugin.sendMessage(sender, ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");
@@ -75,12 +74,11 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if(packs.size() > 0) {
                 ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
-                List<ResourcePack> applicablePacks = new ArrayList<>();
-                for(ResourcePack pack : packs) {
-                    if(sender == null || pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId()) && plugin.checkPermission(sender, pack.getPermission())) {
-                        applicablePacks.add(pack);
-                    }
-                }
+                List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
+                        .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
+                                && (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())))
+                        .collect(Collectors.toList());
+                
                 if(applicablePacks.size() > 0) {
                     for(ResourcePack pack : applicablePacks) {
                         String msg = pack.getName();
