@@ -19,7 +19,7 @@ public class DisconnectListener implements Listener {
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         if(plugin.isEnabled()) {
-            plugin.clearPack(event.getPlayer());
+            plugin.getUserManager().onDisconnect(event.getPlayer().getUniqueId());
             plugin.setAuthenticated(event.getPlayer().getUniqueId(), false);
         }
     }

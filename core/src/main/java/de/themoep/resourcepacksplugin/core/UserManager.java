@@ -14,7 +14,16 @@ public class UserManager {
      * playerid -> packname
      */
     private final Map<UUID, String> userPackMap = new ConcurrentHashMap<>();
-
+    
+    /**
+     * playerid -> logintime
+     */
+    private Map<UUID, Long> userPackTime = new ConcurrentHashMap<>();
+    
+    /**
+     * Manage user packs and settings
+     * @param plugin The plugin instance
+     */
     public UserManager(ResourcepacksPlugin plugin) {
         this.plugin = plugin;
     }
@@ -37,6 +46,7 @@ public class UserManager {
      */
     public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
         String previous = userPackMap.put(playerid, pack.getName());
+        updatePackTime(playerid);
         return (previous == null) ? null : plugin.getPackManager().getByName(previous);
     }
 
@@ -48,5 +58,57 @@ public class UserManager {
     public ResourcePack clearUserPack(UUID playerid) {
         String previous = userPackMap.remove(playerid);
         return (previous == null) ? null : plugin.getPackManager().getByName(previous);
+    }
+    
+    /**
+     * What should happen when a player disconnects?
+     * @param playerId The UUID of the player
+     */
+    public void onDisconnect(UUID playerId) {
+        checkStoredPack(playerId);
+        userPackTime.remove(playerId);
+        plugin.clearPack(playerId); //call plugin method because that might send a clear info
+    }
+    
+    /**
+     * Update the time that the player got his pack
+     * @param playerId The UUID of the player
+     */
+    public void updatePackTime(UUID playerId) {
+        userPackTime.put(playerId, System.currentTimeMillis());
+    }
+    
+    /**
+     * Check whether or not we should remove a permanent pack
+     * @param playerId The UUID of the player
+     * @return Whether or not the pack was removed
+     */
+    private boolean checkStoredPack(UUID playerId) {
+        int packRemoveTime = plugin.getPermanentPackRemoveTime();
+        if (packRemoveTime <= 0) {
+            return false;
+        }
+        
+        Long packSet = userPackTime.get(playerId);
+        if (packSet == null) {
+            return false;
+        }
+        
+        if (packSet + packRemoveTime * 1000 < System.currentTimeMillis()) {
+            return false;
+        }
+        
+        String storedPackName = plugin.getStoredPack(playerId);
+        if (storedPackName == null) {
+            return false;
+        }
+        
+        String currentPack = userPackMap.get(playerId);
+        if (!storedPackName.equalsIgnoreCase(currentPack)) {
+            return false;
+        }
+        
+        plugin.setStoredPack(playerId, null);
+        return true;
     }
 }

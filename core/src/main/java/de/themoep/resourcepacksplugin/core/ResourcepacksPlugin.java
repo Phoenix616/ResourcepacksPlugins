@@ -212,4 +212,10 @@ public interface ResourcepacksPlugin {
      * @return <tt>true</tt> if it's temporary, <tt>false</tt> if not
      */
     boolean isUsepackTemporary();
+    
+    /**
+     * Get the time in which the permanent pack will be reset if the player disconnects
+     * @return The time in seconds; 0 or below should disable that
+     */
+    int getPermanentPackRemoveTime();
 }

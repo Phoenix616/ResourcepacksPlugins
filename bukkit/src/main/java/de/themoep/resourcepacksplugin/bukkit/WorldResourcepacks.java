@@ -302,7 +302,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public boolean isUsepackTemporary() {
         return getConfig().getBoolean("usepack-is-temporary");
     }
-
+    
+    @Override
+    public int getPermanentPackRemoveTime() {
+        return getConfig().getInt("permanent-pack-remove-time");
+    }
+    
     public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
