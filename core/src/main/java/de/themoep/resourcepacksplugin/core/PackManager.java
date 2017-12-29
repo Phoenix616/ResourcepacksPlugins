@@ -367,18 +367,26 @@ public class PackManager {
      */
     public PackAssignment loadAssignment(String name, Map<String, Object> config) {
         PackAssignment assignment = new PackAssignment(name);
+        String regex = "";
+        if (name.startsWith("r=")) {
+            regex = name.substring(2);
+        }
         if (config.get("regex") != null) {
             if (!(config.get("regex") instanceof String)) {
                 plugin.getLogger().log(Level.WARNING, "'regex' option has to be a String!");
             } else {
-                try {
-                    assignment.setRegex(Pattern.compile(((String) config.get("regex"))));
-                    plugin.getLogger().log(plugin.getLogLevel(), "Regex: " + assignment.getRegex().toString());
-                } catch (PatternSyntaxException e) {
-                    plugin.getLogger().log(Level.WARNING, "The assignment's regex '" + config.get("regex") + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
-                }
+                regex = ((String) config.get("regex"));
             }
         }
+        if (!regex.isEmpty()) {
+            try {
+                assignment.setRegex(Pattern.compile(regex));
+                plugin.getLogger().log(plugin.getLogLevel(), "Regex: " + assignment.getRegex().toString());
+            } catch (PatternSyntaxException e) {
+                plugin.getLogger().log(Level.WARNING, "The assignment's regex '" + regex + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
+            }
+        }
+        
         if(config.get("pack") != null) {
             if (!(config.get("pack") instanceof String)) {
                 plugin.getLogger().log(Level.WARNING, "'pack' option has to be a String!");

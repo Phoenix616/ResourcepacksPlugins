@@ -53,7 +53,6 @@ worlds:
     pack: lobbypack
     #secondary:
     #- gamepack
-  minigame:
+  # Use a regex to target all worlds with a certain name
+  "r=minigame_.*":
     pack: gamepack
-    # Use a regex to target all worlds with a certain name
-    regex: 'minigame_.*'
