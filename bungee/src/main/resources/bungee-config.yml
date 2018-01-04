@@ -53,6 +53,7 @@ servers:
     pack: lobbypack
     secondary:
     - gamepack
-  # Use a regex to target all servers with a certain name
-  "r=minigame_.*":
+  minigame:
     pack: gamepack
+    # Use a regex to target all servers with a certain name
+    regex: 'minigame_.*'
