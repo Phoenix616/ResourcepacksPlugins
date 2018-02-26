@@ -36,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,31 +98,37 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
-                getLogger().log(Level.INFO, "BungeeCord 1.8 detected!");
+                getLogger().log(Level.INFO, "BungeeCord 1.8 (" + bungeeVersion + ") detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
             } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4){
-                getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 detected!");
+                getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
             } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4){
-                getLogger().log(Level.INFO, "BungeeCord 1.9.4+ detected!");
+                getLogger().log(Level.INFO, "BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
-                List<Object> mappings = new ArrayList<>();
-                mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48));
-                mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32));
+                Map<String, Object> mappings = new LinkedHashMap<>();
+                mappings.put("1.8", map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48));
+                mappings.put("1.9", map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32));
                 if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12)) {
-                    mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33));
+                    mappings.put("1.12", map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33));
                 }
                 if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12_1)) {
-                    mappings.add(map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34));
+                    mappings.put("1.12.1", map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34));
                 }
-                Object mappingsObject = Array.newInstance(mappings.get(0).getClass(), mappings.size());
-                for (int i = 0; i < mappings.size(); i++) {
-                    Array.set(mappingsObject, i, mappings.get(i));
+                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12_2)) {
+                    mappings.put("1.12.2", map.invoke(null, ProtocolConstants.MINECRAFT_1_12_2, 0x34));
+                }
+                Object mappingsObject = Array.newInstance(mappings.values().iterator().next().getClass(), mappings.size());
+                int i = 0;
+                for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
+                    Map.Entry<String, Object> entry = it.next();
+                    Array.set(mappingsObject, i, entry.getValue());
+                    getLogger().log(getLogLevel(), "Registered packet for " + entry.getKey());
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
