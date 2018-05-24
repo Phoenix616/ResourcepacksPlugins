@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -357,6 +358,16 @@ public class PackManager {
             }
         }
         return new PackAssignment("empty");
+    }
+    
+    /**
+     * Get all assignments
+     * @return The all PackAssignments
+     */
+    public Collection<? extends PackAssignment> getAssignments() {
+        List<PackAssignment> assignments = new ArrayList<>(literalAssignments.values());
+        assignments.addAll(regexAssignments.values());
+        return assignments;
     }
 
     /**
