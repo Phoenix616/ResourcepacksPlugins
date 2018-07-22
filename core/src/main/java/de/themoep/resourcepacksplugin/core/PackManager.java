@@ -742,16 +742,18 @@ public class PackManager {
      * @return The pack format; <tt>-1</tt> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version < 0) {
-            return -1;
-        } else if(version < 47) { // pre 1.8
-            return 0;
-        } else if(version < 49) { // pre 1.9 / 15w31a
-            return 1;
-        } else if (version < 210){ // pre 1.11
-            return 2;
-        } else { // 1.11 301
+        if (version >= 348) { // pre 1.13 / 17w48a
+            return 4;
+        } else if (version >= 210) { // pre 1.11
             return 3;
+        } else if (version >= 49) { // pre 1.9 / 15w31a
+            return 2;
+        } else if (version >= 47) { // pre 1.8
+            return 1;
+        } else if (version >= 0) {
+            return 0;
+        } else {
+            return -1;
         }
     }
 }

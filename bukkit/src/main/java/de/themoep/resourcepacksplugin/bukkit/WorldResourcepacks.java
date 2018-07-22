@@ -60,9 +60,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
-            getServer().getMessenger().registerOutgoingPluginChannel(this, "Resourcepack");
+            getServer().getMessenger().registerOutgoingPluginChannel(this, "rp:plugin");
             proxyPackListener = new ProxyPackListener(this);
-            getServer().getMessenger().registerIncomingPluginChannel(this, "Resourcepack", proxyPackListener);
+            getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", proxyPackListener);
 
             getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
             getCommand("usepack").setExecutor(new UsePackCommand(this));
@@ -497,7 +497,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     /**
-     * Get the listener that listens on the "Resourcepack" channel to register new sub channels
+     * Get the listener that listens on the "rp:plugin" channel to register new sub channels
      * @return  The ProxyPackListener
      */
     public ProxyPackListener getProxyPackListener() {

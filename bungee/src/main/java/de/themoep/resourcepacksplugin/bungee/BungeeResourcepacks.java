@@ -8,6 +8,7 @@ import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
+import de.themoep.resourcepacksplugin.bungee.packets.IdMapping;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
@@ -97,32 +98,28 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
 
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
-            if(bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
+            if (bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 getLogger().log(Level.INFO, "BungeeCord 1.8 (" + bungeeVersion + ") detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
-            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4){
+            } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4) {
                 getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
                 reg.setAccessible(true);
                 reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
-            } else if(bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4){
+            } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4) {
                 getLogger().log(Level.INFO, "BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
                 Map<String, Object> mappings = new LinkedHashMap<>();
-                mappings.put("1.8", map.invoke(null, ProtocolConstants.MINECRAFT_1_8, 0x48));
-                mappings.put("1.9", map.invoke(null, ProtocolConstants.MINECRAFT_1_9, 0x32));
-                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12)) {
-                    mappings.put("1.12", map.invoke(null, ProtocolConstants.MINECRAFT_1_12, 0x33));
+
+                for (IdMapping mapping : ResourcePackSendPacket.ID_MAPPINGS) {
+                    if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(mapping.getProtocolVersion())) {
+                        mappings.put(mapping.getName(), map.invoke(null, mapping.getProtocolVersion(), mapping.getPacketId()));
+                    }
                 }
-                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12_1)) {
-                    mappings.put("1.12.1", map.invoke(null, ProtocolConstants.MINECRAFT_1_12_1, 0x34));
-                }
-                if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(ProtocolConstants.MINECRAFT_1_12_2)) {
-                    mappings.put("1.12.2", map.invoke(null, ProtocolConstants.MINECRAFT_1_12_2, 0x34));
-                }
+
                 Object mappingsObject = Array.newInstance(mappings.values().iterator().next().getClass(), mappings.size());
                 int i = 0;
                 for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
@@ -160,7 +157,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
             getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
             getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
-            getProxy().registerChannel("Resourcepack");
+            getProxy().registerChannel("rp:plugin");
 
             new BungeeStatsLite(this).start();
             new MetricsLite(this);
@@ -447,7 +444,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             out.writeUTF("clearPack");
             out.writeUTF(player.getName());
         }
-        player.getServer().sendData("Resourcepack", out.toByteArray());
+        player.getServer().sendData("rp:plugin", out.toByteArray());
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {

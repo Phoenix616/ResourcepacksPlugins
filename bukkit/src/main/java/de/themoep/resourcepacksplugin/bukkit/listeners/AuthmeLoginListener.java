@@ -39,7 +39,7 @@ public class AuthmeLoginListener implements Listener {
             out.writeUTF("authMeLogin");
             out.writeUTF(event.getPlayer().getName());
             out.writeUTF(event.getPlayer().getUniqueId().toString());
-            event.getPlayer().sendPluginMessage(plugin, "Resourcepack", out.toByteArray());
+            event.getPlayer().sendPluginMessage(plugin, "rp:plugin", out.toByteArray());
         }
     }
 }

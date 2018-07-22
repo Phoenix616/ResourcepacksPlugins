@@ -11,10 +11,13 @@ import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -24,6 +27,15 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     private String url;
     private String hash;
+
+    public final static List<IdMapping> ID_MAPPINGS = Arrays.asList(
+            new IdMapping("1.8", ProtocolConstants.MINECRAFT_1_8, 0x48),
+            new IdMapping("1.9", ProtocolConstants.MINECRAFT_1_9, 0x32),
+            new IdMapping("1.12", ProtocolConstants.MINECRAFT_1_12, 0x33),
+            new IdMapping("1.12.1", ProtocolConstants.MINECRAFT_1_12_1, 0x34),
+            new IdMapping("1.12.2", ProtocolConstants.MINECRAFT_1_12_2, 0x34),
+            new IdMapping("1.13", ProtocolConstants.MINECRAFT_1_13, 0x37)
+    );
 
     public ResourcePackSendPacket() {};
 

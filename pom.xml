@@ -23,7 +23,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.version>1.6.18-SNAPSHOT</plugin.version>
+        <plugin.version>1.6.19-SNAPSHOT</plugin.version>
     </properties>
 
     <repositories>
@@ -37,7 +37,7 @@
         </repository>
         <repository>
             <id>minebench-repo</id>
-            <url>http://repo.minebench.de/</url>
+            <url>https://repo.minebench.de/</url>
         </repository>
         <repository>
             <id>sgdc3-repo</id>

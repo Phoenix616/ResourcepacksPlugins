@@ -24,7 +24,7 @@ public class PluginMessageListener implements Listener {
 
     @EventHandler
     public void pluginMessageReceived(PluginMessageEvent event) {
-        if(!plugin.isEnabled() || !event.getTag().equals("Resourcepack") || !(event.getSender() instanceof Server))
+        if(!plugin.isEnabled() || !event.getTag().equals("rp:plugin") || !(event.getSender() instanceof Server))
             return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());

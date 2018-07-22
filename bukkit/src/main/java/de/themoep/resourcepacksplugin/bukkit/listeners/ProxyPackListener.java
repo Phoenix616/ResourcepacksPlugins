@@ -25,7 +25,7 @@ public class ProxyPackListener implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(String channel, Player p, byte[] message) {
-        if(!channel.equals("Resourcepack")) {
+        if(!channel.equals("rp:plugin")) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class ProxyPackListener implements PluginMessageListener {
     }
 
     /**
-     * Register a new sub channel with this listener on the channel "Resourcepack"
+     * Register a new sub channel with this listener on the channel "rp:plugin"
      * @param name      The name of the sub channel, case sensitive
      * @param reaction  The reaction that should happen
      * @return          The previously registered Reaction or null
