@@ -125,7 +125,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
                     Map.Entry<String, Object> entry = it.next();
                     Array.set(mappingsObject, i, entry.getValue());
-                    getLogger().log(getLogLevel(), "Registered packet for " + entry.getKey());
+                    getLogger().log(getLogLevel(), "Registered ResourcePackSendPacket for " + entry.getKey());
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
