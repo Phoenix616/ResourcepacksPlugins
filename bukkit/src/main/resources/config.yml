@@ -20,7 +20,9 @@ packs:
     hash: abcdef012345678abcdef012345678abcdef0123
    # The format version of this resourcepack
    # 1 is for 1.8 packs
-   # 2 is for 1.9
+   # 2 is for 1.9-1.10
+   # 3 is for 1.11-1.12
+   # 4 is for 1.13 and above
     format: 1
    # Whether or not this pack will only be send to players with a certain permission
    # permission: worldresourcepacks.pack.<packname>
