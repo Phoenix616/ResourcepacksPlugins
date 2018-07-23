@@ -74,14 +74,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             String versionNumberString = versionString.substring(firstPoint + 1, (secondPoint < minus && secondPoint != -1) ? secondPoint : minus);
             try {
                 int serverVersion = Integer.valueOf(versionNumberString);
-                if (serverVersion < 8) {
-                    serverPackFormat = 0;
-                } else if (serverVersion < 9) {
-                    serverPackFormat = 1;
-                } else if (serverVersion < 11) {
-                    serverPackFormat = 2;
-                } else {
+                if (serverVersion >= 13) {
+                    serverPackFormat = 4;
+                } else if (serverVersion >= 11) {
                     serverPackFormat = 3;
+                } else if (serverVersion >= 9) {
+                    serverPackFormat = 2;
+                } else if (serverVersion >= 8) {
+                    serverPackFormat = 1;
+                } else {
+                    serverPackFormat = 0;
                 }
                 getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
             } catch(NumberFormatException e) {
