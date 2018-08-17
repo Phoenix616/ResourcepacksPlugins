@@ -540,6 +540,9 @@ public class PackManager {
         if (pack != null && pack.equals(prev)) {
             return false;
         }
+        if (prev == null && (pack == null || pack.equals(getEmptyPack()))) {
+            return false;
+        }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
             plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
