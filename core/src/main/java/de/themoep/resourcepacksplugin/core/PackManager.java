@@ -621,8 +621,7 @@ public class PackManager {
                 pack = globalPack;
                 plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
             } else if(prev != null || globalPack != null){
-                List<String> globalSecondary = getGlobalSecondary();
-                for(String secondaryName : globalSecondary) {
+                for (String secondaryName : getGlobalAssignment().getSecondaries()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if(status == IResourcePackSelectEvent.Status.SUCCESS) {
@@ -642,7 +641,7 @@ public class PackManager {
         return selectEvent.getPack();
     }
 
-    private IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
+    protected IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
         if(pack == null) {
             return status;
         }
