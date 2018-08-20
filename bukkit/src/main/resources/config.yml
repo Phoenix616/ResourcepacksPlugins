@@ -33,12 +33,10 @@ packs:
   gamepack:
     url: http://example.com/minigameresourcepack.zip
     hash: 012345678abcdef012345678abcdef012345678a
-  # Empty pack to reset the pack to the default one
-  emptypack:
-    url: http://cdn.moep.tv/files/Empty.zip
-    hash: c05faed4680570a6159823e13fbae2ae830166ab
-# Name of the pack to use for resetting of the pack for servers which don't have one assigned
-empty: emptypack
+# Empty pack to reset the pack to the default one
+empty:
+  url: http://cdn.moep.tv/files/Empty.zip
+  hash: c05faed4680570a6159823e13fbae2ae830166ab
 server:
   pack: lobbypack
   # List of packs to not replace if the user already has them

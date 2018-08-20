@@ -31,6 +31,8 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PackManager {
 
+    public static final String EMPTY_IDENTIFIER = "internal-empty";
+
     private final ResourcepacksPlugin plugin;
     /**
      * packname -> ResourcePack
@@ -694,7 +696,7 @@ public class PackManager {
                 if (pack.getName().startsWith("backend-")) {
                     continue;
                 }
-                Path target = new File(plugin.getDataFolder(), pack.getName() + "-downloaded.zip").toPath();
+                Path target = new File(plugin.getDataFolder(), pack.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_") + "-downloaded.zip").toPath();
                 InputStream in = null;
                 try {
                     URL url = new URL(pack.getUrl());

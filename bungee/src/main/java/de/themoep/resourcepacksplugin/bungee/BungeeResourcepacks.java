@@ -239,18 +239,38 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         } else {
             getLogger().log(Level.WARNING, "No packs defined!");
         }
-        
-        String emptypackname = getConfig().getString("empty");
-        if(emptypackname != null && !emptypackname.isEmpty()) {
-            ResourcePack ep = getPackManager().getByName(emptypackname);
-            if(ep != null) {
-                getLogger().log(Level.INFO, "Empty pack: " + ep.getName());
-                getPackManager().setEmptyPack(ep);
-            } else {
-                getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+
+        if (getConfig().isSection("empty")) {
+            Configuration packSection = getConfig().getSection("empty");
+            String packName = PackManager.EMPTY_IDENTIFIER;
+            String packUrl = packSection.getString("url", "");
+            if (packUrl.isEmpty()) {
+                getLogger().log(Level.SEVERE, "Empty pack does not have an url defined!");
+            }
+            String packHash = packSection.getString("hash", "");
+
+            try {
+                getLogger().log(Level.INFO, "Empty pack - " + packUrl + " - " + packHash.toLowerCase());
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, 0, false, null);
+
+                getPackManager().addPack(pack);
+                getPackManager().setEmptyPack(pack);
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.SEVERE, e.getMessage());
             }
         } else {
-            getLogger().log(Level.WARNING, "No empty pack defined!");
+            String emptypackname = getConfig().getString("empty");
+            if (emptypackname != null && !emptypackname.isEmpty()) {
+                ResourcePack ep = getPackManager().getByName(emptypackname);
+                if (ep != null) {
+                    getLogger().log(Level.INFO, "Empty pack: " + ep.getName());
+                    getPackManager().setEmptyPack(ep);
+                } else {
+                    getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+                }
+            } else {
+                getLogger().log(Level.WARNING, "No empty pack defined!");
+            }
         }
 
         if (getConfig().isSet("global", true) && getConfig().isSection("global")) {
@@ -314,12 +334,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void saveConfigChanges() {
         for (ResourcePack pack : getPackManager().getPacks()) {
+            boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
+            if (isEmptyPack) {
+                path = "empty";
+            }
             getConfig().set(path + ".url", pack.getUrl());
             getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", pack.getFormat());
-            getConfig().set(path + ".restricted", pack.isRestricted());
-            getConfig().set(path + ".permission", pack.getPermission());
+            getConfig().set(path + ".format", !isEmptyPack ? pack.getFormat() : null);
+            getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
+            getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
         getConfig().saveConfig();
     }
@@ -582,7 +606,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(proxiedPlayer != null) {
             return proxiedPlayer.hasPermission(perm);
         }
-        return false;
+        return perm == null;
 
     }
 

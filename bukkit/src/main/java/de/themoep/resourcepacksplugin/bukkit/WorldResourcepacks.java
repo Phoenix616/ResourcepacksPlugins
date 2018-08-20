@@ -193,17 +193,38 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.WARNING, "No packs defined!");
         }
 
-        String emptypackname = getConfig().getString("empty", null);
-        if(emptypackname != null && !emptypackname.isEmpty()) {
-            ResourcePack ep = getPackManager().getByName(emptypackname);
-            if(ep != null) {
-                getLogger().log(getLogLevel(), "Empty pack: " + ep.getName());
-                getPackManager().setEmptyPack(ep);
-            } else {
-                getLogger().warning("Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+        if (getConfig().isConfigurationSection("empty")) {
+            ConfigurationSection packSection = getConfig().getConfigurationSection("empty");
+            String packName = PackManager.EMPTY_IDENTIFIER;
+            String packUrl = packSection.getString("url", "");
+            if (packUrl.isEmpty()) {
+                getLogger().log(Level.SEVERE, "Empty pack does not have an url defined!");
+            }
+            String packHash = packSection.getString("hash", "");
+            int packFormat = packSection.getInt("format", 0);
+
+            try {
+                getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, false, null);
+
+                getPackManager().addPack(pack);
+                getPackManager().setEmptyPack(pack);
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.SEVERE, e.getMessage());
             }
         } else {
-            getLogger().log(Level.WARNING, "No empty pack defined!");
+            String emptypackname = getConfig().getString("empty", null);
+            if (emptypackname != null && !emptypackname.isEmpty()) {
+                ResourcePack ep = getPackManager().getByName(emptypackname);
+                if (ep != null) {
+                    getLogger().log(getLogLevel(), "Empty pack: " + ep.getName());
+                    getPackManager().setEmptyPack(ep);
+                } else {
+                    getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+                }
+            } else {
+                getLogger().log(Level.WARNING, "No empty pack defined!");
+            }
         }
 
         if (getConfig().isSet("server") && getConfig().isConfigurationSection("server")) {
@@ -275,12 +296,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     public void saveConfigChanges() {
         for (ResourcePack pack : getPackManager().getPacks()) {
+            boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
+            if (isEmptyPack) {
+                path = "empty";
+            }
             getConfig().set(path + ".url", pack.getUrl());
             getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", pack.getFormat());
-            getConfig().set(path + ".restricted", pack.isRestricted());
-            getConfig().set(path + ".permission", pack.getPermission());
+            getConfig().set(path + ".format", !isEmptyPack ? pack.getFormat() : null);
+            getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
+            getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
         saveConfig();
     }
@@ -446,7 +471,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         if(player != null) {
             return player.hasPermission(perm);
         }
-        return false;
+        return perm == null;
 
     }
 
