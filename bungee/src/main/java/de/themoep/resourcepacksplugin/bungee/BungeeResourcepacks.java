@@ -28,6 +28,8 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.minecrell.mcstats.BungeeStatsLite;
 import org.bstats.MetricsLite;
+import us.myles.ViaVersion.api.ViaAPI;
+import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +83,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private boolean enabled = false;
 
     private int bungeeVersion;
+
+    private ViaAPI viaApi;
 
     public void onEnable() {
         instance = this;
@@ -145,6 +149,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
             getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
+
+            ViaPlatform viaPlugin = (ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion");
+            if (viaPlugin != null) {
+                viaApi = viaPlugin.getApi();
+                getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+            }
 
             setEnabled(loadConfig());
 
@@ -612,8 +622,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public int getPlayerPackFormat(UUID playerId) {
+        if (viaApi != null) {
+            return getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
+        }
+
         ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
-        if(proxiedPlayer != null) {
+        if (proxiedPlayer != null) {
             return getPackManager().getPackFormat(proxiedPlayer.getPendingConnection().getVersion());
         }
         return -1;

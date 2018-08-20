@@ -2,7 +2,7 @@ name: ${project.name}
 main: de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks
 version: '${minecraft.plugin.version}'
 author: Phoenix616
-softdepend: [ViaVersion, AuthMe]
+softdepend: [ViaVersion, ProtocolSupport, AuthMe]
 api-version: 1.13
 commands:
    wrp:

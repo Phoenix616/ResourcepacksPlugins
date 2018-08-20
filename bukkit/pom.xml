@@ -14,6 +14,16 @@
         <version>parent</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>perfectdreams-repo</id>
+            <url>https://repo.perfectdreams.net/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -32,6 +42,12 @@
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ProtocolSupport</groupId>
+            <artifactId>ProtocolSupport</artifactId>
+            <version>417781cc1d</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

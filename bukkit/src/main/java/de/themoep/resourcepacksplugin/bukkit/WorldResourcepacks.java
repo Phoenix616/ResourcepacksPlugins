@@ -23,7 +23,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import protocolsupport.api.ProtocolSupportAPI;
+import protocolsupport.api.ProtocolType;
+import protocolsupport.api.ProtocolVersion;
 import us.myles.ViaVersion.ViaVersionPlugin;
 import us.myles.ViaVersion.api.ViaAPI;
 
@@ -51,6 +55,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private InternalHelper internalHelper;
 
     private ViaAPI viaApi;
+    private boolean protocolSupportApi = false;
     private NewAPI authmeApi;
     private ProxyPackListener proxyPackListener;
 
@@ -108,9 +113,15 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
 
             ViaVersionPlugin viaPlugin = (ViaVersionPlugin) getServer().getPluginManager().getPlugin("ViaVersion");
-            if(viaPlugin != null) {
+            if (viaPlugin != null && viaPlugin.isEnabled()) {
                 viaApi = viaPlugin.getApi();
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+            }
+
+            Plugin protocolSupport = getServer().getPluginManager().getPlugin("ProtocolSupport");
+            if (protocolSupport != null && protocolSupport.isEnabled()) {
+                protocolSupportApi = true;
+                getLogger().log(Level.INFO, "Detected ProtocolSupport " + protocolSupport.getDescription().getVersion());
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {
@@ -478,9 +489,15 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public int getPlayerPackFormat(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
-        if(player != null) {
+        if (player != null) {
             if (viaApi != null) {
                 return getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
+            }
+            if (protocolSupportApi) {
+                ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
+                if (version.getProtocolType() == ProtocolType.PC) {
+                    return getPackManager().getPackFormat(version.getId());
+                }
             }
             return serverPackFormat;
         }
