@@ -139,21 +139,17 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         reloadConfig();
         storedPacks.reloadConfig();
         getLogger().log(Level.INFO, "Loading config!");
-        try {
-            String debugString = getConfig().getString("debug", "true");
-            if (debugString.equalsIgnoreCase("true")) {
-                loglevel = Level.INFO;
-            } else if (debugString.equalsIgnoreCase("false")) {
-                loglevel = Level.OFF;
-            } else {
-                try {
-                    loglevel = Level.parse(debugString.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    getLogger().log(Level.SEVERE, "Wrong config value for debug!", e);
-                }
+        String debugString = getConfig().getString("debug");
+        if (debugString.equalsIgnoreCase("true")) {
+            loglevel = Level.INFO;
+        } else if (debugString.equalsIgnoreCase("false")) {
+            loglevel = Level.OFF;
+        } else {
+            try {
+                loglevel = Level.parse(debugString.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.SEVERE, "Wrong config value for debug!", e);
             }
-        } catch(ClassCastException e) {
-            loglevel = getConfig().getBoolean("debug", true) ? Level.INFO : Level.OFF;
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
