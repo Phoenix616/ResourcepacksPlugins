@@ -153,13 +153,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         String debugString = getConfig().getString("debug");
         if (debugString.equalsIgnoreCase("true")) {
             loglevel = Level.INFO;
-        } else if (debugString.equalsIgnoreCase("false")) {
-            loglevel = Level.OFF;
+        } else if (debugString.equalsIgnoreCase("false") || debugString.equalsIgnoreCase("off")) {
+            loglevel = Level.FINE;
         } else {
             try {
                 loglevel = Level.parse(debugString.toUpperCase());
             } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, "Wrong config value for debug!", e);
+                getLogger().log(Level.SEVERE, "Wrong config value for debug! To disable debugging just set it to \"false\"! (" + e.getMessage() + ")");
             }
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
