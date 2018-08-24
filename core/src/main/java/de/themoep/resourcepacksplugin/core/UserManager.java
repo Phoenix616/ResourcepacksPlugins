@@ -46,7 +46,6 @@ public class UserManager {
      */
     public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
         String previous = userPackMap.put(playerid, pack.getName());
-        updatePackTime(playerid);
         return (previous == null) ? null : plugin.getPackManager().getByName(previous);
     }
 

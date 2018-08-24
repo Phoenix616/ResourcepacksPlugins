@@ -31,7 +31,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PackManager {
 
-    public static final String EMPTY_IDENTIFIER = "internal-empty";
+    public static final String EMPTY_IDENTIFIER = "empty";
 
     private final ResourcepacksPlugin plugin;
     /**
@@ -537,7 +537,18 @@ public class PackManager {
     public boolean setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         if (!temporary) {
-            plugin.setStoredPack(playerId, pack.equals(getEmptyPack()) ? null : pack.getName());
+            if (pack.equals(getEmptyPack())) {
+                plugin.setStoredPack(playerId, null);
+            } else {
+                plugin.setStoredPack(playerId, pack.getName());
+                plugin.getUserManager().updatePackTime(playerId);
+            }
+        }
+        if (pack == null) {
+            pack = getByName(plugin.getStoredPack(playerId));
+            if (pack != null) {
+                plugin.getLogger().log(plugin.getLogLevel(), playerId + " has the pack " + pack.getName() + " stored!");
+            }
         }
         if (pack != null && pack.equals(prev)) {
             return false;
@@ -551,12 +562,6 @@ public class PackManager {
             return false;
         }
         pack = sendEvent.getPack();
-        if (pack == null) {
-            pack = getByName(plugin.getStoredPack(playerId));
-            if (pack != null) {
-                plugin.getLogger().log(plugin.getLogLevel(), playerId + " has the pack " + pack.getName() + " stored!");
-            }
-        }
         if (pack == null && prev != null) {
             pack = getEmptyPack();
         }
