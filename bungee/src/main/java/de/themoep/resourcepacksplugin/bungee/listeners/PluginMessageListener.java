@@ -3,6 +3,7 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.ResourcePack;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -29,21 +30,33 @@ public class PluginMessageListener implements Listener {
 
         ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
         String subchannel = in.readUTF();
-        if("authMeLogin".equals(subchannel)) {
-            String playerName = in.readUTF();
-            UUID playerId = UUID.fromString(in.readUTF());
 
-            plugin.setAuthenticated(playerId, true);
-            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("useauth", false)) {
-                ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-                if(player != null) {
-                    String serverName = "";
-                    if(player.getServer() != null) {
-                        serverName = player.getServer().getInfo().getName();
+        switch(subchannel) {
+            case "authMeLogin":
+                String playerName = in.readUTF();
+                UUID playerId = UUID.fromString(in.readUTF());
+
+                plugin.setAuthenticated(playerId, true);
+                if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("useauth", false)) {
+                    ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
+                    if(player != null) {
+                        String serverName = "";
+                        if(player.getServer() != null) {
+                            serverName = player.getServer().getInfo().getName();
+                        }
+                        plugin.getPackManager().applyPack(playerId, serverName);
                     }
-                    plugin.getPackManager().applyPack(playerId, serverName);
                 }
-            }
+                break;
+            case "setpack":
+                ProxiedPlayer player = plugin.getProxy().getPlayer(UUID.fromString(in.readUTF()));
+                if (player != null) {
+                    ResourcePack pack = plugin.getPackManager().getByName(in.readUTF());
+                    if (pack != null) {
+                        plugin.getPackManager().setPack(player.getUniqueId(), pack, false);
+                    }
+                }
+                break;
         }
     }
 }
