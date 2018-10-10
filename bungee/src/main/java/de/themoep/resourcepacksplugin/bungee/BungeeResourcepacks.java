@@ -364,7 +364,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         for (ResourcePack pack : getPackManager().getPacks()) {
             boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
-            if (isEmptyPack) {
+            if (isEmptyPack && getConfig().isSection("empty")) {
                 path = "empty";
             }
             getConfig().set(path + ".url", pack.getUrl());

@@ -327,7 +327,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         for (ResourcePack pack : getPackManager().getPacks()) {
             boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
-            if (isEmptyPack) {
+            if (isEmptyPack && getConfig().isConfigurationSection("empty")) {
                 path = "empty";
             }
             getConfig().set(path + ".url", pack.getUrl());
