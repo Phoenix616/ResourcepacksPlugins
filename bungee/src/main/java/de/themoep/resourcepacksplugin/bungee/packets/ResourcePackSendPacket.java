@@ -52,7 +52,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
             new IdMapping("1.12", ProtocolConstants.MINECRAFT_1_12, 0x33),
             new IdMapping("1.12.1", ProtocolConstants.MINECRAFT_1_12_1, 0x34),
             new IdMapping("1.12.2", ProtocolConstants.MINECRAFT_1_12_2, 0x34),
-            new IdMapping("1.13", ProtocolConstants.MINECRAFT_1_13, 0x37)
+            new IdMapping("1.13", ProtocolConstants.MINECRAFT_1_13, 0x37),
+            new IdMapping("1.13.1", ProtocolConstants.MINECRAFT_1_13_1, 0x37)
     );
 
     public ResourcePackSendPacket() {};
@@ -88,7 +89,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
             throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
         }
     }
-    
+
     public void relayPacket(UserConnection usercon, PacketWrapper packet) throws Exception {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         if(plugin.isEnabled()) {
