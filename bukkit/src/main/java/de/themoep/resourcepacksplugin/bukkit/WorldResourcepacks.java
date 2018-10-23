@@ -34,7 +34,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
-import fr.xephi.authme.api.NewAPI;
+import fr.xephi.authme.api.v3.AuthMeApi;
 import fr.xephi.authme.events.LoginEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,7 +74,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private ViaAPI viaApi;
     private boolean protocolSupportApi = false;
-    private NewAPI authmeApi;
+    private AuthMeApi authmeApi;
     private ProxyPackListener proxyPackListener;
 
     public void onEnable() {
@@ -284,8 +284,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getLogger().log(Level.INFO, "No world assignments defined!");
         }
 
-        if(getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
-            authmeApi = NewAPI.getInstance();
+        if (getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
+            authmeApi = AuthMeApi.getInstance();
             getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
             LoginEvent.getHandlerList().unregister(this);
             getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
