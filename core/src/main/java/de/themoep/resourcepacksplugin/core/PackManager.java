@@ -740,7 +740,7 @@ public class PackManager {
                         packHashes.put(pack.getHash(), pack);
                         changed++;
                     }
-                    plugin.sendMessage(sender, "generate-hashes.done",
+                    plugin.sendMessage(sender, "generate-hashes.hash-sum",
                             "pack", pack.getName(),
                             "url", pack.getUrl(),
                             "hash", pack.getHash()
