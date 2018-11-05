@@ -712,7 +712,7 @@ public class PackManager {
      */
     public void generateHashes(final ResourcepacksPlayer sender) {
         plugin.runAsyncTask(() -> {
-            plugin.sendMessage(sender, ChatColor.YELLOW + "Generating hashes...");
+            plugin.sendMessage(sender, "generate-hashes.generating");
             int changed = 0;
 
             for (ResourcePack pack : getPacks()) {
@@ -723,7 +723,11 @@ public class PackManager {
                 InputStream in = null;
                 try {
                     URL url = new URL(pack.getUrl());
-                    plugin.sendMessage(sender, ChatColor.YELLOW + "Downloading " + ChatColor.WHITE + pack.getName() + "...");
+                    plugin.sendMessage(sender, "generate-hashes.downloading",
+                            "pack", pack.getName(),
+                            "url", pack.getUrl(),
+                            "hash", pack.getHash()
+                    );
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setRequestProperty("User-Agent", plugin.getName() + "/" + plugin.getVersion());
                     in = con.getInputStream();
@@ -736,18 +740,37 @@ public class PackManager {
                         packHashes.put(pack.getHash(), pack);
                         changed++;
                     }
-                    plugin.sendMessage(sender, ChatColor.YELLOW + "SHA 1 hash of " + ChatColor.WHITE + pack.getName() + ChatColor.YELLOW + ": " + ChatColor.WHITE + pack.getHash());
+                    plugin.sendMessage(sender, "generate-hashes.done",
+                            "pack", pack.getName(),
+                            "url", pack.getUrl(),
+                            "hash", pack.getHash()
+                    );
                     Files.deleteIfExists(target);
                 } catch (MalformedURLException e) {
-                    plugin.sendMessage(sender, Level.SEVERE, ChatColor.YELLOW + pack.getUrl() + ChatColor.RED + " is not a valid url!");
+                    plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.invalid-url",
+                            "pack", pack.getName(),
+                            "url", pack.getUrl(),
+                            "hash", pack.getHash(),
+                            "error", e.getMessage()
+                    );
                 } catch (IOException e) {
-                    plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + "Could not load " + pack.getName() + "! " + e.getMessage());
+                    plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
+                            "pack", pack.getName(),
+                            "url", pack.getUrl(),
+                            "hash", pack.getHash(),
+                            "error", e.getMessage()
+                    );
                 } finally {
                     if (in != null) {
                         try {
                             in.close();
                         } catch (IOException e) {
-                            plugin.sendMessage(sender, Level.SEVERE, ChatColor.RED + e.getMessage());
+                            plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
+                                    "pack", pack.getName(),
+                                    "url", pack.getUrl(),
+                                    "hash", pack.getHash(),
+                                    "error", e.getMessage()
+                            );
                             e.printStackTrace();
                         }
                     }
@@ -755,10 +778,10 @@ public class PackManager {
             }
 
             if (changed > 0) {
-                plugin.sendMessage(sender, ChatColor.GREEN + "Hashes of " + changed + " packs changed! Saving to config.");
+                plugin.sendMessage(sender, "generate-hashes.changed", "amount", String.valueOf(changed));
                 plugin.runTask(plugin::saveConfigChanges);
             } else {
-                plugin.sendMessage(sender, ChatColor.GREEN + "No hash changed!");
+                plugin.sendMessage(sender, "generate-hashes.none-changed");
             }
         });
     }

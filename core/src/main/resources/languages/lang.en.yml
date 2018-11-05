@@ -1,0 +1,30 @@
+command:
+  usage: "Usage: /%command% [reload [resend]|version]"
+  reloaded: "&aReloaded %plugin% config!%optional-resend%"
+  optional-resend: " Resend packs to all online players!"
+  version: "&a%plugin% version: %version%"
+  not-enabled: "&c%plugin% is not enabled!"
+  usepack:
+    usage: "Usage: /%command% <packname> [<playername>] [<temp>]"
+    invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
+    player-not-online: "&cThe player &f%input%"
+    already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"
+    usepack: "&cYou don't have the permission &f%permission%%c to set the restricted pack '&f%pack%&c'!"
+    unknown-pack: "&cError: There is no pack with the name '&f%input%&c'!"
+    success-other: "&f%player% &anow uses the pack '&f%pack%&a'!"
+    success: "&aYou now use the pack %pack%!"
+    pack-list:
+      head: "&aPacks available to you:"
+      entry: "&e%selected%%pack%%optional-format%"
+      optional-format: "&7 (Format: %format%)"
+      selected: ">"
+    no-packs: "&cNo packs found!"
+
+generate-hashes:
+  generating: "&eGenerating hashes..."
+  downloading: "&eDownloading &f%pack%&e..."
+  hash-sum: "&eSHA 1 hash of &f%pack%&e: &f%hash%"
+  invalid-url: "&e%url%&c is not a valid url!"
+  failed-to-load-pack: "&cCould not load %pack%! %error%"
+  changed: "&aHashes of %amount% packs changed! Saving to config."
+  none-changed: "&aNo hash changed!"

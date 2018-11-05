@@ -94,16 +94,40 @@ public interface ResourcepacksPlugin {
      * Get a message from the config
      * @param key The message's key
      * @return The defined message string or an error message if the variable isn't known.
+     * @deprecated Use {@link #getMessage(ResourcepacksPlayer, String, String...)}
      */
-    String getMessage(String key);
+    @Deprecated
+    default String getMessage(String key) {
+        return getMessage(null, key);
+    }
 
     /**
      * Get a message from the config and replace variables
      * @param key The message's key
      * @param replacements The replacements in a mapping variable-replacement
      * @return The defined message string or an error message if the variable isn't known.
+     * @deprecated Use {@link #getMessage(ResourcepacksPlayer, String, String...)}
      */
-    String getMessage(String key, Map<String, String> replacements);
+    @Deprecated
+    default String getMessage(String key, Map<String, String> replacements) {
+        String[] repl = new String[replacements.size() * 2];
+        int i = 0;
+        for (Map.Entry<String, String> e : replacements.entrySet()) {
+            repl[i] = e.getKey();
+            repl[i + 1] = e.getValue();
+            i+=2;
+        }
+        return getMessage(null, key, repl);
+    }
+
+    /**
+     * Get a message from the language config
+     * @param sender The sender to get the message from, will use the client language if available
+     * @param key The message key
+     * @param replacements Optional placeholder replacement array
+     * @return The message or an error message if not available, never null
+     */
+    String getMessage(ResourcepacksPlayer sender, String key, String... replacements);
 
     /**
      * Get the name of the plugin
@@ -129,20 +153,22 @@ public interface ResourcepacksPlugin {
 
     /**
      * Send a message to a player
-     * @param player The the player
-     * @param message The message to send
+     * @param player The player
+     * @param key The key of the message to send
+     * @param replacements An optional array with placeholder replacements
      * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
      */
-    boolean sendMessage(ResourcepacksPlayer player, String message);
+    boolean sendMessage(ResourcepacksPlayer player, String key, String... replacements);
 
     /**
      * Send a message to a sender
      * @param sender The the sender
      * @param level The level to log to if the sender is the console!
-     * @param message The message to send
+     * @param key The key of the message to send
+     * @param replacements An optional array with placeholder replacements
      * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
      */
-    boolean sendMessage(ResourcepacksPlayer sender, Level level, String message);
+    boolean sendMessage(ResourcepacksPlayer sender, Level level, String key, String... replacements);
 
     /**
      * Check whether or not a player has a permission

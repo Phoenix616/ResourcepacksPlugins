@@ -34,6 +34,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import de.themoep.utils.lang.bukkit.LanguageManager;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import fr.xephi.authme.events.LoginEvent;
 import org.bukkit.ChatColor;
@@ -65,6 +66,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private PackManager pm = new PackManager(this);
 
     private UserManager um;
+
+    private LanguageManager lm;
 
     private Level loglevel = Level.INFO;
 
@@ -181,6 +184,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
+
+        lm = new LanguageManager(this, getConfig().getString("default-language"));
 
         getPackManager().init();
         if (getConfig().isSet("packs") && getConfig().isConfigurationSection("packs")) {
@@ -420,22 +425,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return um;
     }
 
-    public String getMessage(String key) {
-        String msg = getConfig().getString("messages." + key);
-        if(msg == null || msg.isEmpty()) {
-            msg = "&cUnknown message key: &6messages." + key;
-        }
-        return ChatColor.translateAlternateColorCodes('&', msg);
-    }
-
-    public String getMessage(String key, Map<String, String> replacements) {
-        String msg = getMessage(key);
-        if (replacements != null) {
-            for(Map.Entry<String, String> repl : replacements.entrySet()) {
-                msg = msg.replace("%" + repl.getKey() + "%", repl.getValue());
+    @Override
+    public String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+        if (lm != null) {
+            Player player = null;
+            if (sender != null) {
+                player = getServer().getPlayer(sender.getUniqueId());
             }
+            return lm.getConfig(player).get(key, replacements);
         }
-        return msg;
+        return key;
     }
 
     public String getVersion() {
@@ -465,12 +464,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
-    public boolean sendMessage(ResourcepacksPlayer player, String message) {
-        return sendMessage(player, Level.INFO, message);
+    public boolean sendMessage(ResourcepacksPlayer player, String key, String... replacements) {
+        return sendMessage(player, Level.INFO, key, replacements);
     }
 
     @Override
-    public boolean sendMessage(ResourcepacksPlayer packPlayer, Level level, String message) {
+    public boolean sendMessage(ResourcepacksPlayer packPlayer, Level level, String key, String... replacements) {
+        String message = getMessage(packPlayer, key, replacements);
         if(packPlayer != null) {
             Player player = getServer().getPlayer(packPlayer.getUniqueId());
             if(player != null) {
@@ -482,8 +482,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
         return false;
     }
-
-
 
     @Override
     public boolean checkPermission(ResourcepacksPlayer player, String perm) {

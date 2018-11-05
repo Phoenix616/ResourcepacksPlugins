@@ -30,11 +30,13 @@ import net.md_5.bungee.api.plugin.Command;
  */
 public class UsePackCommand extends Command {
 
-    ResourcepacksPlugin plugin;
+    private final ResourcepacksPlugin plugin;
+    private final UsePackCommandExecutor usepackCommand;
 
     public UsePackCommand(BungeeResourcepacks plugin, String name, String permission, String... aliases) {
         super(name, permission, aliases);
         this.plugin = plugin;
+        usepackCommand = new UsePackCommandExecutor(plugin);
     }
 
     @Override
@@ -43,8 +45,6 @@ public class UsePackCommand extends Command {
         if(sender instanceof ProxiedPlayer) {
             s = plugin.getPlayer(((ProxiedPlayer) sender).getUniqueId());
         }
-        if(!new UsePackCommandExecutor(plugin).execute(s, args)) {
-            sender.sendMessage("Usage: /usepack <packname> [<playername>] [<temp>]");
-        }
+        usepackCommand.execute(s, args);
     }
 }

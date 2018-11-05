@@ -19,7 +19,6 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.themoep.resourcepacksplugin.core.ChatColor;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
@@ -38,17 +37,24 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 if(plugin.isEnabled()) {
                     boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
                     plugin.reloadConfig(resend);
-                    plugin.sendMessage(sender, ChatColor.GREEN + "Reloaded " + plugin.getName() + "' config!" + (resend ? " Resend packs to all online players!":""));
+                    plugin.sendMessage(sender, "command.reloaded",
+                            "plugin", plugin.getName(),
+                            "optional-resend", resend ? plugin.getMessage(sender, "command.optional-resend") : ""
+                    );
                 } else {
-                    plugin.sendMessage(sender, ChatColor.RED  + plugin.getName() + " is not enabled!");
+                    plugin.sendMessage(sender, "command.not-enabled", "plugin", plugin.getName());
                 }
             } else if(args[0].equalsIgnoreCase("version") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.version")) {
-                plugin.sendMessage(sender, ChatColor.GREEN + plugin.getName() + "' version: " + plugin.getVersion());
+                plugin.sendMessage(sender, "command.version",
+                        "plugin", plugin.getName(),
+                        "version", plugin.getVersion()
+                );
             } else if ("generatehashes".equalsIgnoreCase(args[0]) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.generatehashes")) {
                 plugin.getPackManager().generateHashes(sender);
             }
             return true;
         }
+        plugin.sendMessage(sender, "command.usage", "command", plugin.getName().charAt(0) + "rp");
         return false;
     }
 }

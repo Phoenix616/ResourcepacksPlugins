@@ -1,4 +1,6 @@
 debug: true
+# Default language
+default-language: en
 # Whether or not resourcepack file hashes should be generated on startup:
 autogeneratehashes: true
 # Whether /usepack should apply packs temporary or permanent when run without any argument:
@@ -6,10 +8,6 @@ usepack-is-temporary: true
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
 # 0 or anything below will disable this functionality
 permanent-pack-remove-time: 30
-messages:
-  usepack: You now use the pack %pack%!
-  packlisthead: "Packs available to you:"
-  nopacks: No packs found!
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.

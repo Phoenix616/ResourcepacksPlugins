@@ -36,6 +36,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import de.themoep.utils.lang.bungee.LanguageManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -81,6 +82,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private PackManager pm = new PackManager(this);
 
     private UserManager um;
+
+    private LanguageManager lm;
     
     private Level loglevel = Level.INFO;
 
@@ -165,6 +168,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 return;
             }
 
+            setEnabled(loadConfig());
+
             getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
             getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
 
@@ -173,8 +178,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 viaApi = viaPlugin.getApi();
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
             }
-
-            setEnabled(loadConfig());
 
             if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
                 getPackManager().generateHashes(null);
@@ -236,6 +239,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(getConfig().isSet("useauth")) {
             getLogger().log(getLogLevel(), "Use backend auth: " + getConfig().getBoolean("useauth"));
         }
+
+        lm = new LanguageManager(this, getConfig().getString("default-language"));
 
         getPackManager().init();
         if (getConfig().isSet("packs", true) && getConfig().isSection("packs")) {
@@ -552,22 +557,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return backendPackedPlayers.containsKey(playerId);
     }
 
-    public String getMessage(String key) {
-        String msg = getConfig().getString("messages." + key, getConfig().getDefaults().getString("messages." + key));
-        if(msg == null || msg.isEmpty()) {
-            msg = "&cUnknown message key: &6messages." + key;
-        }
-        return ChatColor.translateAlternateColorCodes('&', msg);
-    }
-
-    public String getMessage(String key, Map<String, String> replacements) {
-        String msg = getMessage(key);
-        if (replacements != null) {
-            for(Map.Entry<String, String> repl : replacements.entrySet()) {
-                msg = msg.replace("%" + repl.getKey() + "%", repl.getValue());
+    @Override
+    public String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+        if (lm != null) {
+            ProxiedPlayer player = null;
+            if (sender != null) {
+                player = getProxy().getPlayer(sender.getUniqueId());
             }
+            return lm.getConfig(player).get(key, replacements);
         }
-        return msg;
+        return key;
     }
 
     public String getName() {
@@ -601,12 +600,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public boolean sendMessage(ResourcepacksPlayer player, String message) {
-        return sendMessage(player, Level.INFO, message);
+    public boolean sendMessage(ResourcepacksPlayer player, String key, String... replacements) {
+        return sendMessage(player, Level.INFO, key, replacements);
     }
 
     @Override
-    public boolean sendMessage(ResourcepacksPlayer player, Level level, String message) {
+    public boolean sendMessage(ResourcepacksPlayer player, Level level, String key, String... replacements) {
+        String message = getMessage(player, key, replacements);
         if(player != null) {
             ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
             if(proxyPlayer != null) {

@@ -18,12 +18,11 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.collect.ImmutableMap;
-import de.themoep.resourcepacksplugin.core.ChatColor;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +50,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     } else if ("true".equalsIgnoreCase(tempStr)) {
                         temp = true;
                     } else if (tempStr != null && args.length > 2) {
-                        plugin.sendMessage(sender, ChatColor.RED + tempStr + " is not a valid Boolean temporary value! (true/false)");
+                        plugin.sendMessage(sender, "command.usepack.invalid-temporary", "input", tempStr);
                         return true;
                     } else {
                         // temporary value is not true or false
@@ -62,7 +61,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     if ((args.length > 2 || (tempStr == null && args.length > 1)) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
                         player = plugin.getPlayer(args[1]);
                         if (player == null) {
-                            plugin.sendMessage(sender, ChatColor.RED + "The player " + args[1] + " is not online!");
+                            plugin.sendMessage(sender, "command.usepack.player-not-online", "input", args[0]);
                             return true;
                         }
                     } else if(sender != null) {
@@ -73,22 +72,22 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     }
                     if (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
                         if (!player.equals(sender)) {
-                            plugin.sendMessage(sender, args[1] + " now uses the pack '" + pack.getName() + "'!");
+                            plugin.sendMessage(sender, "command.usepack.success-other", "player", player.getName(), "pack", pack.getName());
                         }
-                        plugin.sendMessage(player, ChatColor.GREEN + plugin.getMessage("usepack", ImmutableMap.of("pack", pack.getName())));
+                        plugin.sendMessage(player, "command.usepack.success", "pack", pack.getName());
                         String senderName = sender != null ? sender.getName() : "CONSOLE";
                         plugin.getLogger().log(plugin.getLogLevel(), senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                     } else {
-                        plugin.sendMessage(sender, ChatColor.RED + player.getName() + " already uses the pack '" + pack.getName() + "'!");
+                        plugin.sendMessage(sender, "command.usepack.already-in-use", "player", player.getName(), "pack", pack.getName());
                     }
                 } else {
-                    plugin.sendMessage(sender, ChatColor.RED + "You don't have the permission " + pack.getPermission() + " to set the restricted pack '" + pack.getName() + "'!");
+                    plugin.sendMessage(sender, "command.usepack.restricted", "permission", pack.getPermission(), "pack", pack.getName());
                 }
             } else {
-                plugin.sendMessage(sender, ChatColor.RED + "Error: There is no pack with the name '" + args[0] + "'!");
+                plugin.sendMessage(sender, "command.usepack.unknown-pack", "input", args[0]);
             }
         } else {
-            plugin.sendMessage(sender, ChatColor.GREEN + plugin.getMessage("packlisthead"));
+            plugin.sendMessage(sender, "command.usepack.pack-list.head");
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if(packs.size() > 0) {
                 ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
@@ -99,21 +98,21 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                 
                 if(applicablePacks.size() > 0) {
                     for(ResourcePack pack : applicablePacks) {
-                        String msg = pack.getName();
-                        if(userPack != null && userPack.equals(pack)) {
-                            msg = ">" + msg;
-                        } else {
-                            msg = " " + msg;
-                        }
-                        if(pack.getFormat() > 0) {
-                            msg += ChatColor.GRAY + " (Format: " + pack.getFormat() + ")";
-                        }
-                        plugin.sendMessage(sender, ChatColor.YELLOW + msg);
+                        String selected = plugin.getMessage(sender, "command.usepack.pack-list.selected");
+                        plugin.sendMessage(sender, "command.usepack.pack-list.entry",
+                                "pack", pack.getName(),
+                                "hash", pack.getHash(),
+                                "url", pack.getUrl(),
+                                "format", String.valueOf(pack.getFormat()),
+                                "selected", userPack != null && userPack.equals(pack) ? selected : String.join("", Collections.nCopies(selected.length(), " ")),
+                                "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : ""
+                        );
                     }
+                    plugin.sendMessage(sender, "command.usepack.usage", "command", "usepack");
                     return false;
                 }
             }
-            plugin.sendMessage(sender, ChatColor.RED + " " + plugin.getMessage("nopacks"));
+            plugin.sendMessage(sender, "command.usepack.no-packs");
         }
         return true;
     }

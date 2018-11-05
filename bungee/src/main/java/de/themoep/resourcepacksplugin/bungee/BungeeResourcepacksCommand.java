@@ -30,11 +30,13 @@ import net.md_5.bungee.api.plugin.Command;
  */
 public class BungeeResourcepacksCommand extends Command {
     
-    ResourcepacksPlugin plugin;
+    private final ResourcepacksPlugin plugin;
+    private final ResourcepacksPluginCommandExecutor resourcepacksCommand;
 
     public BungeeResourcepacksCommand(BungeeResourcepacks plugin, String name, String permission, String... aliases) {
         super(name, permission, aliases);
         this.plugin = plugin;
+        resourcepacksCommand = new ResourcepacksPluginCommandExecutor(plugin);
     }
     
     @Override
@@ -43,8 +45,6 @@ public class BungeeResourcepacksCommand extends Command {
         if(sender instanceof ProxiedPlayer) {
             s = plugin.getPlayer(((ProxiedPlayer) sender).getUniqueId());
         }
-        if(!new ResourcepacksPluginCommandExecutor(plugin).execute(s, args)) {
-            sender.sendMessage("Usage: /frp [reload [resend]|version]");
-        }
+        resourcepacksCommand.execute(s, args);
     }
 }

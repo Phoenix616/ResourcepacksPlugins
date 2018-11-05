@@ -31,10 +31,12 @@ import org.bukkit.entity.Player;
  */
 public class UsePackCommand implements CommandExecutor {
 
-    ResourcepacksPlugin plugin;
+    private final ResourcepacksPlugin plugin;
+    private final UsePackCommandExecutor usepackCommand;
 
     public UsePackCommand(WorldResourcepacks plugin) {
         this.plugin = plugin;
+        usepackCommand = new UsePackCommandExecutor(plugin);
     }
 
     @Override
@@ -43,6 +45,9 @@ public class UsePackCommand implements CommandExecutor {
         if(sender instanceof Player) {
             s = plugin.getPlayer(((Player) sender).getUniqueId());
         }
-        return new UsePackCommandExecutor(plugin).execute(s, args);
+        if(!usepackCommand.execute(s, args)) {
+            plugin.sendMessage(s, "command.usepack.usage");
+        }
+        return true;
     }
 }
