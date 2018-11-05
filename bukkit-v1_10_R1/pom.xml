@@ -26,6 +26,13 @@
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
