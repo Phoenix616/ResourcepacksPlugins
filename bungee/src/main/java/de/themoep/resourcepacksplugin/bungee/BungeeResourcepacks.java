@@ -621,7 +621,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public void log(Level level, String message) {
-        getLogger().log(level, ChatColor.stripColor(message));
+        getLogger().log(level, ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', message)));
     }
 
     @Override
