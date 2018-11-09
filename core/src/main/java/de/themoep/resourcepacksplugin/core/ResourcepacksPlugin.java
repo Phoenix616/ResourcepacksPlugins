@@ -171,6 +171,13 @@ public interface ResourcepacksPlugin {
     boolean sendMessage(ResourcepacksPlayer sender, Level level, String key, String... replacements);
 
     /**
+     * Log a message. This strips out all color codes
+     * @param level The level at which the message should be logged
+     * @param message The message to log
+     */
+    void log(Level level, String message);
+
+    /**
      * Check whether or not a player has a permission
      * @param resourcepacksPlayer The player to check
      * @param perm The permission to check for

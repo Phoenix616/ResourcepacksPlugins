@@ -614,9 +614,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 return true;
             }
         } else {
-            getLogger().log(level, message);
+            log(level, message);
         }
         return false;
+    }
+
+    @Override
+    public void log(Level level, String message) {
+        getLogger().log(level, ChatColor.stripColor(message));
     }
 
     @Override
