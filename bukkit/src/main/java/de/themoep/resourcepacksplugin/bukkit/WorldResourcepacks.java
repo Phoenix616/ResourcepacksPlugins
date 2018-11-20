@@ -151,14 +151,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             um = new UserManager(this);
 
-            try {
-                org.mcstats.MetricsLite metrics = new org.mcstats.MetricsLite(this);
-                metrics.start();
-            } catch(IOException e) {
-                // metrics failed to load
-            }
+            if (!getConfig().getBoolean("disable-metrics", false)) {
+                try {
+                    org.mcstats.MetricsLite metrics = new org.mcstats.MetricsLite(this);
+                    metrics.start();
+                } catch (IOException e) {
+                    // metrics failed to load
+                }
 
-            new org.bstats.MetricsLite(this);
+                new org.bstats.MetricsLite(this);
+            }
 
             startupMessage();
         } else {

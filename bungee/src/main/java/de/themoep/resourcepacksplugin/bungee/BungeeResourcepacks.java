@@ -190,8 +190,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
             getProxy().registerChannel("rp:plugin");
 
-            new BungeeStatsLite(this).start();
-            new MetricsLite(this);
+            if (!getConfig().getBoolean("disable-metrics", false)) {
+                new BungeeStatsLite(this).start();
+                new MetricsLite(this);
+            }
 
             startupMessage();
         } catch (IllegalAccessException e) {
