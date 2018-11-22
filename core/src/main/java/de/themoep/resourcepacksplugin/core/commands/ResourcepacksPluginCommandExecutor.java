@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
@@ -28,33 +29,97 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
 
     public ResourcepacksPluginCommandExecutor(ResourcepacksPlugin plugin) {
-        super(plugin);
+        super(plugin, null, null, plugin.getName().toLowerCase() + ".command");
+        registerSubCommands(
+                new PluginCommandExecutor(plugin, this, "reload") {
+                    @Override
+                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                        if (plugin.isEnabled()) {
+                            boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
+                            plugin.reloadConfig(resend);
+                            plugin.sendMessage(sender, "command.reloaded",
+                                    "plugin", plugin.getName(),
+                                    "optional-resend", resend ? plugin.getMessage(sender, "command.optional-resend") : ""
+                            );
+                        } else {
+                            plugin.sendMessage(sender, "command.not-enabled", "plugin", plugin.getName());
+                        }
+                        return true;
+                    }
+                },
+                new PluginCommandExecutor(plugin, this, "version") {
+                    @Override
+                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                        plugin.sendMessage(sender, "command.version",
+                                "plugin", plugin.getName(),
+                                "version", plugin.getVersion()
+                        );
+                        return true;
+                    }
+                },
+                new PluginCommandExecutor(plugin, this, "generatehashes") {
+                    @Override
+                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                        plugin.getPackManager().generateHashes(sender);
+                        return true;
+                    }
+                },
+                new PluginCommandExecutor(plugin, this, "pack <pack> [url|hash|format|restricted|permission]") {
+                    @Override
+                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                        if (args.length == 0) {
+                            return false;
+                        }
+
+                        ResourcePack pack = plugin.getPackManager().getByName(args[0]);
+                        if (pack == null) {
+                            sendMessage(sender, "unknown-pack", "input", args[0]);
+                            return true;
+                        }
+
+                        if (args.length == 1) {
+                            sendMessage(sender, "info",
+                                    "pack", pack.getName(),
+                                    "url", pack.getUrl(),
+                                    "hash", pack.getHash(),
+                                    "format", String.valueOf(pack.getFormat()),
+                                    "restricted", String.valueOf(pack.isRestricted()),
+                                    "permission", pack.getPermission()
+                            );
+                            return false;
+                        } else if ("url".equalsIgnoreCase(args[1])) {
+                            plugin.getPackManager().setPackUrl(pack, args[1]);
+                            sendMessage(sender, "updated", "pack", pack.getName(), "type", "url", "value", pack.getUrl());
+                        } else if ("hash".equalsIgnoreCase(args[1])) {
+                            plugin.getPackManager().setPackHash(pack, args[1]);
+                            sendMessage(sender, "updated", "pack", pack.getName(), "type", "hash", "value", pack.getHash());
+                        } else if ("permission".equalsIgnoreCase(args[1])) {
+                            pack.setPermission(args[1]);
+                            sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
+                        } else if ("format".equalsIgnoreCase(args[1])) {
+                            try {
+                                pack.setFormat(Integer.parseInt(args[1]));
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
+                            } catch (NumberFormatException e) {
+                                sendMessage(sender, "invalid-input", "expected", "number", "input", args[1]);
+                            }
+                        } else if ("restricted".equalsIgnoreCase(args[1])) {
+                            try {
+                                pack.setRestricted(Boolean.parseBoolean(args[1]));
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "restricted", "value", String.valueOf(pack.isRestricted()));
+                            } catch (NumberFormatException e) {
+                                sendMessage(sender, "invalid-input", "expected", "boolean", "input", args[1]);
+                            }
+                        } else {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+        );
     }
 
-    public boolean execute(ResourcepacksPlayer sender, String[] args) {
-        if (args.length > 0) {
-            if(args[0].equalsIgnoreCase("reload") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.reload")) {
-                if(plugin.isEnabled()) {
-                    boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
-                    plugin.reloadConfig(resend);
-                    plugin.sendMessage(sender, "command.reloaded",
-                            "plugin", plugin.getName(),
-                            "optional-resend", resend ? plugin.getMessage(sender, "command.optional-resend") : ""
-                    );
-                } else {
-                    plugin.sendMessage(sender, "command.not-enabled", "plugin", plugin.getName());
-                }
-            } else if(args[0].equalsIgnoreCase("version") && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.version")) {
-                plugin.sendMessage(sender, "command.version",
-                        "plugin", plugin.getName(),
-                        "version", plugin.getVersion()
-                );
-            } else if ("generatehashes".equalsIgnoreCase(args[0]) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.generatehashes")) {
-                plugin.getPackManager().generateHashes(sender);
-            }
-            return true;
-        }
-        plugin.sendMessage(sender, "command.usage", "command", plugin.getName().charAt(0) + "rp");
+    public boolean run(ResourcepacksPlayer sender, String[] args) {
         return false;
     }
 }

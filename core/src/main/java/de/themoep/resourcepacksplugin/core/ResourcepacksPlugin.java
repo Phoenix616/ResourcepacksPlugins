@@ -130,6 +130,14 @@ public interface ResourcepacksPlugin {
     String getMessage(ResourcepacksPlayer sender, String key, String... replacements);
 
     /**
+     * Check whether or not the language config contains a certain message
+     * @param sender The sender
+     * @param key The message key
+     * @return <tt>true</tt> if the config contains the message; <tt>false</tt> if not
+     */
+    boolean hasMessage(ResourcepacksPlayer sender, String key);
+
+    /**
      * Get the name of the plugin
      * @return The plugin's name as a string
      */

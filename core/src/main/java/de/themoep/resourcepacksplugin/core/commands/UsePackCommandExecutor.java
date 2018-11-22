@@ -32,17 +32,17 @@ import java.util.stream.Collectors;
 public class UsePackCommandExecutor extends PluginCommandExecutor {
 
     public UsePackCommandExecutor(ResourcepacksPlugin plugin) {
-        super(plugin);
+        super(plugin, "usepack <packname> [<playername>] [<temp>]");
     }
 
-    public boolean execute(ResourcepacksPlayer sender, String[] args) {
+    public boolean run(ResourcepacksPlayer sender, String[] args) {
         if (args.length > 0) {
             ResourcePack pack = plugin.getPackManager().getByName(args[0]);
             if (pack != null) {
                 if (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())) {
                     String tempStr = null;
-                    if (args.length > 1 && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.temporary")) {
-                        tempStr = args[args.length -1];
+                    if (args.length > 1 && plugin.checkPermission(sender, permission + ".temporary")) {
+                        tempStr = args[args.length - 1];
                     }
                     boolean temp = plugin.isUsepackTemporary();
                     if ("false".equalsIgnoreCase(tempStr)) {
@@ -50,7 +50,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     } else if ("true".equalsIgnoreCase(tempStr)) {
                         temp = true;
                     } else if (tempStr != null && args.length > 2) {
-                        plugin.sendMessage(sender, "command.usepack.invalid-temporary", "input", tempStr);
+                        sendMessage(sender, "invalid-temporary", "input", tempStr);
                         return true;
                     } else {
                         // temporary value is not true or false
@@ -58,13 +58,13 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     }
 
                     ResourcepacksPlayer player = null;
-                    if ((args.length > 2 || (tempStr == null && args.length > 1)) && plugin.checkPermission(sender, plugin.getName().toLowerCase() + ".command.usepack.others")) {
+                    if ((args.length > 2 || (tempStr == null && args.length > 1)) && plugin.checkPermission(sender, permission + ".others")) {
                         player = plugin.getPlayer(args[1]);
                         if (player == null) {
-                            plugin.sendMessage(sender, "command.usepack.player-not-online", "input", args[0]);
+                            sendMessage(sender, "player-not-online", "input", args[0]);
                             return true;
                         }
-                    } else if(sender != null) {
+                    } else if (sender != null) {
                         player = sender;
                     } else {
                         plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
@@ -72,34 +72,34 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     }
                     if (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
                         if (!player.equals(sender)) {
-                            plugin.sendMessage(sender, "command.usepack.success-other", "player", player.getName(), "pack", pack.getName());
+                            sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
                         }
-                        plugin.sendMessage(player, "command.usepack.success", "pack", pack.getName());
+                        sendMessage(player, "success", "pack", pack.getName());
                         String senderName = sender != null ? sender.getName() : "CONSOLE";
                         plugin.getLogger().log(plugin.getLogLevel(), senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                     } else {
-                        plugin.sendMessage(sender, "command.usepack.already-in-use", "player", player.getName(), "pack", pack.getName());
+                        sendMessage(sender, "already-in-use", "player", player.getName(), "pack", pack.getName());
                     }
                 } else {
-                    plugin.sendMessage(sender, "command.usepack.restricted", "permission", pack.getPermission(), "pack", pack.getName());
+                    sendMessage(sender, "restricted", "permission", pack.getPermission(), "pack", pack.getName());
                 }
             } else {
-                plugin.sendMessage(sender, "command.usepack.unknown-pack", "input", args[0]);
+                sendMessage(sender, "unknown-pack", "input", args[0]);
             }
         } else {
-            plugin.sendMessage(sender, "command.usepack.pack-list.head");
+            sendMessage(sender, "pack-list.head");
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
-            if(packs.size() > 0) {
+            if (packs.size() > 0) {
                 ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
                         .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
                                 && (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())))
                         .collect(Collectors.toList());
-                
-                if(applicablePacks.size() > 0) {
-                    for(ResourcePack pack : applicablePacks) {
-                        String selected = plugin.getMessage(sender, "command.usepack.pack-list.selected");
-                        plugin.sendMessage(sender, "command.usepack.pack-list.entry",
+
+                if (applicablePacks.size() > 0) {
+                    for (ResourcePack pack : applicablePacks) {
+                        String selected = getMessage(sender, "pack-list.selected");
+                        sendMessage(sender, "pack-list.entry",
                                 "pack", pack.getName(),
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
@@ -108,11 +108,11 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                                 "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : ""
                         );
                     }
-                    plugin.sendMessage(sender, "command.usepack.usage", "command", "usepack");
+                    sendMessage(sender, "usage", "command", "usepack");
                     return false;
                 }
             }
-            plugin.sendMessage(sender, "command.usepack.no-packs");
+            sendMessage(sender, "no-packs");
         }
         return true;
     }

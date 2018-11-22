@@ -439,6 +439,18 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return key;
     }
 
+    @Override
+    public boolean hasMessage(ResourcepacksPlayer sender, String key) {
+        if (lm != null) {
+            Player player = null;
+            if (sender != null) {
+                player = getServer().getPlayer(sender.getUniqueId());
+            }
+            return lm.getConfig(player).contains(key);
+        }
+        return false;
+    }
+
     public String getVersion() {
         return getDescription().getVersion();
     }

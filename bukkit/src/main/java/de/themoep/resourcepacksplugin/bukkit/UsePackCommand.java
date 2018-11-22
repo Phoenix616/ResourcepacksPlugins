@@ -42,12 +42,10 @@ public class UsePackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         ResourcepacksPlayer s = null;
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             s = plugin.getPlayer(((Player) sender).getUniqueId());
         }
-        if(!usepackCommand.execute(s, args)) {
-            plugin.sendMessage(s, "command.usepack.usage");
-        }
+        usepackCommand.execute(s, args);
         return true;
     }
 }

@@ -1,11 +1,24 @@
 command:
-  usage: "Usage: /%command% [reload [resend]|version]"
+  usage: "Usage: /frp [%subcommands%]"
   reloaded: "&aReloaded %plugin% config!%optional-resend%"
   optional-resend: " Resend packs to all online players!"
   version: "&a%plugin% version: %version%"
   not-enabled: "&c%plugin% is not enabled!"
+  invalid-input: "&f%input%&c is not a valid %expected%"
+  no-permission: "&cYou don't have the permission &f%permision%&c!"
+  pack:
+    usage:  "Usage: /frp %command% %usage%"
+    unknown-pack: "&cNo pack with the name &e%input%&c found!"
+    updated: "&eSet &f%type%&e of pack &f%pack%&e to &f%value%"
+    info: |-
+      &7----- &ePack &f%pack%&e Info: &7-----
+      &eUrl: &f%url%
+      &eHash: &f%hash%
+      &eFormat: &f%format%
+      &eRestricted: &f%restricted%
+      &ePermission: &f%permission%
   usepack:
-    usage: "Usage: /%command% <packname> [<playername>] [<temp>]"
+    usage: "Usage: /%command% %usage%"
     invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
     player-not-online: "&cThe player &f%input%"
     already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"

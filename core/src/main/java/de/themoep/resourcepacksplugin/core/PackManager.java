@@ -126,6 +126,28 @@ public class PackManager {
     }
 
     /**
+     * Set the hash of a pack to a new value
+     * @param pack The pack to update
+     * @param hash The new hash to set
+     */
+    public void setPackHash(ResourcePack pack, String hash) {
+        packHashes.remove(pack.getHash());
+        pack.setHash(hash);
+        packHashes.put(pack.getHash(), pack);
+    }
+
+    /**
+     * Set the url of a pack to a new value
+     * @param pack The pack to update
+     * @param url The new url to set
+     */
+    public void setPackUrl(ResourcePack pack, String url) {
+        packUrls.remove(pack.getUrl());
+        pack.setUrl(url);
+        packUrls.put(pack.getUrl(), pack);
+    }
+
+    /**
      * Get the resourcepack by its name
      * @param name The name of the pack to get
      * @return The resourcepack with that name, null if there is none

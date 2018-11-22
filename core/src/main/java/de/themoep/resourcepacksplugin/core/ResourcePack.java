@@ -117,6 +117,10 @@ public class ResourcePack {
         return url;
     }
 
+    void setUrl(String url) {
+        this.url = url;
+    }
+
     /**
      * Get the hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @return The 40 digit lowercase hash
@@ -125,8 +129,7 @@ public class ResourcePack {
         return BaseEncoding.base16().lowerCase().encode(hash);
     }
 
-
-    public void setHash(String hash) {
+    void setHash(String hash) {
         this.hash = BaseEncoding.base16().lowerCase().decode(hash.toLowerCase());
     }
 
@@ -139,11 +142,18 @@ public class ResourcePack {
     }
 
     /**
-     * Get the pack_format version
+     * Get the pack format version
      * @return The pack version as an int
      */
     public int getFormat() {
         return format;
+    }
+    /**
+     * Set the pack format version
+     * @param format The pack version as an int
+     */
+    public void setFormat(int format) {
+        this.format = format;
     }
 
     /**
@@ -155,11 +165,27 @@ public class ResourcePack {
     }
 
     /**
+     * Whether or not this pack is restricted and a permission should be used
+     * @param restricted <tt>true</tt> if one needs the permission, <tt>false</tt> if not
+     */
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
+    }
+
+    /**
      * Get the permission to use this pack
      * @return The permission as a string
      */
     public String getPermission() {
         return permission;
+    }
+
+    /**
+     * Set the permission to use this pack
+     * @param permission The permission as a string
+     */
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 
     public boolean equals(Object o) {
