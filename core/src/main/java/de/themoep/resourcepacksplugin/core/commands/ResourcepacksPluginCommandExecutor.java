@@ -77,6 +77,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             return true;
                         }
 
+                        boolean save = false;
                         if (args.length == 1) {
                             sendMessage(sender, "info",
                                     "pack", pack.getName(),
@@ -88,24 +89,24 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             );
                             return false;
                         } else if ("url".equalsIgnoreCase(args[1])) {
-                            plugin.getPackManager().setPackUrl(pack, args[1]);
+                            save = plugin.getPackManager().setPackUrl(pack, args[1]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "url", "value", pack.getUrl());
                         } else if ("hash".equalsIgnoreCase(args[1])) {
-                            plugin.getPackManager().setPackHash(pack, args[1]);
+                            save = plugin.getPackManager().setPackHash(pack, args[1]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "hash", "value", pack.getHash());
                         } else if ("permission".equalsIgnoreCase(args[1])) {
-                            pack.setPermission(args[1]);
+                            save = pack.setPermission(args[1]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
                         } else if ("format".equalsIgnoreCase(args[1])) {
                             try {
-                                pack.setFormat(Integer.parseInt(args[1]));
+                                save = pack.setFormat(Integer.parseInt(args[1]));
                                 sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
                             } catch (NumberFormatException e) {
                                 sendMessage(sender, "invalid-input", "expected", "number", "input", args[1]);
                             }
                         } else if ("restricted".equalsIgnoreCase(args[1])) {
                             try {
-                                pack.setRestricted(Boolean.parseBoolean(args[1]));
+                                save = pack.setRestricted(Boolean.parseBoolean(args[1]));
                                 sendMessage(sender, "updated", "pack", pack.getName(), "type", "restricted", "value", String.valueOf(pack.isRestricted()));
                             } catch (NumberFormatException e) {
                                 sendMessage(sender, "invalid-input", "expected", "boolean", "input", args[1]);
@@ -113,6 +114,11 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         } else {
                             return false;
                         }
+
+                        if (save) {
+                            plugin.saveConfigChanges();
+                        }
+
                         return true;
                     }
                 }

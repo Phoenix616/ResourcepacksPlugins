@@ -129,22 +129,32 @@ public class PackManager {
      * Set the hash of a pack to a new value
      * @param pack The pack to update
      * @param hash The new hash to set
+     * @return Whether or not the hash changed
      */
-    public void setPackHash(ResourcePack pack, String hash) {
+    public boolean setPackHash(ResourcePack pack, String hash) {
+        if (pack.getHash().equals(hash)) {
+            return false;
+        }
         packHashes.remove(pack.getHash());
         pack.setHash(hash);
         packHashes.put(pack.getHash(), pack);
+        return true;
     }
 
     /**
      * Set the url of a pack to a new value
      * @param pack The pack to update
      * @param url The new url to set
+     * @return Whether or not the url changed
      */
-    public void setPackUrl(ResourcePack pack, String url) {
+    public boolean setPackUrl(ResourcePack pack, String url) {
+        if (pack.getUrl().equals(url)) {
+            return false;
+        }
         packUrls.remove(pack.getUrl());
         pack.setUrl(url);
         packUrls.put(pack.getUrl(), pack);
+        return true;
     }
 
     /**

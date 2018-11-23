@@ -85,8 +85,8 @@ public abstract class PluginCommandExecutor {
         if (permission != null && !permission.isEmpty() && !plugin.checkPermission(sender, permission)) {
             plugin.sendMessage(sender, "no-permission",
                     "command", getPath(),
-                    "name", name,
-                    "usage", usage,
+                    "name", getName(),
+                    "usage", getUsage(),
                     "permission", permission,
                     "subcommands", String.join("|", subCommands.keySet())
             );
@@ -101,8 +101,8 @@ public abstract class PluginCommandExecutor {
         if (!run(sender, args)) {
             sendMessage(sender, "usage",
                     "command", getPath(),
-                    "name", name,
-                    "usage", usage,
+                    "name", getName(),
+                    "usage", getUsage(),
                     "permission", permission,
                     "subcommands", String.join("|", subCommands.keySet())
             );
@@ -112,16 +112,16 @@ public abstract class PluginCommandExecutor {
     }
 
     protected void sendMessage(ResourcepacksPlayer sender, String key, String... replacements) {
-        if (plugin.hasMessage(sender, "command." + getPath().replace(' ', '.') + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
-            plugin.sendMessage(sender, "command." + getPath().replace(' ', '.') + "." + key, replacements);
+        if (plugin.hasMessage(sender, "command." + getKey() + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
+            plugin.sendMessage(sender, "command." + getKey() + "." + key, replacements);
         } else {
             plugin.sendMessage(sender, "command." + key, replacements);
         }
     }
 
     protected String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
-        if (plugin.hasMessage(sender, "command." + getPath().replace(' ', '.') + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
-            return plugin.getMessage(sender, "command." + getPath().replace(' ', '.') + "." + key, replacements);
+        if (plugin.hasMessage(sender, "command." + getKey() + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
+            return plugin.getMessage(sender, "command." + getKey() + "." + key, replacements);
         } else {
             return plugin.getMessage(sender, "command." + key, replacements);
         }
@@ -129,7 +129,12 @@ public abstract class PluginCommandExecutor {
 
     public String getPath() {
         String parentPath = parent != null ? parent.getPath() : "";
-        return parentPath.isEmpty() ? name : parentPath + " " + name;
+        return parentPath.isEmpty() ? getName() : parentPath + " " + getName();
+    }
+
+    public String getKey() {
+        String parentKey = parent != null ? parent.getKey() : "";
+        return parentKey.isEmpty() ? name : parentKey + (name.isEmpty() ? "" : "." + name);
     }
 
     public void registerSubCommands(PluginCommandExecutor... subCommands) {
@@ -139,5 +144,19 @@ public abstract class PluginCommandExecutor {
                 this.subCommands.putIfAbsent(alias.toLowerCase(), subCommand);
             }
         }
+    }
+
+    public String getName() {
+        if (name.isEmpty() && parent == null) {
+            return plugin.getName().charAt(0) + "rp";
+        }
+        return name;
+    }
+
+    private String getUsage() {
+        if (usage.isEmpty() && !subCommands.isEmpty()) {
+            return "[" + String.join("|", subCommands.keySet()) + "]";
+        }
+        return usage;
     }
 }

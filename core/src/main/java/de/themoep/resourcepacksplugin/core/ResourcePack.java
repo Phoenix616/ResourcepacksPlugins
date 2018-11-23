@@ -151,9 +151,14 @@ public class ResourcePack {
     /**
      * Set the pack format version
      * @param format The pack version as an int
+     * @return Whether or not the format changed
      */
-    public void setFormat(int format) {
+    public boolean setFormat(int format) {
+        if (this.format == format) {
+            return false;
+        }
         this.format = format;
+        return true;
     }
 
     /**
@@ -167,9 +172,14 @@ public class ResourcePack {
     /**
      * Whether or not this pack is restricted and a permission should be used
      * @param restricted <tt>true</tt> if one needs the permission, <tt>false</tt> if not
+     * @return Whether or not the restricted status changed
      */
-    public void setRestricted(boolean restricted) {
+    public boolean setRestricted(boolean restricted) {
+        if (this.restricted == restricted) {
+            return false;
+        }
         this.restricted = restricted;
+        return true;
     }
 
     /**
@@ -183,9 +193,14 @@ public class ResourcePack {
     /**
      * Set the permission to use this pack
      * @param permission The permission as a string
+     * @return Whether or not the permission changed
      */
-    public void setPermission(String permission) {
+    public boolean setPermission(String permission) {
+        if (this.permission.equals(permission)) {
+            return false;
+        }
         this.permission = permission;
+        return true;
     }
 
     public boolean equals(Object o) {
