@@ -380,6 +380,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
             getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
+        getConfig().set("global", getPackManager().getGlobalAssignment().serialize());
+        for (PackAssignment assignment : getPackManager().getAssignments()) {
+            getConfig().set("servers." + assignment.getName(), assignment.serialize());
+        }
         getConfig().saveConfig();
     }
 

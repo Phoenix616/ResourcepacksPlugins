@@ -498,14 +498,27 @@ public class PackManager {
     /**
      * Removes the assignment of a server/world
      * @param key   The name of the server/world the pack should get removed from
-     * @return True if there was a pack for that key, false if not
+     * @return True if there was a assignment for that key, false if not
      */
     public boolean removeAssignment(String key) {
         if (literalAssignments.remove(key.toLowerCase()) != null) {
-            regexAssignments.remove(key);
+            regexAssignments.remove(key.toLowerCase());
             return true;
         }
         return false;
+    }
+
+    /**
+     * Removes the assignment of a server/world
+     * @param assignment    The assigned to remove
+     * @return True if there was a assignment for that key, false if not
+     */
+    public boolean removeAssignment(PackAssignment assignment) {
+        if (assignment.getRegex() != null) {
+            return regexAssignments.remove(assignment.getName().toLowerCase()) != null;
+        } else {
+            return literalAssignments.remove(assignment.getName().toLowerCase()) != null;
+        }
     }
 
     /**

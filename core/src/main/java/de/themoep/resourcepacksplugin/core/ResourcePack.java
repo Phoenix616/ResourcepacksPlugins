@@ -245,4 +245,15 @@ public class ResourcePack {
             return true;
         }
     }
+
+    public String[] getReplacements() {
+        return new String[] {
+                "name", getName(),
+                "url", getUrl(),
+                "hash", getHash(),
+                "format", String.valueOf(getFormat()),
+                "restricted", String.valueOf(isRestricted()),
+                "permission", getPermission()
+        };
+    }
 }

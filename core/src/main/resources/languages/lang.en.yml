@@ -6,16 +6,40 @@ command:
   not-enabled: "&c%plugin% is not enabled!"
   invalid-input: "&f%input%&c is not a valid %expected%"
   no-permission: "&cYou don't have the permission &f%permision%&c!"
+  unknown-pack: "&cNo pack with the name &e%input%&c found!"
+  addpack:
+    name-already-used: "&cA pack with the name of &f%name%&c already exists!"
+    url-already-used: "&cThe pack &f%name%&c is already using the url &f%url%&c!"
+    added: "&eAdded new pack &f%name%&e with url &f%url%"
   pack:
-    unknown-pack: "&cNo pack with the name &e%input%&c found!"
     updated: "&eSet &f%type%&e of pack &f%pack%&e to &f%value%"
     info: |-
-      &7----- &ePack &f%pack%&e Info: &7-----
+      &7----- &ePack &f%name%&e Info: &7-----
       &eUrl: &f%url%
       &eHash: &f%hash%
       &eFormat: &f%format%
       &eRestricted: &f%restricted%
       &ePermission: &f%permission%
+  assignment:
+    new-assignment: "&cNo assignment with the name &e%input%&c found! Creating new one!"
+    updated: "&eSet &f%type%&e of assignment &f%assignment%&e to &f%value%"
+    secondary:
+      added:  "&eAdded pack &f%pack%&e to the secondary list of assignment &f%assignment%&c!"
+      already-added:  "&cPack &f%pack%&c is already on the secondary list of assignment &f%assignment%&c?"
+      removed:  "&eRemoved pack &f%pack%&e from the secondary list of assignment &f%assignment%&c!"
+      not-added:  "&cPack &f%pack%&c is not on the secondary list of assignment &f%assignment%&c?"
+    info: |-
+      &7----- &eAssignment &f%name%&e Info: &7-----
+      &ePack: &f%pack%
+      &eSecondaries: &f%secondaries%
+      &eRegex: &f%regex%
+      &eSend Delay: &f%send-delay%
+  deleteassignment:
+    unknown-assignment: "&cNo assignment with the name &e%input%&c found!"
+    deleted: "&eAssignment &f%name%&e was deleted!"
+  listassignments:
+    head: "&aAssignments configured:"
+    entry: "&e%name%"
   usepack:
     invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
     player-not-online: "&cThe player &f%input%"

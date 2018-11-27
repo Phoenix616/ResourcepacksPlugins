@@ -18,7 +18,9 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,17 +50,29 @@ public class PackAssignment {
     /**
      * Set the main pack of this assignment
      * @param pack  The main pack
+     * @return      Whether or not the value changed
      */
-    public void setPack(ResourcePack pack) {
-        this.pack = pack != null ? pack.getName().toLowerCase() : null;
+    public boolean setPack(ResourcePack pack) {
+        if (pack == null) {
+            return setPack((String) null);
+        }
+        return setPack(pack.getName());
     }
 
     /**
      * Set the main pack of this assignment
      * @param pack  The name of the main pack
+     * @return      Whether or not the value changed
      */
-    public void setPack(String pack) {
-        this.pack = pack != null ? pack.toLowerCase() : null;
+    public boolean setPack(String pack) {
+        if (this.pack == null && pack != null) {
+            this.pack = pack.toLowerCase();
+            return true;
+        } else if (this.pack != null && !this.pack.equalsIgnoreCase(pack)) {
+            this.pack = pack != null ? pack.toLowerCase() : null;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -142,9 +156,14 @@ public class PackAssignment {
     /**
      * Set the delay in ticks  to wait before sending the packs from this assignment
      * @param sendDelay The delay in ticks
+     * @return          Whether or not the value changed
      */
-    public void setSendDelay(long sendDelay) {
-        this.sendDelay = sendDelay;
+    public boolean setSendDelay(long sendDelay) {
+        if (this.sendDelay != sendDelay) {
+            this.sendDelay = sendDelay;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -171,9 +190,16 @@ public class PackAssignment {
     /**
      * Set the key name regex of this assignment
      * @param regex The compiled Pattern of this regex
+     * @return      Whether or not the value changed
      */
-    public void setRegex(Pattern regex) {
-        this.regex = regex;
+    public boolean setRegex(Pattern regex) {
+        if (this.regex == null || regex == null || !this.regex.toString().equals(regex.toString())) {
+            if ((this.regex == null && regex != null) || (this.regex != null && regex == null)) {
+                this.regex = regex;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -190,5 +216,32 @@ public class PackAssignment {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Serialize this assignment to a map
+     * @return A map holding the data of this object
+     */
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("pack", pack);
+        map.put("secondary", secondaries.isEmpty() ? null : secondaries);
+        map.put("send-delay", sendDelay > 0 ? sendDelay : null);
+        map.put("regex", regex != null ? regex.toString() : null);
+        return map;
+    }
+
+    /**
+     * Get replacements
+     * @return
+     */
+    public String[] getReplacements() {
+        return new String[] {
+                "name", getName(),
+                "pack", getPack(),
+                "secondaries", String.join(", ", getSecondaries()),
+                "regex", getRegex() != null ? getRegex().toString() : "none",
+                "send-delay", String.valueOf(getSendDelay())
+        };
     }
 }
