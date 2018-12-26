@@ -170,7 +170,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "assignment <assignment> [pack|addsecondary|removesecondary|regex|senddelay]", null, new String[] {"assign"}) {
+                new PluginCommandExecutor(plugin, this, "assignment <assignment>", null, new String[] {"assign"}) {
                     @Override
                     boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length == 0) {
@@ -185,93 +185,18 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             plugin.getPackManager().removeAssignment(assignment);
                         }
 
-                        boolean success = updateAssignment(sender, Arrays.copyOfRange(args, 1, args.length), assignment);
+                        boolean success = assignment.update(this, sender, Arrays.copyOfRange(args, 1, args.length));
                         plugin.getPackManager().addAssignment(assignment);
                         return success;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "globalassignment [pack|addsecondary|removesecondary|regex|senddelay]", null, new String[] {"global"}) {
+                new PluginCommandExecutor(plugin, this, "globalassignment", null, new String[] {"global"}) {
                     @Override
                     boolean run(ResourcepacksPlayer sender, String[] args) {
-                        return updateAssignment(sender, args, plugin.getPackManager().getGlobalAssignment());
+                        return plugin.getPackManager().getGlobalAssignment().update(this, sender, args);
                     }
                 }
         );
-    }
-
-    private boolean updateAssignment(ResourcepacksPlayer sender, String[] args, PackAssignment assignment) {
-        boolean save;
-        if (args.length == 0) {
-            sendMessage(sender, "info", assignment.getReplacements());
-            return false;
-        } else if ("pack".equalsIgnoreCase(args[0])) {
-            ResourcePack pack = null;
-            if (args.length > 1) {
-                pack = plugin.getPackManager().getByName(args[1]);
-                if (pack == null) {
-                    sendMessage(sender, "unknown-pack", "input", args[1]);
-                    return true;
-                }
-            }
-            save = assignment.setPack(pack);
-            sendMessage(sender, "updated", "assignment", assignment.getName(), "type", "pack", "value", pack != null ? pack.getName() : "none");
-        } else if ("regex".equalsIgnoreCase(args[0])) {
-            Pattern regex = null;
-            if (args.length > 1) {
-                try {
-                    regex = Pattern.compile(args[1]);
-                } catch (PatternSyntaxException e) {
-                    sendMessage(sender, "invalid-input", "expected", "regex", "input", args[1] + " (" + e.getMessage() + ")");
-                    return true;
-                }
-            }
-            save = assignment.setRegex(regex);
-            sendMessage(sender, "updated", "assignment", assignment.getName(), "type", "regex", "value", regex != null ? regex.toString() : "none");
-        } else if ("senddelay".equalsIgnoreCase(args[0])) {
-            long sendDelay = -1;
-            if (args.length > 1) {
-                try {
-                    sendDelay = Long.parseLong(args[1]);
-                } catch (NumberFormatException e) {
-                    sendMessage(sender, "invalid-input", "expected", "long", "input", args[1]);
-                    return true;
-                }
-            }
-            save = assignment.setSendDelay(sendDelay);
-            sendMessage(sender, "updated", "assignment", assignment.getName(), "type", "send delay", "value", sendDelay > -1 ? String.valueOf(sendDelay) : "none");
-        } else if (args.length < 2) {
-            return false;
-        } else if ("addsecondary".equalsIgnoreCase(args[0])) {
-            ResourcePack pack = plugin.getPackManager().getByName(args[1]);
-            if (pack == null) {
-                sendMessage(sender, "unknown-pack", "input", args[1]);
-                return true;
-            }
-            save = assignment.addSecondary(pack);
-            if (save) {
-                sendMessage(sender, "secondary.added", "assignment", assignment.getName(), "pack", pack.getName());
-            } else {
-                sendMessage(sender, "secondary.already-added", "assignment", assignment.getName(), "pack", pack.getName());
-            }
-        } else if ("removesecondary".equalsIgnoreCase(args[0])) {
-            if (plugin.getPackManager().getByName(args[1]) == null) {
-                sendMessage(sender, "unknown-pack", "input", args[1]);
-            }
-            save = assignment.removeSecondary(args[1]);
-            if (save) {
-                sendMessage(sender, "secondary.removed", "assignment", assignment.getName(), "pack", args[1]);
-            } else {
-                sendMessage(sender, "secondary.not-added", "assignment", assignment.getName(), "pack", args[1]);
-            }
-        } else {
-            return false;
-        }
-
-        if (save) {
-            plugin.saveConfigChanges();
-        }
-
-        return true;
     }
 
     public boolean run(ResourcepacksPlayer sender, String[] args) {

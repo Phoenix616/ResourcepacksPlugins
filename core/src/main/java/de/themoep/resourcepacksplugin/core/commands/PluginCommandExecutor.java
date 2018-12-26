@@ -111,7 +111,7 @@ public abstract class PluginCommandExecutor {
         return true;
     }
 
-    protected void sendMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+    public void sendMessage(ResourcepacksPlayer sender, String key, String... replacements) {
         if (plugin.hasMessage(sender, "command." + getKey() + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
             plugin.sendMessage(sender, "command." + getKey() + "." + key, replacements);
         } else {
@@ -153,10 +153,18 @@ public abstract class PluginCommandExecutor {
         return name;
     }
 
-    private String getUsage() {
+    public String getUsage() {
         if (usage.isEmpty() && !subCommands.isEmpty()) {
             return "[" + String.join("|", subCommands.keySet()) + "]";
         }
         return usage;
+    }
+
+    public ResourcepacksPlugin getPlugin() {
+        return plugin;
+    }
+
+    public String getPermission() {
+        return permission;
     }
 }

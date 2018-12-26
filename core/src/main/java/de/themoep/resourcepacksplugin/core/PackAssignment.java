@@ -18,10 +18,13 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 /**
@@ -233,7 +236,7 @@ public class PackAssignment {
 
     /**
      * Get replacements
-     * @return
+     * @return The placeholder replacements of this pack as an array. Index n is the placeholder, n+1 the value.
      */
     public String[] getReplacements() {
         return new String[] {
@@ -243,5 +246,112 @@ public class PackAssignment {
                 "regex", getRegex() != null ? getRegex().toString() : "none",
                 "send-delay", String.valueOf(getSendDelay())
         };
+    }
+
+    /**
+     * Get all possible update actions
+     * @return The possible update actions
+     */
+    protected String[] getUpdateActions() {
+        return new String[] {
+                "info",
+                "pack",
+                "addsecondary",
+                "removesecondary",
+                "regex",
+                "senddelay"
+        };
+    }
+
+    /**
+     * Update this assignment
+     * @param command   The command triggering the update
+     * @param sender    The sender updating it
+     * @param args      The arguments for updating the assignment
+     * @return Whether or not the update completed properly
+     */
+    public boolean update(PluginCommandExecutor command, ResourcepacksPlayer sender, String[] args) {
+        boolean save;
+        if (args.length == 0) {
+            command.sendMessage(sender, "info", getReplacements());
+            command.sendMessage(sender, "usage",
+                    "command", command.getPath(),
+                    "name", getName(),
+                    "usage", command.getUsage() + " " + String.join("|", getUpdateActions()),
+                    "permission", command.getPermission(),
+                    "subcommands", String.join("|", getUpdateActions())
+            );
+            return true;
+        } else if ("info".equalsIgnoreCase(args[0])) {
+            command.sendMessage(sender, "info", getReplacements());
+            return true;
+        } else if ("pack".equalsIgnoreCase(args[0])) {
+            ResourcePack pack = null;
+            if (args.length > 1) {
+                pack = command.getPlugin().getPackManager().getByName(args[1]);
+                if (pack == null) {
+                    command.sendMessage(sender, "unknown-pack", "input", args[1]);
+                    return true;
+                }
+            }
+            save = setPack(pack);
+            command.sendMessage(sender, "updated", "assignment", getName(), "type", "pack", "value", pack != null ? pack.getName() : "none");
+        } else if ("regex".equalsIgnoreCase(args[0])) {
+            Pattern regex = null;
+            if (args.length > 1) {
+                try {
+                    regex = Pattern.compile(args[1]);
+                } catch (PatternSyntaxException e) {
+                    command.sendMessage(sender, "invalid-input", "expected", "regex", "input", args[1] + " (" + e.getMessage() + ")");
+                    return true;
+                }
+            }
+            save = setRegex(regex);
+            command.sendMessage(sender, "updated", "assignment", getName(), "type", "regex", "value", regex != null ? regex.toString() : "none");
+        } else if ("senddelay".equalsIgnoreCase(args[0])) {
+            long sendDelay = -1;
+            if (args.length > 1) {
+                try {
+                    sendDelay = Long.parseLong(args[1]);
+                } catch (NumberFormatException e) {
+                    command.sendMessage(sender, "invalid-input", "expected", "long", "input", args[1]);
+                    return true;
+                }
+            }
+            save = setSendDelay(sendDelay);
+            command.sendMessage(sender, "updated", "assignment", getName(), "type", "send delay", "value", sendDelay > -1 ? String.valueOf(sendDelay) : "none");
+        } else if (args.length < 2) {
+            return false;
+        } else if ("addsecondary".equalsIgnoreCase(args[0])) {
+            ResourcePack pack = command.getPlugin().getPackManager().getByName(args[1]);
+            if (pack == null) {
+                command.sendMessage(sender, "unknown-pack", "input", args[1]);
+                return true;
+            }
+            save = addSecondary(pack);
+            if (save) {
+                command.sendMessage(sender, "secondary.added", "assignment", getName(), "pack", pack.getName());
+            } else {
+                command.sendMessage(sender, "secondary.already-added", "assignment", getName(), "pack", pack.getName());
+            }
+        } else if ("removesecondary".equalsIgnoreCase(args[0])) {
+            if (command.getPlugin().getPackManager().getByName(args[1]) == null) {
+                command.sendMessage(sender, "unknown-pack", "input", args[1]);
+            }
+            save = removeSecondary(args[1]);
+            if (save) {
+                command.sendMessage(sender, "secondary.removed", "assignment", getName(), "pack", args[1]);
+            } else {
+                command.sendMessage(sender, "secondary.not-added", "assignment", getName(), "pack", args[1]);
+            }
+        } else {
+            return false;
+        }
+
+        if (save) {
+            command.getPlugin().saveConfigChanges();
+        }
+
+        return true;
     }
 }
