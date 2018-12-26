@@ -167,4 +167,8 @@ public abstract class PluginCommandExecutor {
     public String getPermission() {
         return permission;
     }
+
+    public String[] getAliases() {
+        return aliases.toArray(new String[0]);
+    }
 }

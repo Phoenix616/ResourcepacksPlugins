@@ -34,7 +34,7 @@ import java.util.regex.PatternSyntaxException;
 public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
 
     public ResourcepacksPluginCommandExecutor(ResourcepacksPlugin plugin) {
-        super(plugin, null, null, plugin.getName().toLowerCase() + ".command");
+        super(plugin, null, plugin.getName().toLowerCase().charAt(0) + "rp", plugin.getName().toLowerCase() + ".command", new String[]{plugin.getName().toLowerCase()});
         registerSubCommands(
                 new PluginCommandExecutor(plugin, this, "reload") {
                     @Override

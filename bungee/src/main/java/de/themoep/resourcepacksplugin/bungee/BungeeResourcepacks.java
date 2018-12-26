@@ -34,6 +34,10 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.UserManager;
+import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.ResetPackCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import de.themoep.utils.lang.bungee.LanguageManager;
@@ -170,8 +174,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             setEnabled(loadConfig());
 
-            getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new BungeeResourcepacksCommand(this, getDescription().getName().toLowerCase().charAt(0) + "rp", getDescription().getName().toLowerCase() + ".command", new String[]{getDescription().getName().toLowerCase()}));
-            getProxy().getPluginManager().registerCommand(BungeeResourcepacks.getInstance(), new UsePackCommand(this, "usepack", getDescription().getName().toLowerCase() + ".command.usepack", new String[] {}));
+            registerCommand(new ResourcepacksPluginCommandExecutor(this));
+            registerCommand(new UsePackCommandExecutor(this));
+            registerCommand(new ResetPackCommandExecutor(this));
 
             ViaPlatform viaPlugin = (ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion");
             if (viaPlugin != null) {
@@ -207,6 +212,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.SEVERE, "Couldn't find the field with the supported versions! Please update this plugin or downgrade BungeeCord!");
             e.printStackTrace();
         }
+    }
+
+    protected void registerCommand(PluginCommandExecutor executor) {
+        getProxy().getPluginManager().registerCommand(this, new ForwardingCommand(executor));
     }
 
     public boolean loadConfig() {

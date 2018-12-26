@@ -32,6 +32,10 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.UserManager;
+import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.ResetPackCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import de.themoep.utils.lang.bukkit.LanguageManager;
@@ -90,8 +94,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             proxyPackListener = new ProxyPackListener(this);
             getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", proxyPackListener);
 
-            getCommand(getName().toLowerCase().charAt(0) + "rp").setExecutor(new WorldResourcepacksCommand(this));
-            getCommand("usepack").setExecutor(new UsePackCommand(this));
+            registerCommand(new ResourcepacksPluginCommandExecutor(this));
+            registerCommand(new UsePackCommandExecutor(this));
+            registerCommand(new ResetPackCommandExecutor(this));
 
             String versionString = getServer().getBukkitVersion();
             int firstPoint = versionString.indexOf(".");
@@ -166,6 +171,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         } else {
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    protected void registerCommand(PluginCommandExecutor executor) {
+        getCommand(executor.getName()).setExecutor(new ForwardingCommand(executor));
     }
 
     public boolean loadConfig() {

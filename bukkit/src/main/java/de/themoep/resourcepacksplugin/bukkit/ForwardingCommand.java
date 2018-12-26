@@ -19,33 +19,30 @@ package de.themoep.resourcepacksplugin.bukkit;
  */
 
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
-import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
-import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandExecutor;
+import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * Created by Phoenix616 on 17.04.2015.
+ * Created by Phoenix616 on 20.06.2015.
  */
-public class WorldResourcepacksCommand implements CommandExecutor {
-    
-    private final ResourcepacksPlugin plugin;
-    private final ResourcepacksPluginCommandExecutor resourcepacksCommand;
+public class ForwardingCommand implements CommandExecutor {
 
-    public WorldResourcepacksCommand(WorldResourcepacks plugin) {
-        this.plugin = plugin;
-        resourcepacksCommand = new ResourcepacksPluginCommandExecutor(plugin);
+    private final PluginCommandExecutor executor;
+
+    public ForwardingCommand(PluginCommandExecutor executor) {
+        this.executor = executor;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         ResourcepacksPlayer s = null;
-        if(sender instanceof Player) {
-            s = plugin.getPlayer(((Player) sender).getUniqueId());
+        if (sender instanceof Player) {
+            s = executor.getPlugin().getPlayer(((Player) sender).getUniqueId());
         }
-        resourcepacksCommand.execute(s, args);
+        executor.execute(s, args);
         return true;
     }
 }

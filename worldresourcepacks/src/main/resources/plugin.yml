@@ -7,14 +7,19 @@ api-version: 1.13
 commands:
    wrp:
       aliases: [worldresourcepacks]
-      description: Command description.
+      description: Main plugin command.
       usage: /<command> [generatehashes|reload [resend]|version]
       permission: worldresourcepacks.command
       permission-message: You don't have the permission <permission>
    usepack:
-      description: Command description.
+      description: Command for setting the pack of a player.
       usage: /<command> <packname> [<playername>] [<temp>]
       permission: worldresourcepacks.command.usepack
+      permission-message: You don't have the permission <permission>
+   resetpack:
+      description: Command for resetting the pack of a player.
+      usage: /<command> [<playername>] [<temp>]
+      permission: worldresourcepacks.command.resetpack
       permission-message: You don't have the permission <permission>
 permissions:
    worldresourcepacks.command:
@@ -28,6 +33,15 @@ permissions:
       default: op
    worldresourcepacks.command.usepack.temporary:
       description: Gives permission to set whether or not the pack should only be temporary set and not stored
+      default: op
+   worldresourcepacks.command.resetpack:
+      description: Gives permission to reset ones pack
+      default: op
+   worldresourcepacks.command.resetpack.others:
+      description: Gives permission to reset the pack of other players
+      default: op
+   worldresourcepacks.command.resetpack.temporary:
+      description: Gives permission to reset whether or not the pack should only be temporary reset and not stored
       default: op
    worldresourcepacks.command.generatehashes:
       description: Gives permission to (re-)generate the sha1 hashes of the packs

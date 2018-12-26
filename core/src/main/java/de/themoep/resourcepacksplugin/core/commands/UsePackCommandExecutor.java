@@ -61,7 +61,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     if ((args.length > 2 || (tempStr == null && args.length > 1)) && plugin.checkPermission(sender, permission + ".others")) {
                         player = plugin.getPlayer(args[1]);
                         if (player == null) {
-                            sendMessage(sender, "player-not-online", "input", args[0]);
+                            sendMessage(sender, "player-not-online", "input", args[1]);
                             return true;
                         }
                     } else if (sender != null) {

@@ -600,7 +600,7 @@ public class PackManager {
     public boolean setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         if (!temporary) {
-            if (pack.equals(getEmptyPack())) {
+            if (pack == null) {
                 plugin.setStoredPack(playerId, null);
             } else {
                 plugin.setStoredPack(playerId, pack.getName());

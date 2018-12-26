@@ -42,7 +42,7 @@ command:
     entry: "&e%name%"
   usepack:
     invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
-    player-not-online: "&cThe player &f%input%"
+    player-not-online: "&cThe player &f%input%&c is not online"
     already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"
     usepack: "&cYou don't have the permission &f%permission%%c to set the restricted pack '&f%pack%&c'!"
     unknown-pack: "&cError: There is no pack with the name '&f%input%&c'!"
@@ -54,6 +54,13 @@ command:
       optional-format: "&7 (Format: %format%)"
       selected: ">"
     no-packs: "&cNo packs found!"
+  resetpack:
+    player-not-online: "&cThe player &f%input%&c is not online"
+    no-pack-stored: "&cNo pack stored."
+    had-stored-pack: "&aHad pack '&f%pack%&a' stored."
+    success-other: "&aReset the pack of &f%player%&a!"
+    success: "&aReset your pack!"
+
 
 generate-hashes:
   generating: "&eGenerating hashes..."
