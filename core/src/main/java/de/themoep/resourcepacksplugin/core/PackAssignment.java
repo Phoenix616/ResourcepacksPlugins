@@ -20,6 +20,7 @@ package de.themoep.resourcepacksplugin.core;
 
 import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -228,7 +229,7 @@ public class PackAssignment {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pack", pack);
-        map.put("secondary", secondaries.isEmpty() ? null : secondaries);
+        map.put("secondary", secondaries.isEmpty() ? null : new ArrayList<>(secondaries));
         map.put("send-delay", sendDelay > 0 ? sendDelay : null);
         map.put("regex", regex != null ? regex.toString() : null);
         return map;
