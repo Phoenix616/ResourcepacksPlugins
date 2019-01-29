@@ -37,7 +37,7 @@ packs:
 # Empty pack to reset the pack to the default one
 empty:
   url: http://cdn.moep.tv/files/Empty.zip
-  hash: c05faed4680570a6159823e13fbae2ae830166ab
+  hash: 01517226212d27586ea0c5d6aff1aa5492dd2484
 global:
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
