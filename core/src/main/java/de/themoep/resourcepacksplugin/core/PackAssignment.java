@@ -242,7 +242,7 @@ public class PackAssignment {
     public String[] getReplacements() {
         return new String[] {
                 "name", getName(),
-                "pack", getPack(),
+                "pack", getPack() != null ? getPack() : "none",
                 "secondaries", String.join(", ", getSecondaries()),
                 "regex", getRegex() != null ? getRegex().toString() : "none",
                 "send-delay", String.valueOf(getSendDelay())
@@ -278,7 +278,7 @@ public class PackAssignment {
             command.sendMessage(sender, "usage",
                     "command", command.getPath(),
                     "name", getName(),
-                    "usage", command.getUsage() + " " + String.join("|", getUpdateActions()),
+                    "usage", command.getUsage() + " " + ChatColor.usage(String.join(" | ", getUpdateActions())),
                     "permission", command.getPermission(),
                     "subcommands", String.join("|", getUpdateActions())
             );
@@ -350,7 +350,7 @@ public class PackAssignment {
         }
 
         if (save) {
-            command.getPlugin().saveConfigChanges();
+            command.getPlugin().getPackManager().setDirty(true);
         }
 
         return true;

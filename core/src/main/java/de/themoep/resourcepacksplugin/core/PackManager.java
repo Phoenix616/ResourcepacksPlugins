@@ -87,6 +87,11 @@ public class PackManager {
      */
     private Map<String, PackAssignment> regexAssignments;
 
+    /**
+     * Whether or not to save the config on the next modification of the manager state
+     */
+    private boolean dirty = false;
+
 
     public PackManager(ResourcepacksPlugin plugin) {
         this.plugin = plugin;
@@ -388,10 +393,13 @@ public class PackManager {
      * @return              The previous assignment or null if there was none
      */
     public PackAssignment addAssignment(PackAssignment assignment) {
+        PackAssignment previous;
         if (assignment.getRegex() != null) {
-            return regexAssignments.put(assignment.getName().toLowerCase(), assignment);
+            previous = regexAssignments.put(assignment.getName().toLowerCase(), assignment);
         }
-        return literalAssignments.put(assignment.getName().toLowerCase(), assignment);
+        previous = literalAssignments.put(assignment.getName().toLowerCase(), assignment);
+        checkDirty();
+        return previous;
     }
 
     /**
@@ -503,6 +511,7 @@ public class PackManager {
     public boolean removeAssignment(String key) {
         if (literalAssignments.remove(key.toLowerCase()) != null) {
             regexAssignments.remove(key.toLowerCase());
+            checkDirty();
             return true;
         }
         return false;
@@ -514,11 +523,14 @@ public class PackManager {
      * @return True if there was a assignment for that key, false if not
      */
     public boolean removeAssignment(PackAssignment assignment) {
+        boolean removed;
         if (assignment.getRegex() != null) {
-            return regexAssignments.remove(assignment.getName().toLowerCase()) != null;
+            removed = regexAssignments.remove(assignment.getName().toLowerCase()) != null;
         } else {
-            return literalAssignments.remove(assignment.getName().toLowerCase()) != null;
+            removed = literalAssignments.remove(assignment.getName().toLowerCase()) != null;
         }
+        checkDirty();
+        return removed;
     }
 
     /**
@@ -849,6 +861,24 @@ public class PackManager {
             return 0;
         } else {
             return -1;
+        }
+    }
+
+    /**
+     * Mark the manager state as dirty so it gets saved on next modification
+     * @param dirty Whether or not this manager state should be considered dirty
+     */
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+    /**
+     * Check whether or not the manager state is dirty and if so save the config
+     */
+    public void checkDirty() {
+        if (dirty) {
+            dirty = false;
+            plugin.saveConfigChanges();
         }
     }
 }

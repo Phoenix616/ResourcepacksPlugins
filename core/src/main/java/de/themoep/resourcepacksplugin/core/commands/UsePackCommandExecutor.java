@@ -108,7 +108,6 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                                 "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : ""
                         );
                     }
-                    sendMessage(sender, "usage", "command", "usepack");
                     return false;
                 }
             }

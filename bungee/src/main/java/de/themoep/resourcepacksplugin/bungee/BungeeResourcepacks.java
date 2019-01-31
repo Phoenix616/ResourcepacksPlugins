@@ -389,11 +389,21 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
             getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
-        getConfig().set("global", getPackManager().getGlobalAssignment().serialize());
+        setConfigFlat("server", getPackManager().getGlobalAssignment().serialize());
         for (PackAssignment assignment : getPackManager().getAssignments()) {
-            getConfig().set("servers." + assignment.getName(), assignment.serialize());
+            setConfigFlat("servers." + assignment.getName(), assignment.serialize());
         }
         getConfig().saveConfig();
+    }
+
+    private void setConfigFlat(String rootKey, Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() instanceof Map) {
+                setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
+            } else {
+                getConfig().set(rootKey + "." + entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     @Override

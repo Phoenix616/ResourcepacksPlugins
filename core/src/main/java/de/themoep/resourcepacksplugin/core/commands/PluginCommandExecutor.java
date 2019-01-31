@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.ChatColor;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
@@ -40,6 +41,7 @@ public abstract class PluginCommandExecutor {
     private String usage;
     private PluginCommandExecutor parent = null;
     protected Map<String, PluginCommandExecutor> subCommands = new LinkedHashMap<>();
+    protected Map<String, PluginCommandExecutor> subCommandAliases = new LinkedHashMap<>();
 
     public PluginCommandExecutor(ResourcepacksPlugin plugin, String usage) {
         this(plugin, usage, null);
@@ -67,7 +69,7 @@ public abstract class PluginCommandExecutor {
             throw new IllegalArgumentException("You have to set a command name/usage!");
         }
         this.name = usage.contains(" ") ? usage.substring(0, usage.indexOf(' ')).toLowerCase() : usage.toLowerCase();
-        this.usage = usage.contains(" ") ? usage.substring(usage.indexOf(' ')) : "";
+        this.usage = usage.contains(" ") ? usage.substring(usage.indexOf(' ') + 1) : "";
         this.permission = permission;
         if (permission == null) {
             if (parent != null) {
@@ -93,7 +95,7 @@ public abstract class PluginCommandExecutor {
             return false;
         }
         if (args.length > 0) {
-            PluginCommandExecutor subCommand = subCommands.get(args[0].toLowerCase());
+            PluginCommandExecutor subCommand = getSubCommand(args[0]);
             if (subCommand != null) {
                 return subCommand.execute(sender, Arrays.copyOfRange(args, 1, args.length));
             }
@@ -111,20 +113,31 @@ public abstract class PluginCommandExecutor {
         return true;
     }
 
-    public void sendMessage(ResourcepacksPlayer sender, String key, String... replacements) {
-        if (plugin.hasMessage(sender, "command." + getKey() + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
-            plugin.sendMessage(sender, "command." + getKey() + "." + key, replacements);
-        } else {
-            plugin.sendMessage(sender, "command." + key, replacements);
+    public PluginCommandExecutor getSubCommand(String name) {
+        PluginCommandExecutor subCommand = subCommands.get(name.toLowerCase());
+        if (subCommand == null) {
+            subCommand = subCommandAliases.get(name.toLowerCase());
         }
+        return subCommand;
+    }
+
+    public void sendMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+        plugin.sendMessage(sender, getMessageKey(sender, key), replacements);
     }
 
     protected String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
-        if (plugin.hasMessage(sender, "command." + getKey() + "." + key) || !plugin.hasMessage(sender, "command." + key)) {
-            return plugin.getMessage(sender, "command." + getKey() + "." + key, replacements);
-        } else {
-            return plugin.getMessage(sender, "command." + key, replacements);
+        return plugin.getMessage(sender, getMessageKey(sender, key), replacements);
+    }
+
+    private String getMessageKey(ResourcepacksPlayer sender, String key) {
+        String resultKey = getKey() + "." + key;
+        while (!plugin.hasMessage(sender, "command." + resultKey)) {
+            if (!resultKey.contains(".")) {
+                return "command." + getKey() + "." + key;
+            }
+            resultKey = resultKey.substring(resultKey.indexOf('.') + 1);
         }
+        return "command." + resultKey;
     }
 
     public String getPath() {
@@ -141,7 +154,7 @@ public abstract class PluginCommandExecutor {
         for (PluginCommandExecutor subCommand : subCommands) {
             this.subCommands.put(subCommand.name, subCommand);
             for (String alias : subCommand.aliases) {
-                this.subCommands.putIfAbsent(alias.toLowerCase(), subCommand);
+                this.subCommandAliases.putIfAbsent(alias.toLowerCase(), subCommand);
             }
         }
     }
@@ -154,10 +167,11 @@ public abstract class PluginCommandExecutor {
     }
 
     public String getUsage() {
+        String usage = this.usage;
         if (usage.isEmpty() && !subCommands.isEmpty()) {
-            return "[" + String.join("|", subCommands.keySet()) + "]";
+            usage = "[" + String.join(" | ", subCommands.keySet()) + "]";
         }
-        return usage;
+        return ChatColor.usage(usage);
     }
 
     public ResourcepacksPlugin getPlugin() {

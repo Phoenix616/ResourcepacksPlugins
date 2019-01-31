@@ -18,6 +18,8 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.regex.Pattern;
+
 public enum ChatColor {
     BLACK('0'),
     DARK_BLUE('1'),
@@ -42,6 +44,8 @@ public enum ChatColor {
     ITALIC('o'),
     RESET('r');
 
+    private static final Pattern USAGE_COLORING = Pattern.compile("([|><\\[\\]]+)");
+
     private final String toString;
 
     private ChatColor(char code) {
@@ -50,5 +54,9 @@ public enum ChatColor {
 
     public String toString() {
         return toString;
+    }
+
+    public static String usage(String string) {
+        return USAGE_COLORING.matcher(string).replaceAll(ChatColor.GRAY + "$1" + ChatColor.RESET);
     }
 }

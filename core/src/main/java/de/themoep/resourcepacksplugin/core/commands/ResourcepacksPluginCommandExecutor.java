@@ -25,8 +25,6 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -163,9 +161,8 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             sendMessage(sender, "unknown-assignment", "input", args[0]);
                             return false;
                         }
-                        if (plugin.getPackManager().removeAssignment(assignment)) {
-                            plugin.saveConfigChanges();
-                        }
+                        plugin.getPackManager().setDirty(true);
+                        plugin.getPackManager().removeAssignment(assignment);
                         sendMessage(sender, "deleted", "name", assignment.getName());
                         return true;
                     }
@@ -177,7 +174,12 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             return false;
                         }
 
-                        PackAssignment assignment = plugin.getPackManager().getAssignment(args[0]);
+                        PackAssignment assignment = null;
+                        for (PackAssignment pa : plugin.getPackManager().getAssignments()) {
+                            if (pa.getName().equalsIgnoreCase(args[0])) {
+                                assignment = pa;
+                            }
+                        }
                         if (assignment == null) {
                             sendMessage(sender, "new-assignment", "input", args[0]);
                             assignment = new PackAssignment(args[0]);
@@ -194,6 +196,11 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                     @Override
                     boolean run(ResourcepacksPlayer sender, String[] args) {
                         return plugin.getPackManager().getGlobalAssignment().update(this, sender, args);
+                    }
+
+                    @Override
+                    public String getKey() {
+                        return ResourcepacksPluginCommandExecutor.this.getKey() + ".assignment";
                     }
                 }
         );
