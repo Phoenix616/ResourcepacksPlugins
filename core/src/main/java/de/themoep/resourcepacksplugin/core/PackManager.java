@@ -106,7 +106,7 @@ public class PackManager {
         packUrls = new HashMap<>();
         empty = null;
         global = new PackAssignment("global");
-        literalAssignments = new HashMap<>();
+        literalAssignments = new LinkedHashMap<>();
         regexAssignments = new LinkedHashMap<>();
     }
 
@@ -396,8 +396,9 @@ public class PackManager {
         PackAssignment previous;
         if (assignment.getRegex() != null) {
             previous = regexAssignments.put(assignment.getName().toLowerCase(), assignment);
+        } else {
+            previous = literalAssignments.put(assignment.getName().toLowerCase(), assignment);
         }
-        previous = literalAssignments.put(assignment.getName().toLowerCase(), assignment);
         checkDirty();
         return previous;
     }
@@ -418,6 +419,19 @@ public class PackManager {
             }
         }
         return new PackAssignment("empty");
+    }
+
+    /**
+     * Get an assignment by its name
+     * @param name  The name of the assignment
+     * @return      The PackAssignment or null if not found
+     */
+    public PackAssignment getAssignmentByName(String name) {
+        PackAssignment assignment = literalAssignments.get(name.toLowerCase());
+        if (assignment == null) {
+            assignment = regexAssignments.get(name.toLowerCase());
+        }
+        return assignment;
     }
     
     /**

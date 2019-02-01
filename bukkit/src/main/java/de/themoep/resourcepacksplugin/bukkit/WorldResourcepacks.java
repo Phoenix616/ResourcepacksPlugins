@@ -271,15 +271,20 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(Level.WARNING, "No empty pack defined!");
             }
         }
-
+        String name = null;
         if (getConfig().isSet("server") && getConfig().isConfigurationSection("server")) {
-            getLogger().log(Level.INFO, "Loading global assignment...");
-            ConfigurationSection serverSection = getConfig().getConfigurationSection("server");
-            PackAssignment serverAssignment = getPackManager().loadAssignment("global", getValues(serverSection));
-            getPackManager().setGlobalAssignment(serverAssignment);
-            getLogger().log(Level.INFO, "Loaded global assignment " + serverAssignment);
+            name = "server";
+        } else if (getConfig().isSet("global") && getConfig().isConfigurationSection("global")) {
+            name = "global";
+        }
+        if (name != null) {
+            getLogger().log(Level.INFO, "Loading " + name + " assignment...");
+            ConfigurationSection globalSection = getConfig().getConfigurationSection(name);
+            PackAssignment globalAssignment = getPackManager().loadAssignment(name, getValues(globalSection));
+            getPackManager().setGlobalAssignment(globalAssignment);
+            getLogger().log(Level.INFO, "Loaded " + name + " assignment " + globalAssignment);
         } else {
-            getLogger().log(Level.INFO, "No global assignment defined!");
+            getLogger().log(Level.INFO, "No global server assignment defined!");
         }
 
         if (getConfig().isSet("worlds") && getConfig().isConfigurationSection("worlds")) {
@@ -352,7 +357,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
             getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
-        setConfigFlat("server", getPackManager().getGlobalAssignment().serialize());
+        setConfigFlat(getPackManager().getGlobalAssignment().getName(), getPackManager().getGlobalAssignment().serialize());
         for (PackAssignment assignment : getPackManager().getAssignments()) {
             setConfigFlat("worlds." + assignment.getName(), assignment.serialize());
         }
