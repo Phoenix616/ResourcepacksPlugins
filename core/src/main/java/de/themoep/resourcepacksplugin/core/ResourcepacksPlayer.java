@@ -47,7 +47,7 @@ public class ResourcepacksPlayer {
         }
         if(obj instanceof ResourcepacksPlayer) {
             ResourcepacksPlayer other = (ResourcepacksPlayer) obj;
-            return other.getUniqueId() == getUniqueId() && other.getName().equals(getName());
+            return other.getUniqueId().equals(getUniqueId()) && other.getName().equals(getName());
         }
         return false;
     }

@@ -60,6 +60,8 @@ command:
     had-stored-pack: "&aHad pack '&f%pack%&a' stored."
     success-other: "&aReset the pack of &f%player%&a!"
     success: "&aReset your pack!"
+    no-pack: "&cYou have no pack (or the empty one) applied?"
+    no-pack-other: "&f%player% &chas no pack (or the empty one) applied?"
 
 
 generate-hashes:
