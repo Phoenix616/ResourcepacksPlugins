@@ -164,7 +164,7 @@ public interface ResourcepacksPlugin {
      * @param player The player
      * @param key The key of the message to send
      * @param replacements An optional array with placeholder replacements
-     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
+     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline or the message empty
      */
     boolean sendMessage(ResourcepacksPlayer player, String key, String... replacements);
 
@@ -174,7 +174,7 @@ public interface ResourcepacksPlugin {
      * @param level The level to log to if the sender is the console!
      * @param key The key of the message to send
      * @param replacements An optional array with placeholder replacements
-     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline
+     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline or the message empty
      */
     boolean sendMessage(ResourcepacksPlayer sender, Level level, String key, String... replacements);
 

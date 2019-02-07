@@ -644,6 +644,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     @Override
     public boolean sendMessage(ResourcepacksPlayer player, Level level, String key, String... replacements) {
         String message = getMessage(player, key, replacements);
+        if (message.isEmpty()) {
+            return false;
+        }
         if(player != null) {
             ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
             if(proxyPlayer != null) {

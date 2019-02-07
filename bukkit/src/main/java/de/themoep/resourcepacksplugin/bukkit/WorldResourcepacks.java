@@ -513,6 +513,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public boolean sendMessage(ResourcepacksPlayer packPlayer, Level level, String key, String... replacements) {
         String message = getMessage(packPlayer, key, replacements);
+        if (message.isEmpty()) {
+            return false;
+        }
         if(packPlayer != null) {
             Player player = getServer().getPlayer(packPlayer.getUniqueId());
             if(player != null) {
