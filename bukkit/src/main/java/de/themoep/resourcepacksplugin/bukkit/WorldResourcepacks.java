@@ -282,7 +282,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             ConfigurationSection globalSection = getConfig().getConfigurationSection(name);
             PackAssignment globalAssignment = getPackManager().loadAssignment(name, getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(Level.INFO, "Loaded " + name + " assignment " + globalAssignment);
+            getLogger().log(Level.INFO, "Loaded " + name + " assignment");
+            getLogger().log(getLogLevel(), globalAssignment.toString());
         } else {
             getLogger().log(Level.INFO, "No global server assignment defined!");
         }
@@ -296,7 +297,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                     getLogger().log(Level.INFO, "Loading assignment for world " + world + "...");
                     PackAssignment worldAssignment = getPackManager().loadAssignment(world, getValues(worldSection));
                     getPackManager().addAssignment(worldAssignment);
-                    getLogger().log(Level.INFO, "Loaded assignment " + worldAssignment);
+                    getLogger().log(Level.INFO, "Loaded world assignment " + world );
+                    getLogger().log(getLogLevel(), worldAssignment.toString());
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for world " + world + " but it is not a configuration section?");
                 }

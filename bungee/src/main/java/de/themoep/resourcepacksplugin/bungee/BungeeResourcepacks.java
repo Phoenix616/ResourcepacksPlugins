@@ -322,7 +322,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             Configuration globalSection = getConfig().getSection("global");
             PackAssignment globalAssignment = getPackManager().loadAssignment("global", getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(Level.INFO, "Loaded global assignment " + globalAssignment);
+            getLogger().log(Level.INFO, "Loaded global assignment");
+            getLogger().log(getLogLevel(), globalAssignment.toString());
         } else {
             getLogger().log(Level.INFO, "No global assignment defined!");
         }
@@ -336,7 +337,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment(server, getValues(serverSection));
                     getPackManager().addAssignment(serverAssignment);
-                    getLogger().log(Level.INFO, "Loaded assignment " + serverAssignment);
+                    getLogger().log(Level.INFO, "Loaded server assignment " + server);
+                    getLogger().log(getLogLevel(), serverAssignment.toString());
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
                 }
