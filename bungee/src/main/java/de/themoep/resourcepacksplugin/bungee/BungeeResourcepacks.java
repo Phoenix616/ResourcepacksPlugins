@@ -47,6 +47,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.BadPacketException;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.minecrell.mcstats.BungeeStatsLite;
@@ -113,7 +114,52 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void onEnable() {
         instance = this;
+        if (!registerPacket(Protocol.GAME, "TO_CLIENT", ResourcePackSendPacket.class)) {
+            getLogger().log(Level.SEVERE, "Disabling the plugin as it can't work without the ResourcePackSendPacket!");
+            return;
+        }
+
+        setEnabled(loadConfig());
+
+        registerCommand(new ResourcepacksPluginCommandExecutor(this));
+        registerCommand(new UsePackCommandExecutor(this));
+        registerCommand(new ResetPackCommandExecutor(this));
+
+        ViaPlatform viaPlugin = (ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion");
+        if (viaPlugin != null) {
+            viaApi = viaPlugin.getApi();
+            getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+        }
+
+        if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
+            getPackManager().generateHashes(null);
+        }
+
+        um = new UserManager(this);
+
+        getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
+        getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
+        getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
+        getProxy().registerChannel("rp:plugin");
+
+        if (!getConfig().getBoolean("disable-metrics", false)) {
+            new BungeeStatsLite(this).start();
+            new MetricsLite(this);
+        }
+
+        startupMessage();
+    }
+
+    protected boolean registerPacket(Protocol protocol, String directionName, Class<? extends DefinedPacket> packetClass) {
         try {
+            Field directionField;
+            try {
+                directionField = Protocol.class.getField(directionName);
+            } catch (NoSuchFieldException e) {
+                directionField = Protocol.class.getDeclaredField(directionName);
+                directionField.setAccessible(true);
+            }
+            Object direction = directionField.get(protocol);
             List<Integer> supportedVersions = new ArrayList<>();
             try {
                 Field svField = Protocol.class.getField("supportedVersions");
@@ -121,29 +167,61 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             } catch(Exception e1) {
                 // Old bungee protocol version, try new one
             }
-            if(supportedVersions.size() == 0) {
+            if (supportedVersions.size() == 0) {
                 Field svIdField = ProtocolConstants.class.getField("SUPPORTED_VERSION_IDS");
                 supportedVersions = (List<Integer>) svIdField.get(null);
             }
 
+            Field field = packetClass.getField("ID_MAPPINGS");
+            if (field == null) {
+                getLogger().log(Level.SEVERE, packetClass.getSimpleName() + " does not contain ID_MAPPINGS field!");
+                return false;
+            }
+            List<IdMapping> idMappings = (List<IdMapping>) field.get(null);
+
+            getLogger().log(getLogLevel(), "Registering " + packetClass.getSimpleName() + "...");
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if (bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
-                getLogger().log(Level.INFO, "BungeeCord 1.8 (" + bungeeVersion + ") detected!");
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, Class.class);
+                getLogger().log(getLogLevel(), "BungeeCord 1.8 (" + bungeeVersion + ") detected!");
+                Method reg = direction.getClass().getDeclaredMethod("registerPacket", int.class, Class.class);
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, ResourcePackSendPacket.class);
+                int id = -1;
+                for (IdMapping mapping : idMappings) {
+                    if (mapping.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_8) {
+                        id = mapping.getPacketId();
+                        break;
+                    }
+                }
+                if (id == -1) {
+                    getLogger().log(Level.SEVERE, packetClass.getSimpleName() + " does not contain an ID for 1.8!");
+                    return false;
+                }
+                reg.invoke(direction, id, packetClass);
             } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4) {
-                getLogger().log(Level.INFO, "BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
+                getLogger().log(getLogLevel(), "BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
+                Method reg = direction.getClass().getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
                 reg.setAccessible(true);
-                reg.invoke(Protocol.GAME.TO_CLIENT, 0x48, 0x32, ResourcePackSendPacket.class);
+                int id18 = -1;
+                int id19 = -1;
+                for (IdMapping mapping : idMappings) {
+                    if (mapping.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_8) {
+                        id18 = mapping.getPacketId();
+                    } else if (mapping.getProtocolVersion() >= ProtocolConstants.MINECRAFT_1_9 && mapping.getProtocolVersion() < ProtocolConstants.MINECRAFT_1_9_4) {
+                        id19 = mapping.getPacketId();
+                    }
+                }
+                if (id18 == -1 || id19 == -1) {
+                    getLogger().log(Level.SEVERE, packetClass.getSimpleName() + " does not contain an ID for 1.8 or 1.9!");
+                    return false;
+                }
+                reg.invoke(direction, id18, id19, packetClass);
             } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4) {
-                getLogger().log(Level.INFO, "BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
+                getLogger().log(getLogLevel(), "BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
                 Map<String, Object> mappings = new LinkedHashMap<>();
 
-                for (IdMapping mapping : ResourcePackSendPacket.ID_MAPPINGS) {
+                for (IdMapping mapping : idMappings) {
                     if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(mapping.getProtocolVersion())) {
                         mappings.put(mapping.getName(), map.invoke(null, mapping.getProtocolVersion(), mapping.getPacketId()));
                     }
@@ -154,64 +232,30 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
                     Map.Entry<String, Object> entry = it.next();
                     Array.set(mappingsObject, i, entry.getValue());
-                    getLogger().log(getLogLevel(), "Registered ResourcePackSendPacket for " + entry.getKey());
+                    getLogger().log(getLogLevel(), "Found mapping for " + entry.getKey() + "+");
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
-                Method reg = Protocol.DirectionData.class.getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
+                Method reg = direction.getClass().getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
                 reg.setAccessible(true);
                 try {
-                    reg.invoke(Protocol.GAME.TO_CLIENT, ResourcePackSendPacket.class, mappingsArray);
+                    reg.invoke(direction, packetClass, mappingsArray);
                 } catch (Throwable t) {
-                    getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!");
-                    setEnabled(false);
-                    return;
+                    getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
+                    return false;
                 }
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version (" + bungeeVersion + ") found! You need at least 1.8 for this plugin to work!");
-                setEnabled(false);
-                return;
+                return false;
             }
-
-            setEnabled(loadConfig());
-
-            registerCommand(new ResourcepacksPluginCommandExecutor(this));
-            registerCommand(new UsePackCommandExecutor(this));
-            registerCommand(new ResetPackCommandExecutor(this));
-
-            ViaPlatform viaPlugin = (ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion");
-            if (viaPlugin != null) {
-                viaApi = viaPlugin.getApi();
-                getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
-            }
-
-            if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
-                getPackManager().generateHashes(null);
-            }
-
-            um = new UserManager(this);
-
-            getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
-            getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
-            getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
-            getProxy().registerChannel("rp:plugin");
-
-            if (!getConfig().getBoolean("disable-metrics", false)) {
-                new BungeeStatsLite(this).start();
-                new MetricsLite(this);
-            }
-
-            startupMessage();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+            return true;
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
-            getLogger().log(Level.SEVERE, "Couldn't find the registerPacket method in the Protocol.DirectionData class! Please update this plugin or downgrade BungeeCord!");
-            e.printStackTrace();
-        } catch(NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Couldn't find the field with the supported versions! Please update this plugin or downgrade BungeeCord!");
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Couldn't find a required method! Please update this plugin or downgrade BungeeCord!", e);
+        } catch (NoSuchFieldException e) {
+            getLogger().log(Level.SEVERE, "Couldn't find a required field! Please update this plugin or downgrade BungeeCord!", e);
         }
+        return false;
     }
 
     protected void registerCommand(PluginCommandExecutor executor) {
