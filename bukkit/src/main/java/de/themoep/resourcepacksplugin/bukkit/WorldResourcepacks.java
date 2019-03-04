@@ -57,6 +57,7 @@ import us.myles.ViaVersion.api.ViaAPI;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -85,6 +86,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private ProxyPackListener proxyPackListener;
 
     public void onEnable() {
+        boolean firstStart = !getDataFolder().exists();
         storedPacks = new ConfigAccessor(this, "players.yml");
         if (loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
@@ -167,7 +169,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 new org.bstats.MetricsLite(this);
             }
 
-            startupMessage();
+            if (firstStart || new Random().nextDouble() < 0.01) {
+                startupMessage();
+            }
         } else {
             getServer().getPluginManager().disablePlugin(this);
         }

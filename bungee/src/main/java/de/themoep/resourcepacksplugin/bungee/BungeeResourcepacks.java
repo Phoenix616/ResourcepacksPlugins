@@ -61,12 +61,15 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,6 +122,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return;
         }
 
+        boolean firstStart = !getDataFolder().exists();
         setEnabled(loadConfig());
 
         registerCommand(new ResourcepacksPluginCommandExecutor(this));
@@ -147,7 +151,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             new MetricsLite(this);
         }
 
-        startupMessage();
+        if (firstStart || new Random().nextDouble() < 0.01) {
+            startupMessage();
+        }
     }
 
     protected boolean registerPacket(Protocol protocol, String directionName, Class<? extends DefinedPacket> packetClass) {
