@@ -562,16 +562,17 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public int getPlayerPackFormat(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if (player != null) {
+            int format = serverPackFormat;
             if (viaApi != null) {
-                return getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
+                format = getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
             }
-            if (protocolSupportApi) {
+            if (protocolSupportApi && format == serverPackFormat) { // if still same format test if player is using previous version
                 ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
                 if (version.getProtocolType() == ProtocolType.PC) {
-                    return getPackManager().getPackFormat(version.getId());
+                    format = getPackManager().getPackFormat(version.getId());
                 }
             }
-            return serverPackFormat;
+            return format;
         }
         return -1;
     }
