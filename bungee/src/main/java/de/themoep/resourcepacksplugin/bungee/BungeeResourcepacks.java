@@ -117,13 +117,19 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void onEnable() {
         instance = this;
+
+        boolean firstStart = !getDataFolder().exists();
+
+        if (!loadConfig()) {
+            return;
+        }
+
         if (!registerPacket(Protocol.GAME, "TO_CLIENT", ResourcePackSendPacket.class)) {
             getLogger().log(Level.SEVERE, "Disabling the plugin as it can't work without the ResourcePackSendPacket!");
             return;
         }
 
-        boolean firstStart = !getDataFolder().exists();
-        setEnabled(loadConfig());
+        setEnabled(true);
 
         registerCommand(new ResourcepacksPluginCommandExecutor(this));
         registerCommand(new UsePackCommandExecutor(this));
@@ -297,8 +303,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
-        if(getConfig().isSet("useauth")) {
-            getLogger().log(getLogLevel(), "Use backend auth: " + getConfig().getBoolean("useauth"));
+        if(getConfig().getBoolean("useauth", false)) {
+            getLogger().log(Level.INFO, "Compatibility with backend AuthMe install ('useauth') is enabled.");
         }
 
         lm = new LanguageManager(this, getConfig().getString("default-language"));
@@ -372,10 +378,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             Configuration globalSection = getConfig().getSection("global");
             PackAssignment globalAssignment = getPackManager().loadAssignment("global", getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(Level.INFO, "Loaded global assignment");
-            getLogger().log(getLogLevel(), globalAssignment.toString());
+            getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
         } else {
-            getLogger().log(Level.INFO, "No global assignment defined!");
+            getLogger().log(Level.WARNING, "No global assignment defined!");
         }
 
         if (getConfig().isSet("servers", true) && getConfig().isSection("servers")) {
@@ -387,14 +392,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment(server, getValues(serverSection));
                     getPackManager().addAssignment(serverAssignment);
-                    getLogger().log(Level.INFO, "Loaded server assignment " + server);
-                    getLogger().log(getLogLevel(), serverAssignment.toString());
+                    getLogger().log(getLogLevel(), "Loaded server assignment " + serverAssignment.toString());
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
                 }
             }
         } else {
-            getLogger().log(Level.INFO, "No server assignments defined!");
+            getLogger().log(Level.WARNING, "No server assignments defined!");
         }
         return true;
     }

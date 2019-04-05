@@ -118,7 +118,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 } else {
                     serverPackFormat = 0;
                 }
-                getLogger().log(Level.INFO, "Detected server packformat " + serverPackFormat + "!");
+                getLogger().log(getLogLevel(), "Detected server packformat " + serverPackFormat + "!");
             } catch(NumberFormatException e) {
                 getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
             }
@@ -266,7 +266,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (emptypackname != null && !emptypackname.isEmpty()) {
                 ResourcePack ep = getPackManager().getByName(emptypackname);
                 if (ep != null) {
-                    getLogger().log(getLogLevel(), "Empty pack: " + ep.getName());
+                    getLogger().log(Level.INFO, "Empty pack: " + ep.getName());
                     getPackManager().setEmptyPack(ep);
                 } else {
                     getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
@@ -286,8 +286,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             ConfigurationSection globalSection = getConfig().getConfigurationSection(name);
             PackAssignment globalAssignment = getPackManager().loadAssignment(name, getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(Level.INFO, "Loaded " + name + " assignment");
-            getLogger().log(getLogLevel(), globalAssignment.toString());
+            getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
         } else {
             getLogger().log(Level.INFO, "No global server assignment defined!");
         }
@@ -301,8 +300,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                     getLogger().log(Level.INFO, "Loading assignment for world " + world + "...");
                     PackAssignment worldAssignment = getPackManager().loadAssignment(world, getValues(worldSection));
                     getPackManager().addAssignment(worldAssignment);
-                    getLogger().log(Level.INFO, "Loaded world assignment " + world );
-                    getLogger().log(getLogLevel(), worldAssignment.toString());
+                    getLogger().log(getLogLevel(), "Loaded " + worldAssignment.toString() );
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for world " + world + " but it is not a configuration section?");
                 }
