@@ -239,7 +239,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 }
             }
         } else {
-            getLogger().log(Level.WARNING, "No packs defined!");
+            getLogger().log(getLogLevel(), "No packs defined!");
         }
 
         if (getConfig().isConfigurationSection("empty")) {
@@ -288,7 +288,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getPackManager().setGlobalAssignment(globalAssignment);
             getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
         } else {
-            getLogger().log(Level.INFO, "No global server assignment defined!");
+            getLogger().log(getLogLevel(), "No global server assignment defined!");
         }
 
         if (getConfig().isSet("worlds") && getConfig().isConfigurationSection("worlds")) {
@@ -306,7 +306,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 }
             }
         } else {
-            getLogger().log(Level.INFO, "No world assignments defined!");
+            getLogger().log(getLogLevel(), "No world assignments defined!");
         }
 
         if (getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {

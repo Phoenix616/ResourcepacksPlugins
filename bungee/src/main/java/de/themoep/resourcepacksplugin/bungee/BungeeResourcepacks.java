@@ -337,7 +337,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 }
             }
         } else {
-            getLogger().log(Level.WARNING, "No packs defined!");
+            getLogger().log(getLogLevel(), "No packs defined!");
         }
 
         if (getConfig().isSection("empty")) {
@@ -380,7 +380,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getPackManager().setGlobalAssignment(globalAssignment);
             getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
         } else {
-            getLogger().log(Level.WARNING, "No global assignment defined!");
+            getLogger().log(getLogLevel(), "No global assignment defined!");
         }
 
         if (getConfig().isSet("servers", true) && getConfig().isSection("servers")) {
@@ -398,7 +398,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 }
             }
         } else {
-            getLogger().log(Level.WARNING, "No server assignments defined!");
+            getLogger().log(getLogLevel(), "No server assignments defined!");
         }
         return true;
     }
