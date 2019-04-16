@@ -38,6 +38,7 @@ import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandEx
 import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bukkit.LanguageManager;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import fr.xephi.authme.events.LoginEvent;
@@ -466,7 +467,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (sender != null) {
                 player = getServer().getPlayer(sender.getUniqueId());
             }
-            return lm.getConfig(player).get(key, replacements);
+            LanguageConfig config = lm.getConfig(player);
+            if (config != null) {
+                return config.get(key, replacements);
+            } else {
+                return "Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")";
+            }
         }
         return key;
     }

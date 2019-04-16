@@ -40,6 +40,7 @@ import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandEx
 import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bungee.LanguageManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -645,7 +646,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if (sender != null) {
                 player = getProxy().getPlayer(sender.getUniqueId());
             }
-            return lm.getConfig(player).get(key, replacements);
+            LanguageConfig config = lm.getConfig(player);
+            if (config != null) {
+                return config.get(key, replacements);
+            } else {
+                return "Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")";
+            }
         }
         return key;
     }
