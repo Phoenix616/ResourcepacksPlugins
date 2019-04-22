@@ -36,10 +36,6 @@
             <url>https://repo.minebench.de/</url>
         </repository>
         <repository>
-            <id>sgdc3-repo</id>
-            <url>http://ci.xephi.fr/plugin/repository/everything/</url>
-        </repository>
-        <repository>
             <id>minecrell-repo</id>
             <url>http://repo.minecrell.net/releases</url>
         </repository>
