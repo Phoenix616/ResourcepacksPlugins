@@ -64,12 +64,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -234,9 +236,27 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 map.setAccessible(true);
                 Map<String, Object> mappings = new LinkedHashMap<>();
 
+                ArrayDeque<IdMapping> additionalMappings = new ArrayDeque<>();
+                Set<Integer> registeredVersions = new HashSet<>();
                 for (IdMapping mapping : idMappings) {
                     if (ProtocolConstants.SUPPORTED_VERSION_IDS.contains(mapping.getProtocolVersion())) {
                         mappings.put(mapping.getName(), map.invoke(null, mapping.getProtocolVersion(), mapping.getPacketId()));
+                        registeredVersions.add(mapping.getProtocolVersion());
+                    } else {
+                        additionalMappings.addFirst(mapping);
+                    }
+                }
+
+                // Check if we have a supported version after the additional mapping's id
+                // This allows specifying the snapshot version an ID was first used
+                for (IdMapping mapping : additionalMappings) {
+                    for (int id : ProtocolConstants.SUPPORTED_VERSION_IDS) {
+                        if (!registeredVersions.contains(id) && id > mapping.getProtocolVersion()) {
+                            getLogger().log(getLogLevel(), "Using unregistered mapping " + mapping.getName() + "/" + mapping.getProtocolVersion() + " for unregistered version " + id);
+                            mappings.put(mapping.getName(), map.invoke(null, id, mapping.getPacketId()));
+                            registeredVersions.add(id);
+                            break;
+                        }
                     }
                 }
 

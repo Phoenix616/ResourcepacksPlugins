@@ -57,6 +57,17 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     public ResourcePackSendPacket() {};
 
+    private static Field conField = null;
+
+    static {
+        try {
+            conField = DownstreamBridge.class.getDeclaredField("con");
+            conField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            BungeeResourcepacks.getInstance().getLogger().log(Level.SEVERE, "Error while trying to get the UserConnection field from the DownstreamBridge object. Is the plugin up to date?");
+        }
+    }
+
     @ConstructorProperties({"url", "hash"})
     public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
@@ -70,19 +81,14 @@ public class ResourcePackSendPacket extends DefinedPacket {
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
         if(handler instanceof DownstreamBridge) {
-            DownstreamBridge bridge = (DownstreamBridge) handler;
-            try {
-                Field con = bridge.getClass().getDeclaredField("con");
-                con.setAccessible(true);
+            if (conField != null) {
+                DownstreamBridge bridge = (DownstreamBridge) handler;
                 try {
-                    UserConnection usercon = (UserConnection) con.get(bridge);
-                    relayPacket(usercon, new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
+                    relayPacket((UserConnection) conField.get(bridge), new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
                     e.printStackTrace();
                 }
-            } catch (NoSuchFieldException e) {
-                BungeeResourcepacks.getInstance().getLogger().log(Level.SEVERE, "Error while trying to get the UserConnection field from the DownstreamBridge object. Is the plugin up to date?");
             }
         } else {
             throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
