@@ -26,6 +26,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -80,22 +81,27 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
-        if(handler instanceof DownstreamBridge) {
+        PacketWrapper packetWrapper = new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())));
+        if (handler instanceof DownstreamBridge) {
             if (conField != null) {
                 DownstreamBridge bridge = (DownstreamBridge) handler;
                 try {
-                    relayPacket((UserConnection) conField.get(bridge), new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length()))));
+                    updatePlayer((UserConnection) conField.get(bridge));
                 } catch (IllegalAccessException e) {
-                    BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.");
-                    e.printStackTrace();
+                    BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.", e);
                 }
             }
         } else {
-            throw new UnsupportedOperationException("Only players can receive ResourcePackSend packets!");
+            BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sending ResourcePackSend packets to " + handler.getClass().getSimpleName() + " is not properly supported by this plugin! (Only players) Trying to handle anyways...");
+        }
+        if (handler instanceof PacketHandler) {
+            ((PacketHandler) handler).handle(packetWrapper);
+        } else {
+            new UnsupportedOperationException("Unsupported handler type!").fillInStackTrace().printStackTrace();
         }
     }
 
-    public void relayPacket(UserConnection usercon, PacketWrapper packet) throws Exception {
+    private void updatePlayer(UserConnection usercon) {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         if(plugin.isEnabled()) {
             ResourcePack pack = plugin.getPackManager().getByHash(getHash());
@@ -103,7 +109,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 pack = plugin.getPackManager().getByUrl(getUrl());
             }
             if (pack == null) {
-                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1, getUrl().length()).replace(".zip", "").toLowerCase(), getUrl(), getHash());
+                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(), getUrl(), getHash());
                 try {
                     plugin.getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
@@ -115,7 +121,6 @@ public class ResourcePackSendPacket extends DefinedPacket {
             plugin.getLogger().log(BungeeResourcepacks.getInstance().getLogLevel(), "Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
             plugin.getUserManager().setUserPack(usercon.getUniqueId(), pack);
         }
-        usercon.getPendingConnection().handle(packet);
     }
 
     public void read(ByteBuf buf) {
