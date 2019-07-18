@@ -91,6 +91,7 @@ public class PackManager {
      * Whether or not to save the config on the next modification of the manager state
      */
     private boolean dirty = false;
+    private boolean storedPacksOverride;
 
 
     public PackManager(ResourcepacksPlugin plugin) {
@@ -225,7 +226,24 @@ public class PackManager {
     public ResourcePack getEmptyPack() {
         return empty;
     }
-    
+
+
+    /**
+     * Set whether or not stored packs should override assignments
+     * @param playerPacksOverride Whether or not stored packs should override assignments
+     */
+    public void setStoredPacksOverride(boolean playerPacksOverride) {
+        this.storedPacksOverride = playerPacksOverride;
+    }
+
+    /**
+     * Get whether or not stored packs should override assignments
+     * @return Whether or not stored packs should override assignments
+     */
+    public boolean getStoredPacksOverride() {
+        return storedPacksOverride;
+    }
+
     /**
      * Set the global Resource Pack
      * @param pack The pack to set as global
@@ -681,15 +699,30 @@ public class PackManager {
     public ResourcePack getApplicablePack(UUID playerId, String serverName) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         ResourcePack pack = null;
+        ResourcePack stored = getByName(plugin.getStoredPack(playerId));
+
         ResourcepacksPlayer player = plugin.getPlayer(playerId);
         if (player == null) {
             player = new ResourcepacksPlayer("uuid:" + playerId, playerId);
         }
-        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
+
+        if (getStoredPacksOverride() && stored != null) {
+            if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                if (stored.equals(prev)) {
+                    plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " already uses the stored pack " + stored.getName());
+                } else {
+                    plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " had the pack " + stored.getName() + " stored, using that");
+                }
+                return stored;
+            }
+        }
+
         if(getGlobalAssignment().isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
             plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
             return prev;
         }
+
+        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
             if(assignment.isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {

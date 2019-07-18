@@ -7,6 +7,8 @@ disable-metrics: false
 autogeneratehashes: true
 # Whether /usepack should apply packs temporary or permanent when run without any argument:
 usepack-is-temporary: true
+# Whether packs that a player has stored will override a matched assignments
+stored-packs-override-assignments: false
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
 # 0 or anything below will disable this functionality
 permanent-pack-remove-time: 30

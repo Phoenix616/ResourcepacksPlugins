@@ -62,8 +62,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -71,7 +69,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -421,6 +418,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         } else {
             getLogger().log(getLogLevel(), "No server assignments defined!");
         }
+
+        getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
+        getLogger().log(getLogLevel(), "Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
         return true;
     }
 
