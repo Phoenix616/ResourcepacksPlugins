@@ -86,18 +86,20 @@ public class ResourcePackSendPacket extends DefinedPacket {
             if (conField != null) {
                 DownstreamBridge bridge = (DownstreamBridge) handler;
                 try {
-                    updatePlayer((UserConnection) conField.get(bridge));
+                    UserConnection userConnection = (UserConnection) conField.get(bridge);
+                    updatePlayer(userConnection);
+                    userConnection.getPendingConnection().handle(packetWrapper);
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.", e);
                 }
             }
         } else {
             BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sending ResourcePackSend packets to " + handler.getClass().getName() + " is not properly supported by this plugin! (Only players) Trying to handle anyways...");
-        }
-        if (handler instanceof PacketHandler) {
-            ((PacketHandler) handler).handle(packetWrapper);
-        } else {
-            new UnsupportedOperationException("Unsupported handler type!").fillInStackTrace().printStackTrace();
+            if (handler instanceof PacketHandler) {
+                ((PacketHandler) handler).handle(packetWrapper);
+            } else {
+                new UnsupportedOperationException("Unsupported handler type " + handler.getClass().getName()).fillInStackTrace().printStackTrace();
+            }
         }
     }
 
