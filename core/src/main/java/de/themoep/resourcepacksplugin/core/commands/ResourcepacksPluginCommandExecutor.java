@@ -84,6 +84,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         }
                         ResourcePack pack = new ResourcePack(args[0], args[1], null);
                         plugin.getPackManager().addPack(pack);
+                        plugin.saveConfigChanges();
                         sendMessage(sender, "added", pack.getReplacements());
                         return true;
                     }
@@ -183,6 +184,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         }
 
                         boolean success = assignment.update(this, sender, Arrays.copyOfRange(args, 1, args.length));
+                        plugin.getPackManager().setDirty(true);
                         plugin.getPackManager().addAssignment(assignment);
                         return success;
                     }
