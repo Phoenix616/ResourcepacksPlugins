@@ -85,7 +85,7 @@ public abstract class PluginCommandExecutor {
 
     public boolean execute(ResourcepacksPlayer sender, String[] args) {
         if (permission != null && !permission.isEmpty() && !plugin.checkPermission(sender, permission)) {
-            plugin.sendMessage(sender, "no-permission",
+            plugin.sendMessage(sender, "command.no-permission",
                     "command", getPath(),
                     "name", getName(),
                     "usage", getUsage(),
