@@ -255,7 +255,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             try {
                 getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, false, null);
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, false);
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);

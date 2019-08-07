@@ -369,7 +369,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             try {
                 getLogger().log(Level.INFO, "Empty pack - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, 0, false, null);
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, 0, false);
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
