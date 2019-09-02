@@ -393,6 +393,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return storedPacks.getConfig().getString("players." + playerId);
     }
 
+    public ConfigurationSection getStoredPacks() {
+        return storedPacks.getConfig().getConfigurationSection("players");
+    }
+
     @Override
     public boolean isUsepackTemporary() {
         return getConfig().getBoolean("usepack-is-temporary");
@@ -402,7 +406,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
     }
-    
+
+
     public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if(player != null) {
