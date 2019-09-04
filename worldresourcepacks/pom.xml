@@ -61,7 +61,7 @@
         <dependency>
             <groupId>de.themoep.utils</groupId>
             <artifactId>lang-bukkit</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${lang.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

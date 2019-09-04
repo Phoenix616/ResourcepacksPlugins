@@ -24,7 +24,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.version>1.6.20-SNAPSHOT</plugin.version>
-        <lang.version>1.1-SNAPSHOT</lang.version>
+        <lang.version>1.2-SNAPSHOT</lang.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <build.number>${buildNumber}</build.number>
