@@ -59,7 +59,7 @@ public abstract class PluginCommandExecutor {
         this(plugin, parent, usage, permission, new String[0]);
     }
 
-    public PluginCommandExecutor(ResourcepacksPlugin plugin, PluginCommandExecutor parent, String usage, String permission, String[] aliases) {
+    public PluginCommandExecutor(ResourcepacksPlugin plugin, PluginCommandExecutor parent, String usage, String permission, String... aliases) {
         this.plugin = plugin;
         this.parent = parent;
         if (usage == null) {
@@ -81,7 +81,7 @@ public abstract class PluginCommandExecutor {
         Collections.addAll(this.aliases, aliases);
     }
 
-    abstract boolean run(ResourcepacksPlayer sender, String[] args);
+    public abstract boolean run(ResourcepacksPlayer sender, String[] args);
 
     public boolean execute(ResourcepacksPlayer sender, String[] args) {
         if (permission != null && !permission.isEmpty() && !plugin.checkPermission(sender, permission)) {

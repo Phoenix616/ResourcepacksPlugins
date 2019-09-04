@@ -95,6 +95,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     
     private Level loglevel = Level.INFO;
 
+    protected ResourcepacksPluginCommandExecutor pluginCommand;
+
     /**
      * Set of uuids of players which got send a pack by the backend server. 
      * This is needed so that the server does not send the bungee pack if the user has a backend one.
@@ -131,7 +133,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         setEnabled(true);
 
-        registerCommand(new ResourcepacksPluginCommandExecutor(this));
+        registerCommand(pluginCommand = new ResourcepacksPluginCommandExecutor(this));
         registerCommand(new UsePackCommandExecutor(this));
         registerCommand(new ResetPackCommandExecutor(this));
 

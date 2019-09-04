@@ -36,7 +36,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
         registerSubCommands(
                 new PluginCommandExecutor(plugin, this, "reload") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (plugin.isEnabled()) {
                             boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
                             plugin.reloadConfig(resend);
@@ -52,7 +52,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 },
                 new PluginCommandExecutor(plugin, this, "version") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         plugin.sendMessage(sender, "command.version",
                                 "plugin", plugin.getName(),
                                 "version", plugin.getVersion()
@@ -62,14 +62,14 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 },
                 new PluginCommandExecutor(plugin, this, "generatehashes") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         plugin.getPackManager().generateHashes(sender);
                         return true;
                     }
                 },
                 new PluginCommandExecutor(plugin, this, "addpack <name> <url>") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length < 2) {
                             return false;
                         }
@@ -91,7 +91,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 },
                 new PluginCommandExecutor(plugin, this, "pack <pack> [url|hash|format|restricted|permission]") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length == 0) {
                             return false;
                         }
@@ -142,17 +142,17 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "listassignments", null, new String[] {"assignments"}) {
+                new PluginCommandExecutor(plugin, this, "listassignments", null, "assignments") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         sendMessage(sender, "head");
                         plugin.getPackManager().getAssignments().forEach(a -> sendMessage(sender, "entry", a.getReplacements()));
                         return true;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "deleteassignment <assignment>", null, new String[] {"removeassignment"}) {
+                new PluginCommandExecutor(plugin, this, "deleteassignment <assignment>", null, "removeassignment") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length == 0) {
                             return false;
                         }
@@ -168,9 +168,9 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "assignment <assignment>", null, new String[] {"assign"}) {
+                new PluginCommandExecutor(plugin, this, "assignment <assignment>", null, "assign") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length == 0) {
                             return false;
                         }
@@ -189,9 +189,9 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return success;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "globalassignment", null, new String[] {"global"}) {
+                new PluginCommandExecutor(plugin, this, "globalassignment", null, "global") {
                     @Override
-                    boolean run(ResourcepacksPlayer sender, String[] args) {
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
                         return plugin.getPackManager().getGlobalAssignment().update(this, sender, args);
                     }
 

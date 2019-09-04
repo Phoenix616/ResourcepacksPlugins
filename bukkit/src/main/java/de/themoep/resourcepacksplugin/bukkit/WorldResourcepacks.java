@@ -81,6 +81,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private InternalHelper internalHelper;
 
+    protected ResourcepacksPluginCommandExecutor pluginCommand;
+
     private ViaAPI viaApi;
     private boolean protocolSupportApi = false;
     private AuthMeApi authmeApi;
@@ -97,7 +99,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             proxyPackListener = new ProxyPackListener(this);
             getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", proxyPackListener);
 
-            registerCommand(new ResourcepacksPluginCommandExecutor(this));
+            registerCommand(pluginCommand = new ResourcepacksPluginCommandExecutor(this));
             registerCommand(new UsePackCommandExecutor(this));
             registerCommand(new ResetPackCommandExecutor(this));
 

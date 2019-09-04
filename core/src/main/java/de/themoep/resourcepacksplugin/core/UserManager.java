@@ -68,6 +68,14 @@ public class UserManager {
     }
 
     /**
+     * Get the map of user IDs to pack names
+     * @return The pack map
+     */
+    public Map<UUID, String> getUserPacks() {
+        return userPackMap;
+    }
+
+    /**
      * Clear the resourcepack of a user
      * @param playerid The UUID of this player
      * @return The resourcepack the player had selected previous, null if he had none before

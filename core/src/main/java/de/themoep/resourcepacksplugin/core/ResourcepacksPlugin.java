@@ -155,8 +155,18 @@ public interface ResourcepacksPlugin {
 
     Level getLogLevel();
 
+    /**
+     * Get an online player by its UUID
+     * @param playerId The player ID
+     * @return The ResourcepacksPlayer
+     */
     ResourcepacksPlayer getPlayer(UUID playerId);
 
+    /**
+     * Get an online player by its name
+     * @param playerName The player name
+     * @return The ResourcepacksPlayer
+     */
     ResourcepacksPlayer getPlayer(String playerName);
 
     /**
