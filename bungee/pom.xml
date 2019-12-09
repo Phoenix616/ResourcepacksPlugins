@@ -55,6 +55,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>minedown</artifactId>
+            <version>${minedown.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>net.minecrell.mcstats</groupId>
             <artifactId>statslite-bungee</artifactId>
             <version>0.2.2</version>
@@ -111,6 +117,10 @@
                         <relocation>
                             <pattern>de.themoep.utils.lang</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bungee.libs.lang</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>de.themoep.minedown</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.bungee.libs.minedown</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

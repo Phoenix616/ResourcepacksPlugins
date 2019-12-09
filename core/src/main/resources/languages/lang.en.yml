@@ -50,7 +50,7 @@ command:
     success: "&aYou now use the pack %pack%!"
     pack-list:
       head: "&aPacks available to you:"
-      entry: "&e%selected%%pack%%optional-format%"
+      entry: "[&e%selected%%pack%](/usepack %pack%)%optional-format%"
       optional-format: "&7 (Format: %format%)"
       selected: ">"
     no-packs: "&cNo packs found!"

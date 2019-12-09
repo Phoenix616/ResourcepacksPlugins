@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.bungee;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.themoep.bungeeplugin.FileConfiguration;
+import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
@@ -43,6 +44,7 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bungee.LanguageManager;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -667,6 +669,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+        return TextComponent.toLegacyText(getComponents(sender, key, replacements));
+    }
+
+    @Override
+    public BaseComponent[] getComponents(ResourcepacksPlayer sender, String key, String... replacements) {
         if (lm != null) {
             ProxiedPlayer player = null;
             if (sender != null) {
@@ -674,12 +681,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
             LanguageConfig config = lm.getConfig(player);
             if (config != null) {
-                return config.get(key, replacements);
+                return MineDown.parse(config.get(key), replacements);
             } else {
-                return "Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")";
+                return TextComponent.fromLegacyText("Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")");
             }
         }
-        return key;
+        return TextComponent.fromLegacyText(key);
     }
 
     @Override
@@ -731,18 +738,18 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public boolean sendMessage(ResourcepacksPlayer player, Level level, String key, String... replacements) {
-        String message = getMessage(player, key, replacements);
-        if (message.isEmpty()) {
+        BaseComponent[] message = getComponents(player, key, replacements);
+        if (message.length == 0) {
             return false;
         }
         if(player != null) {
             ProxiedPlayer proxyPlayer = getProxy().getPlayer(player.getUniqueId());
             if(proxyPlayer != null) {
-                proxyPlayer.sendMessage(TextComponent.fromLegacyText(message));
+                proxyPlayer.sendMessage(message);
                 return true;
             }
         } else {
-            log(level, message);
+            log(level, TextComponent.toLegacyText(message));
         }
         return false;
     }

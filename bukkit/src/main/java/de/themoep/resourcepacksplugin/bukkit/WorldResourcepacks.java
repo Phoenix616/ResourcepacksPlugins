@@ -42,6 +42,8 @@ import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bukkit.LanguageManager;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import fr.xephi.authme.events.LoginEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -472,6 +474,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public String getMessage(ResourcepacksPlayer sender, String key, String... replacements) {
+        return TextComponent.toLegacyText(getComponents(sender, key, replacements));
+    }
+
+    @Override
+    public BaseComponent[] getComponents(ResourcepacksPlayer sender, String key, String... replacements) {
         if (lm != null) {
             Player player = null;
             if (sender != null) {
@@ -479,12 +486,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             LanguageConfig config = lm.getConfig(player);
             if (config != null) {
-                return config.get(key, replacements);
+                return TextComponent.fromLegacyText(config.get(key, replacements));
             } else {
-                return "Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")";
+                return TextComponent.fromLegacyText("Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")");
             }
         }
-        return key;
+        return TextComponent.fromLegacyText(key);
     }
 
     @Override
@@ -532,18 +539,18 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public boolean sendMessage(ResourcepacksPlayer packPlayer, Level level, String key, String... replacements) {
-        String message = getMessage(packPlayer, key, replacements);
-        if (message.isEmpty()) {
+        BaseComponent[] message = getComponents(packPlayer, key, replacements);
+        if (message.length == 0) {
             return false;
         }
         if(packPlayer != null) {
             Player player = getServer().getPlayer(packPlayer.getUniqueId());
             if(player != null) {
-                player.sendMessage(message);
+                player.spigot().sendMessage(message);
                 return true;
             }
         } else {
-            log(level, message);
+            log(level, TextComponent.toLegacyText(message));
         }
         return false;
     }

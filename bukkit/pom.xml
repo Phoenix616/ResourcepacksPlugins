@@ -49,6 +49,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>minedown</artifactId>
+            <version>${minedown.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
             <version>1.0.0-SNAPSHOT</version>

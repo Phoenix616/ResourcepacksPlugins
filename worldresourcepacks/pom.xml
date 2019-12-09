@@ -111,6 +111,10 @@
                             <pattern>de.themoep.utils.lang</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.lang</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.themoep.minedown</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.minedown</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>

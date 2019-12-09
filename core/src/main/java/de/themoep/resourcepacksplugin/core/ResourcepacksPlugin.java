@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.core;
 
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.io.File;
 import java.util.Map;
@@ -128,6 +129,15 @@ public interface ResourcepacksPlugin {
      * @return The message or an error message if not available, never null
      */
     String getMessage(ResourcepacksPlayer sender, String key, String... replacements);
+
+    /**
+     * Get message components from the language config
+     * @param sender The sender to get the message from, will use the client language if available
+     * @param key The message key
+     * @param replacements Optional placeholder replacement array
+     * @return The components or an error message if not available, never null
+     */
+    BaseComponent[] getComponents(ResourcepacksPlayer sender, String key, String... replacements);
 
     /**
      * Check whether or not the language config contains a certain message
