@@ -50,9 +50,9 @@ command:
     success: "&aYou now use the pack %pack%!"
     pack-list:
       head: "&aPacks available to you:"
-      entry: "[&e%selected%%pack%](/usepack %pack%)%optional-format%"
+      entry: "  [&e%pack%](/usepack %pack%)%optional-format%"
+      entry-selected: "> [%pack%](/resetpack)%optional-format%"
       optional-format: "&7 (Format: %format%)"
-      selected: ">"
     no-packs: "&cNo packs found!"
   resetpack:
     player-not-online: "&cThe player &f%input%&c is not online"

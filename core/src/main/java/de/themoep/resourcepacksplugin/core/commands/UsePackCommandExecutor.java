@@ -98,13 +98,12 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
 
                 if (applicablePacks.size() > 0) {
                     for (ResourcePack pack : applicablePacks) {
-                        String selected = getMessage(sender, "pack-list.selected");
-                        sendMessage(sender, "pack-list.entry",
+                        sendMessage(sender, "pack-list.entry" + (userPack != null && userPack.equals(pack) ? "-selected" : ""),
                                 "pack", pack.getName(),
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
                                 "format", String.valueOf(pack.getFormat()),
-                                "selected", userPack != null && userPack.equals(pack) ? selected : String.join("", Collections.nCopies(selected.length(), " ")),
+                                "selected", userPack != null && userPack.equals(pack) ? ">" : " ",
                                 "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : ""
                         );
                     }
