@@ -53,7 +53,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
             new IdMapping("1.12", ProtocolConstants.MINECRAFT_1_12, 0x33),
             new IdMapping("1.12.1", ProtocolConstants.MINECRAFT_1_12_1, 0x34),
             new IdMapping("1.13", ProtocolConstants.MINECRAFT_1_13, 0x37),
-            new IdMapping("1.14", ProtocolConstants.MINECRAFT_1_14, 0x39)
+            new IdMapping("1.14", ProtocolConstants.MINECRAFT_1_14, 0x39),
+            new IdMapping("1.15", ProtocolConstants.MINECRAFT_1_15, 0x3A)
     );
 
     public ResourcePackSendPacket() {};
