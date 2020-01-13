@@ -2,4 +2,4 @@ name: ${project.name}
 main: de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks
 version: '${minecraft.plugin.version}'
 author: Phoenix616
-softdepends: [ViaVersion]
+softDepends: [ViaVersion]
