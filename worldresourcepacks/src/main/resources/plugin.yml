@@ -8,7 +8,7 @@ commands:
    wrp:
       aliases: [worldresourcepacks]
       description: Main plugin command.
-      usage: /<command> [generatehashes|reload [resend]|version]
+      usage: /<command> [addpack|pack|listassignments|assignment|deleteassignment|globalassignment|generatehashes|reload [resend]|version]
       permission: worldresourcepacks.command
       permission-message: You don't have the permission <permission>
    usepack:
