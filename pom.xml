@@ -23,7 +23,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.version>1.7</plugin.version>
+        <plugin.version>1.7.1-SNAPSHOT</plugin.version>
         <lang.version>1.2-SNAPSHOT</lang.version>
         <minedown.version>1.5-SNAPSHOT</minedown.version>
         <maven.compiler.target>1.8</maven.compiler.target>
