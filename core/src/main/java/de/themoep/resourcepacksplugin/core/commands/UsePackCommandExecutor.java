@@ -93,6 +93,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                 ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
                         .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
+                                && pack.getVersion() <= plugin.getPlayerProtocol(sender.getUniqueId())
                                 && (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())))
                         .collect(Collectors.toList());
 
@@ -103,8 +104,10 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
                                 "format", String.valueOf(pack.getFormat()),
+                                "version", String.valueOf(pack.getVersion()),
                                 "selected", userPack != null && userPack.equals(pack) ? ">" : " ",
-                                "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : ""
+                                "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : "",
+                                "optional-version", pack.getVersion() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-version", "version", String.valueOf(pack.getVersion())) : ""
                         );
                     }
                     return false;

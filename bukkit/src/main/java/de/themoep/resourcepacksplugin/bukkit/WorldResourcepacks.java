@@ -26,6 +26,7 @@ import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -79,7 +80,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private Level loglevel = Level.INFO;
 
-    private int serverPackFormat = Integer.MAX_VALUE;
+    private int serverProtocolVersion = 0;
 
     private InternalHelper internalHelper;
 
@@ -106,24 +107,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             registerCommand(new ResetPackCommandExecutor(this));
 
             String versionString = getServer().getBukkitVersion();
-            int firstPoint = versionString.indexOf(".");
-            int secondPoint = versionString.indexOf(".", firstPoint + 1);
-            int minus = versionString.indexOf("-", firstPoint + 1);
-            String versionNumberString = versionString.substring(firstPoint + 1, (secondPoint < minus && secondPoint != -1) ? secondPoint : minus);
+            int minus = versionString.indexOf("-");
+            String versionNumberString = versionString.substring(0, minus > -1 ? minus : versionString.length());
             try {
-                int serverVersion = Integer.valueOf(versionNumberString);
-                if (serverVersion >= 13) {
-                    serverPackFormat = 4;
-                } else if (serverVersion >= 11) {
-                    serverPackFormat = 3;
-                } else if (serverVersion >= 9) {
-                    serverPackFormat = 2;
-                } else if (serverVersion >= 8) {
-                    serverPackFormat = 1;
-                } else {
-                    serverPackFormat = 0;
-                }
-                getLogger().log(getLogLevel(), "Detected server packformat " + serverPackFormat + "!");
+                serverProtocolVersion = MinecraftVersion.parseVersion(versionNumberString).getProtocolNumber();
+                getLogger().log(getLogLevel(), "Detected server server protocol version " + serverProtocolVersion + "!");
             } catch(NumberFormatException e) {
                 getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
             }
@@ -225,8 +213,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
 
                 try {
+                    int mcVersion = MinecraftVersion.parseVersion(packSection.getString("version", "0")).getProtocolNumber();
                     getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, mcVersion, packRestricted, packPerm);
 
                     getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
@@ -255,11 +244,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(Level.SEVERE, "Empty pack does not have an url defined!");
             }
             String packHash = packSection.getString("hash", "");
-            int packFormat = packSection.getInt("format", 0);
 
             try {
                 getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, false);
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash);
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
@@ -365,7 +353,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             getConfig().set(path + ".url", pack.getUrl());
             getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", !isEmptyPack ? pack.getFormat() : null);
+            getConfig().set(path + ".format", !isEmptyPack && pack.getFormat() > 0 ? pack.getFormat() : null);
+            getConfig().set(path + ".version", !isEmptyPack && pack.getVersion() > 0 ? pack.getVersion() : null);
             getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
             getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
@@ -580,20 +569,20 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
-    public int getPlayerPackFormat(UUID playerId) {
+    public int getPlayerProtocol(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
         if (player != null) {
-            int format = serverPackFormat;
+            int protocol = serverProtocolVersion;
             if (viaApi != null) {
-                format = getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
+                protocol = viaApi.getPlayerVersion(playerId);
             }
-            if (protocolSupportApi && format == serverPackFormat) { // if still same format test if player is using previous version
+            if (protocolSupportApi && protocol == serverProtocolVersion) { // if still same format test if player is using previous version
                 ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
                 if (version.getProtocolType() == ProtocolType.PC) {
-                    format = getPackManager().getPackFormat(version.getId());
+                    protocol = version.getId();
                 }
             }
-            return format;
+            return protocol;
         }
         return -1;
     }

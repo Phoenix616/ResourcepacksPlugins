@@ -222,11 +222,24 @@ public interface ResourcepacksPlugin {
     boolean checkPermission(UUID playerId, String perm);
 
     /**
+     * Get the protocol version of a player
+     * @param playerId The UUID of the player
+     * @return The protocol version or -1 if the player isn't online
+     */
+    int getPlayerProtocol(UUID playerId);
+
+    /**
      * Get the format of the pack this player can maximally use
      * @param playerId The UUID of the player
-     * @return The pack format
+     * @return The pack format or -1 if the player isn't online
      */
-    int getPlayerPackFormat(UUID playerId);
+    default int getPlayerPackFormat(UUID playerId) {
+        int protocol = getPlayerProtocol(playerId);
+        if (protocol > -1) {
+            return getPackManager().getPackFormat(protocol);
+        }
+        return -1;
+    }
 
     /**
      * Call the ResourcePackSelectEvent on the corresponding server

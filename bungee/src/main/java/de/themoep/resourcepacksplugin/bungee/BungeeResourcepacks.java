@@ -29,6 +29,7 @@ import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.IdMapping;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -350,8 +351,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
 
                 try {
+                    int mcVersion = MinecraftVersion.parseVersion(packSection.getString("version", "0")).getProtocolNumber();
                     getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, packRestricted, packPerm);
+                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, mcVersion, packRestricted, packPerm);
 
                     getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
@@ -373,7 +375,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
             try {
                 getLogger().log(Level.INFO, "Empty pack - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash, 0, false);
+                ResourcePack pack = new ResourcePack(packName, packUrl, packHash);
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
@@ -466,7 +468,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
             getConfig().set(path + ".url", pack.getUrl());
             getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", !isEmptyPack ? pack.getFormat() : null);
+            getConfig().set(path + ".format", !isEmptyPack && pack.getFormat() > 0 ? pack.getFormat() : null);
+            getConfig().set(path + ".version", !isEmptyPack && pack.getVersion() > 0 ? pack.getVersion() : null);
             getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
             getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
         }
@@ -779,14 +782,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
-    public int getPlayerPackFormat(UUID playerId) {
+    public int getPlayerProtocol(UUID playerId) {
         if (viaApi != null) {
-            return getPackManager().getPackFormat(viaApi.getPlayerVersion(playerId));
+            return viaApi.getPlayerVersion(playerId);
         }
 
         ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);
         if (proxiedPlayer != null) {
-            return getPackManager().getPackFormat(proxiedPlayer.getPendingConnection().getVersion());
+            return proxiedPlayer.getPendingConnection().getVersion();
         }
         return -1;
     }

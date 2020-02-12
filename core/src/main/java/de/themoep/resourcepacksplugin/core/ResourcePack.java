@@ -32,6 +32,7 @@ public class ResourcePack {
     private String url;
     private byte[] hash;
     private int format;
+    private int version;
     private boolean restricted;
     private String permission;
 
@@ -89,6 +90,20 @@ public class ResourcePack {
      * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
      */
     public ResourcePack(String name, String url, String hash, int format, boolean restricted, String permission) {
+        this(name, url, hash, format, 0, restricted, permission);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     */
+    public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission) {
         this.name = name;
         this.url = url;
         if(hash != null && hash.length() == 40) {
@@ -97,6 +112,7 @@ public class ResourcePack {
             this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).asBytes();
         }
         this.format = format;
+        this.version = version;
         this.restricted = restricted;
         this.permission = permission;
     }
@@ -158,6 +174,26 @@ public class ResourcePack {
             return false;
         }
         this.format = format;
+        return true;
+    }
+
+    /**
+     * Get the pack Minecraft protocol version
+     * @return The Minecraft protocol version as an int
+     */
+    public int getVersion() {
+        return version;
+    }
+
+    /**
+     * Set the pack Minecraft protocol version
+     * @param version The Minecraft protocol version as an int
+     */
+    public boolean setVersion(int version) {
+        if (this.version == version) {
+            return false;
+        }
+        this.version = version;
         return true;
     }
 
@@ -252,6 +288,7 @@ public class ResourcePack {
                 "url", getUrl(),
                 "hash", getHash(),
                 "format", String.valueOf(getFormat()),
+                "version", String.valueOf(getVersion()),
                 "restricted", String.valueOf(isRestricted()),
                 "permission", getPermission()
         };

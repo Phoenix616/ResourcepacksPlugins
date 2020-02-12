@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -120,9 +121,21 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         } else if ("format".equalsIgnoreCase(args[1])) {
                             try {
                                 save = pack.setFormat(Integer.parseInt(args[2]));
-                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "format", "value", String.valueOf(pack.getFormat()));
                             } catch (NumberFormatException e) {
                                 sendMessage(sender, "invalid-input", "expected", "number", "input", args[2]);
+                            }
+                        } else if ("version".equalsIgnoreCase(args[1])) {
+                            try {
+                                save = pack.setVersion(Integer.parseInt(args[2]));
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "version", "value", String.valueOf(pack.getVersion()));
+                            } catch (NumberFormatException e) {
+                                try {
+                                    save = pack.setVersion(MinecraftVersion.parseVersion(args[2]).getProtocolNumber());
+                                    sendMessage(sender, "updated", "pack", pack.getName(), "type", "version", "value", args[2]);
+                                } catch (IllegalArgumentException e1) {
+                                    sendMessage(sender, "invalid-input", "expected", "version", "input", args[2]);
+                                }
                             }
                         } else if ("restricted".equalsIgnoreCase(args[1])) {
                             try {
