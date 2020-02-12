@@ -71,8 +71,9 @@ public enum MinecraftVersion {
      */
     public static MinecraftVersion parseVersion(String versionString) throws IllegalArgumentException {
         try {
-            MinecraftVersion version = getVersion(Integer.parseInt(versionString));
-            if (version != UNKNOWN) {
+            int parsedVersion = Integer.parseInt(versionString);
+            MinecraftVersion version = getVersion(parsedVersion);
+            if (parsedVersion == 0 || version != UNKNOWN) {
                 return version;
             }
         } catch (NumberFormatException ignored) {}
