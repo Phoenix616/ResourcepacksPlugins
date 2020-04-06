@@ -59,6 +59,7 @@ import us.myles.ViaVersion.ViaVersionPlugin;
 import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -365,14 +366,22 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         saveConfig();
     }
 
-    private void setConfigFlat(String rootKey, Map<String, Object> map) {
+    private boolean setConfigFlat(String rootKey, Map<String, Object> map) {
+        boolean isEmpty = true;
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() instanceof Map) {
-                setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
+                isEmpty &= setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
             } else {
                 getConfig().set(rootKey + "." + entry.getKey(), entry.getValue());
+                if (entry.getValue() != null && (!(entry.getValue() instanceof Collection) || !((Collection) entry.getValue()).isEmpty())) {
+                    isEmpty = false;
+                }
             }
         }
+        if (isEmpty) {
+            getConfig().set(rootKey, null);
+        }
+        return isEmpty;
     }
 
     @Override

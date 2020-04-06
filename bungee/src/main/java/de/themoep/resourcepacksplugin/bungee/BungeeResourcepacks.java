@@ -67,6 +67,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -480,14 +481,22 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         getConfig().saveConfig();
     }
 
-    private void setConfigFlat(String rootKey, Map<String, Object> map) {
+    private boolean setConfigFlat(String rootKey, Map<String, Object> map) {
+        boolean isEmpty = true;
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() instanceof Map) {
-                setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
+                isEmpty &= setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
             } else {
                 getConfig().set(rootKey + "." + entry.getKey(), entry.getValue());
+                if (entry.getValue() != null && (!(entry.getValue() instanceof Collection) || !((Collection) entry.getValue()).isEmpty())) {
+                    isEmpty = false;
+                }
             }
         }
+        if (isEmpty) {
+            getConfig().set(rootKey, null);
+        }
+        return isEmpty;
     }
 
     @Override
