@@ -77,15 +77,21 @@ public enum MinecraftVersion {
                 return version;
             }
         } catch (NumberFormatException ignored) {}
-        try {
-            String getVersion = versionString.toUpperCase().replace('.', '_');
-            if (!getVersion.startsWith("MINECRAFT_")) {
-                getVersion = "MINECRAFT_" + getVersion;
-            }
-            return valueOf(getVersion);
-        } catch (IllegalArgumentException e1) {
-            throw new IllegalArgumentException(versionString + " is not a valid MinecraftVersion definition!");
+        String getVersion = versionString.toUpperCase().replace('.', '_');
+        if (!getVersion.startsWith("MINECRAFT_")) {
+            getVersion = "MINECRAFT_" + getVersion;
         }
+        try {
+            return valueOf(getVersion);
+        } catch (IllegalArgumentException ignored) {}
+
+        for (MinecraftVersion value : values()) {
+            if (getVersion.startsWith(value.name())) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException(versionString + " is not a valid MinecraftVersion definition!");
     }
 
     /**
