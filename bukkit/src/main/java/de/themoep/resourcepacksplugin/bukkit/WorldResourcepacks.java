@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.bukkit;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
@@ -475,7 +476,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             LanguageConfig config = lm.getConfig(player);
             if (config != null) {
-                return TextComponent.fromLegacyText(config.get(key, replacements));
+                return MineDown.parse(config.get(key, replacements));
             } else {
                 return TextComponent.fromLegacyText("Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")");
             }
