@@ -735,8 +735,17 @@ public class PackManager {
         }
         if (pack != null && !pack.equals(prev)) {
             plugin.getUserManager().setUserPack(playerId, pack);
-            plugin.sendPack(playerId, pack);
-            return true;
+            if (pack.getVariants().isEmpty()) {
+                plugin.sendPack(playerId, pack);
+                return true;
+            } else {
+                for (ResourcePack variant : pack.getVariants()) {
+                    if (checkPack(playerId, variant, IResourcePackSelectEvent.Status.UNKNOWN) == IResourcePackSelectEvent.Status.SUCCESS) {
+                        plugin.sendPack(playerId, variant);
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
