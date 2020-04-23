@@ -202,35 +202,15 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             ConfigurationSection packs = getConfig().getConfigurationSection("packs");
             for (String s : packs.getKeys(false)) {
                 ConfigurationSection packSection = packs.getConfigurationSection(s);
-                String packName = s.toLowerCase();
-                String packUrl = packSection.getString("url", "");
-                if (packUrl.isEmpty()) {
-                    getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
-                    continue;
-                }
-                String packHash = packSection.getString("hash", "");
-                int packFormat = packSection.getInt("format", 0);
-                boolean packRestricted = packSection.getBoolean("restricted", false);
-                String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
-
                 try {
-                    int mcVersion = MinecraftVersion.parseVersion(packSection.getString("version", "0")).getProtocolNumber();
-                    getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, mcVersion, packRestricted, packPerm);
+                    ResourcePack pack = getPackManager().loadPack(s.toLowerCase(), getConfigMap(packSection));
+                    getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                     getPackManager().addPack(pack);
+
+                    registerPackPermission(pack);
                 } catch (IllegalArgumentException e) {
                     getLogger().log(Level.SEVERE, e.getMessage());
-                    continue;
-                }
-
-                if (getServer().getPluginManager().getPermission(packPerm) == null) {
-                    Permission perm = new Permission(packPerm);
-                    perm.setDefault(PermissionDefault.OP);
-                    perm.setDescription("Permission for access to the resourcepack " + packName + " via the usepack command.");
-                    try {
-                        getServer().getPluginManager().addPermission(perm);
-                    } catch (IllegalArgumentException ignored) {} // Permission already registered
                 }
             }
         } else {
@@ -239,16 +219,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         if (getConfig().isConfigurationSection("empty")) {
             ConfigurationSection packSection = getConfig().getConfigurationSection("empty");
-            String packName = PackManager.EMPTY_IDENTIFIER;
-            String packUrl = packSection.getString("url", "");
-            if (packUrl.isEmpty()) {
-                getLogger().log(Level.SEVERE, "Empty pack does not have an url defined!");
-            }
-            String packHash = packSection.getString("hash", "");
-
             try {
-                getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash);
+                ResourcePack pack = getPackManager().loadPack(PackManager.EMPTY_IDENTIFIER, getConfigMap(packSection));
+                getLogger().log(Level.INFO, "Empty pack - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
@@ -315,6 +288,30 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return true;
     }
 
+    private void registerPackPermission(ResourcePack pack) {
+        if (getServer().getPluginManager().getPermission(pack.getPermission()) == null) {
+            Permission perm = new Permission(pack.getPermission());
+            perm.setDefault(PermissionDefault.OP);
+            perm.setDescription("Permission for access to the resourcepack " + pack.getName() + " via the usepack command and automatic sending.");
+            try {
+                getServer().getPluginManager().addPermission(perm);
+            } catch (IllegalArgumentException ignored) {} // Permission already registered
+        }
+        for (ResourcePack variant : pack.getVariants()) {
+            registerPackPermission(variant);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getConfigMap(Object configuration) {
+        if (configuration instanceof Map) {
+            return (Map<String, Object>) configuration;
+        } else if (configuration instanceof ConfigurationSection) {
+            return getValues((ConfigurationSection) configuration);
+        }
+        return null;
+    }
+
     private Map<String, Object> getValues(ConfigurationSection config) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String key : config.getKeys(false)) {
@@ -347,17 +344,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     public void saveConfigChanges() {
         for (ResourcePack pack : getPackManager().getPacks()) {
-            boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
-            if (isEmptyPack && getConfig().isConfigurationSection("empty")) {
+            if (pack.equals(getPackManager().getEmptyPack()) && getConfig().isConfigurationSection("empty")) {
                 path = "empty";
             }
-            getConfig().set(path + ".url", pack.getUrl());
-            getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", !isEmptyPack && pack.getFormat() > 0 ? pack.getFormat() : null);
-            getConfig().set(path + ".version", !isEmptyPack && pack.getVersion() > 0 ? pack.getVersion() : null);
-            getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
-            getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
+            setConfigFlat(path, pack.serialize());
         }
         setConfigFlat(getPackManager().getGlobalAssignment().getName(), getPackManager().getGlobalAssignment().serialize());
         for (PackAssignment assignment : getPackManager().getAssignments()) {

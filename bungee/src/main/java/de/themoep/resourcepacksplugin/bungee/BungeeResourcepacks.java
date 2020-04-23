@@ -29,7 +29,6 @@ import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.IdMapping;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
-import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -339,22 +338,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             Configuration packs = getConfig().getSection("packs");
             for (String s : packs.getKeys()) {
                 Configuration packSection = packs.getSection(s);
-
-                String packName = s.toLowerCase();
-                String packUrl = packSection.getString("url", "");
-                if (packUrl.isEmpty()) {
-                    getLogger().log(Level.SEVERE, "Pack " + packName + " does not have an url defined!");
-                    continue;
-                }
-                String packHash = packSection.getString("hash", "");
-                int packFormat = packSection.getInt("format", 0);
-                boolean packRestricted = packSection.getBoolean("restricted", false);
-                String packPerm = packSection.getString("permission", getName().toLowerCase() + ".pack." + packName);
-
                 try {
-                    int mcVersion = MinecraftVersion.parseVersion(packSection.getString("version", "0")).getProtocolNumber();
-                    getLogger().log(Level.INFO, packName + " - " + packUrl + " - " + packHash.toLowerCase());
-                    ResourcePack pack = new ResourcePack(packName, packUrl, packHash, packFormat, mcVersion, packRestricted, packPerm);
+                    ResourcePack pack = getPackManager().loadPack(s.toLowerCase(), getConfigMap(packSection));
+                    getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                     getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
@@ -367,16 +353,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         if (getConfig().isSection("empty")) {
             Configuration packSection = getConfig().getSection("empty");
-            String packName = PackManager.EMPTY_IDENTIFIER;
-            String packUrl = packSection.getString("url", "");
-            if (packUrl.isEmpty()) {
-                getLogger().log(Level.SEVERE, "Empty pack does not have an url defined!");
-            }
-            String packHash = packSection.getString("hash", "");
-
             try {
-                getLogger().log(Level.INFO, "Empty pack - " + packUrl + " - " + packHash.toLowerCase());
-                ResourcePack pack = new ResourcePack(packName, packUrl, packHash);
+                ResourcePack pack = getPackManager().loadPack(PackManager.EMPTY_IDENTIFIER, getConfigMap(packSection));
+                getLogger().log(Level.INFO, "Empty pack - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
@@ -431,6 +410,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return true;
     }
 
+    @Override
+    public Map<String, Object> getConfigMap(Object configuration) {
+        if (configuration instanceof Map) {
+            return (Map<String, Object>) configuration;
+        } else if (configuration instanceof Configuration) {
+            return getValues((Configuration) configuration);
+        }
+        return null;
+    }
+
     private Map<String, Object> getValues(Configuration config) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String key : config.getKeys()) {
@@ -462,17 +451,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void saveConfigChanges() {
         for (ResourcePack pack : getPackManager().getPacks()) {
-            boolean isEmptyPack = pack.equals(getPackManager().getEmptyPack());
             String path = "packs." + pack.getName();
-            if (isEmptyPack && getConfig().isSection("empty")) {
+            if (pack.equals(getPackManager().getEmptyPack()) && getConfig().isSection("empty")) {
                 path = "empty";
             }
-            getConfig().set(path + ".url", pack.getUrl());
-            getConfig().set(path + ".hash", pack.getHash());
-            getConfig().set(path + ".format", !isEmptyPack && pack.getFormat() > 0 ? pack.getFormat() : null);
-            getConfig().set(path + ".version", !isEmptyPack && pack.getVersion() > 0 ? pack.getVersion() : null);
-            getConfig().set(path + ".restricted", !isEmptyPack ? pack.isRestricted() : null);
-            getConfig().set(path + ".permission",!isEmptyPack ? pack.getPermission() : null);
+            setConfigFlat(path, pack.serialize());
         }
         setConfigFlat(getPackManager().getGlobalAssignment().getName(), getPackManager().getGlobalAssignment().serialize());
         for (PackAssignment assignment : getPackManager().getAssignments()) {

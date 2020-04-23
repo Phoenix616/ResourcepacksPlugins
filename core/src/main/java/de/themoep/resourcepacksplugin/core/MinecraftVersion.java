@@ -112,6 +112,23 @@ public enum MinecraftVersion {
         return UNKNOWN;
     }
 
+    /**
+     * Gets the Minecraft version that matches the protocol version exactly
+     * @param protocolVersion The protocol version
+     * @return The Minecraft version or null if not known
+     */
+    public static MinecraftVersion getExactVersion(int protocolVersion) {
+        return numbers.get(protocolVersion);
+    }
+
+    /**
+     * Get the human readable config string for this version which can be parsed by parseVersion
+     * @return The human readable config string
+     */
+    public String toConfigString() {
+        return name().toLowerCase().substring("MINECRAFT_".length()).replace('_', '.');
+    }
+
     public int getProtocolNumber() {
         return number;
     }

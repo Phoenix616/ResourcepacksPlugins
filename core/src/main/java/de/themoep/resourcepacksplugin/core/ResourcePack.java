@@ -22,7 +22,11 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Phoenix616 on 25.03.2015.
@@ -30,11 +34,13 @@ import java.util.Arrays;
 public class ResourcePack {
     private String name;
     private String url;
-    private byte[] hash;
+    private byte[] hash = new byte[0];
     private int format;
     private int version;
     private boolean restricted;
     private String permission;
+
+    private List<ResourcePack> variants = new ArrayList<>();
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
@@ -106,10 +112,12 @@ public class ResourcePack {
     public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission) {
         this.name = name;
         this.url = url;
-        if(hash != null && hash.length() == 40) {
-            setHash(hash);
-        } else {
-            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).asBytes();
+        if (hash != null && !hash.isEmpty()) {
+            if (hash.length() == 40) {
+                setHash(hash);
+            } else {
+                this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).asBytes();
+            }
         }
         this.format = format;
         this.version = version;
@@ -239,6 +247,14 @@ public class ResourcePack {
         return true;
     }
 
+    /**
+     * Get a list of different pack variants. Used to get, add and remove variants.
+     * @return The list of pack variants
+     */
+    public List<ResourcePack> getVariants() {
+        return variants;
+    }
+
     public boolean equals(Object o) {
         if (o == null) {
             return false;
@@ -290,7 +306,42 @@ public class ResourcePack {
                 "format", String.valueOf(getFormat()),
                 "version", String.valueOf(getVersion()),
                 "restricted", String.valueOf(isRestricted()),
-                "permission", getPermission()
+                "permission", getPermission(),
+                "variants", String.valueOf(getVariants().size())
         };
+    }
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        map.put("url", url.isEmpty() ? null : url);
+        map.put("hash", hash.length == 0 ? null : getHash());
+        if (name.equalsIgnoreCase(PackManager.EMPTY_IDENTIFIER)) {
+            map.put("format", null);
+            map.put("version", null);
+            map.put("restricted", null);
+            map.put("permission", null);
+        } else {
+            map.put("format", format > 0 ? format : null);
+            if (version > 0) {
+                MinecraftVersion mcVersion = MinecraftVersion.getExactVersion(version);
+                map.put("version", mcVersion != null ? mcVersion.toConfigString() : version);
+            } else {
+                map.put("version", null);
+            }
+            map.put("restricted", restricted);
+            map.put("permission", permission);
+        }
+        if (variants.isEmpty()) {
+            map.put("variants", null);
+        } else {
+            List<Map<String, Object>> variantsList = new ArrayList<>();
+            for (ResourcePack packVariant : variants) {
+                variantsList.add(packVariant.serialize());
+            }
+            map.put("variants", variantsList);
+        }
+
+        return map;
     }
 }

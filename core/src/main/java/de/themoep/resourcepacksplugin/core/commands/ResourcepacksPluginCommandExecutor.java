@@ -105,7 +105,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
 
                         boolean save = false;
                         if (args.length == 1) {
-                            sendMessage(sender, "info", pack.getReplacements());
+                            sendPackInfo(sender, pack);
                             return false;
                         } else if (args.length == 2) {
                             return false;
@@ -153,6 +153,17 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         }
 
                         return true;
+                    }
+
+                    private void sendPackInfo(ResourcepacksPlayer sender, ResourcePack pack) {
+                        if (pack.getVariants().isEmpty()) {
+                            sendMessage(sender, "info", pack.getReplacements());
+                        } else {
+                            sendMessage(sender, "info-variants", pack.getReplacements());
+                            for (ResourcePack variant : pack.getVariants()) {
+                                sendPackInfo(sender, variant);
+                            }
+                        }
                     }
                 },
                 new PluginCommandExecutor(plugin, this, "listassignments", null, "assignments") {

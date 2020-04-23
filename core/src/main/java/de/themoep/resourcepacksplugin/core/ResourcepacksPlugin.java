@@ -52,6 +52,13 @@ public interface ResourcepacksPlugin {
     boolean loadConfig();
 
     /**
+     * Convert a configuration object to a map
+     * @param configuration The configuration object
+     * @return The configuration map or null if input was null or is not supported
+     */
+    Map<String, Object> getConfigMap(Object configuration);
+
+    /**
      * Reloads the configuration from the file and resend the resource pack to all online players
      * @param resend Whether or not all players should get their applicable pack resend
      */

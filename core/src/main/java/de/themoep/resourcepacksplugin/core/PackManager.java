@@ -112,6 +112,46 @@ public class PackManager {
     }
 
     /**
+     * Creates a new ResourcePack instance from a config. Does not add it!
+     * @param name      The name of the pack
+     * @param config
+     * @return
+     */
+    public ResourcePack loadPack(String name, Map<String, Object> config) throws IllegalArgumentException {
+        if (config == null) {
+            throw new IllegalArgumentException("Pack " + name + " had a null config?");
+        }
+        String url = get(config, "url", "");
+        List<?> variantsList = get(config, "variants", new ArrayList<ResourcePack>());
+        if (url.isEmpty() && variantsList.isEmpty()) {
+            throw new IllegalArgumentException("Pack " + name + " does not have an url defined!");
+        }
+        String hash = get(config, "hash", "");
+
+        int format = get(config, "format", 0);
+        int mcVersion = MinecraftVersion.parseVersion(get(config , "version", String.valueOf(get(config, "version", 0)))).getProtocolNumber();
+
+        boolean restricted = get(config, "restricted", false);
+        String perm = get(config, "permission", plugin.getName().toLowerCase() + ".pack." + name);
+
+        ResourcePack pack = new ResourcePack(name, url, hash, format, mcVersion, restricted, perm);
+
+        for (int i = 0; i < variantsList.size(); i++) {
+            pack.getVariants().add(loadPack(name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));
+        }
+
+        return pack;
+    }
+
+    private static <T> T get(Map<String, Object> config, String path, T def) {
+        Object o = config.getOrDefault(path, def);
+        if (o != null && def != null && def.getClass().isAssignableFrom(o.getClass())) {
+            return (T) o;
+        }
+        return def;
+    }
+
+    /**
      * Registers a new resource pack with the packmanager
      * @param pack The resourcepack to register
      * @return If a pack with that name was known before it returns the past pack, null if none was known
@@ -722,6 +762,7 @@ public class PackManager {
             return prev;
         }
 
+        String matchReason = " due to ";
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
@@ -731,41 +772,61 @@ public class PackManager {
             }
             ResourcePack serverPack = getByName(assignment.getPack());
             status = checkPack(playerId, serverPack, status);
-            if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+            matchReason = assignment.getName() + matchReason;
+            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = serverPack;
-                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
-            } else if(prev != null || serverPack != null){
+                matchReason += "main pack";
+            } else if (prev != null || serverPack != null) {
                 for(String secondaryName : assignment.getSecondaries()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
-                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                    if (status == IResourcePackSelectEvent.Status.SUCCESS) {
                         pack = secondaryPack;
-                        plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
-                        break;
-                    }
-                }
-            }
-        }
-        if(pack == null) {
-            ResourcePack globalPack = getByName(getGlobalAssignment().getPack());
-            status = checkPack(playerId, globalPack, status);
-            if(status == IResourcePackSelectEvent.Status.SUCCESS) {
-                pack = globalPack;
-                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
-            } else if(prev != null || globalPack != null){
-                for (String secondaryName : getGlobalAssignment().getSecondaries()) {
-                    ResourcePack secondaryPack = getByName(secondaryName);
-                    status = checkPack(playerId, secondaryPack, status);
-                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
-                        plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
-                        pack = secondaryPack;
+                        matchReason += "secondary pack";
                         break;
                     }
                 }
             }
         }
 
-        if(pack != null) {
+        if (pack == null) {
+            ResourcePack globalPack = getByName(getGlobalAssignment().getPack());
+            status = checkPack(playerId, globalPack, status);
+            matchReason = "global due to ";
+            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                pack = globalPack;
+                matchReason += "main pack";
+            } else if (prev != null || globalPack != null){
+                for (String secondaryName : getGlobalAssignment().getSecondaries()) {
+                    ResourcePack secondaryPack = getByName(secondaryName);
+                    status = checkPack(playerId, secondaryPack, status);
+                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                        pack = secondaryPack;
+                        matchReason += "secondary pack";
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (pack != null && !pack.getVariants().isEmpty()) {
+                status = IResourcePackSelectEvent.Status.UNKNOWN;
+                for (ResourcePack variant : pack.getVariants()) {
+                    status = checkPack(playerId, variant, status);
+                    if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                        pack = variant;
+                        matchReason += " variant";
+                        break;
+                    }
+                }
+            }
+            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + matchReason);
+            }
+        }
+
+        if (pack != null && !pack.getUrl().isEmpty() && pack.getRawHash().length > 0) {
             status = IResourcePackSelectEvent.Status.SUCCESS;
         }
 

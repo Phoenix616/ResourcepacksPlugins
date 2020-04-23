@@ -21,6 +21,14 @@ command:
       &eVersion: &f%version%
       &eRestricted: &f%restricted%
       &ePermission: &f%permission%
+      &eVariants: &f%variants%
+    info-variants: |-
+      &7----- &ePack &f%name%&e Info: &7-----
+      &eFormat: &f%format%
+      &eVersion: &f%version%
+      &eRestricted: &f%restricted%
+      &ePermission: &f%permission%
+      &e%variants% Variants:
   assignment:
     new-assignment: "&cNo assignment with the name &e%input%&c found! Creating new one!"
     updated: "&eSet &f%type%&e of assignment &f%assignment%&e to &f%value%"
