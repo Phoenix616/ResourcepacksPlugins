@@ -170,7 +170,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             return false;
                         }
 
-                        PackAssignment assignment = plugin.getPackManager().getAssignment(args[0]);
+                        PackAssignment assignment = plugin.getPackManager().getAssignmentByName(args[0]);
                         if (assignment == null) {
                             sendMessage(sender, "unknown-assignment", "input", args[0]);
                             return false;
