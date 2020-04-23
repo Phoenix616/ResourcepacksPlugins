@@ -158,17 +158,38 @@ public class PackManager {
      * @throws IllegalArgumentException when there already is a pack with the same url or hash but not name defined
      */
     public ResourcePack addPack(ResourcePack pack) throws IllegalArgumentException {
-        ResourcePack byHash = getByHash(pack.getHash());
-        if (byHash != null && !byHash.getName().equalsIgnoreCase(pack.getName())) {
-            throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
+        if (pack.getVariants().isEmpty()) {
+            ResourcePack byHash = getByHash(pack.getHash());
+            if (byHash != null && !byHash.getName().equalsIgnoreCase(pack.getName())) {
+                throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
+            }
+            if (pack.getUrl() != null && pack.getUrl().isEmpty()) {
+                ResourcePack byUrl = getByUrl(pack.getUrl());
+                if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
+                    throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
+                }
+                packUrls.put(pack.getUrl(), pack);
+            }
+            if (pack.getHash().length() > 0) {
+                packHashes.put(pack.getHash(), pack);
+            }
+        } else {
+            for (ResourcePack variant : pack.getVariants()) {
+                cacheVariant(variant, pack);
+            }
         }
-        ResourcePack byUrl = getByUrl(pack.getUrl());
-        if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
-            throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
-        }
-        packHashes.put(pack.getHash(), pack);
-        packUrls.put(pack.getUrl(), pack);
         return packNames.put(pack.getName().toLowerCase(), pack);
+    }
+
+    private void cacheVariant(ResourcePack variant, ResourcePack pack) {
+        if (variant.getVariants().isEmpty()) {
+            packUrls.putIfAbsent(variant.getUrl(), pack);
+            packHashes.putIfAbsent(variant.getHash(), pack);
+        } else {
+            for (ResourcePack variantVariant : variant.getVariants()) {
+                cacheVariant(variantVariant, pack);
+            }
+        }
     }
 
     /**
