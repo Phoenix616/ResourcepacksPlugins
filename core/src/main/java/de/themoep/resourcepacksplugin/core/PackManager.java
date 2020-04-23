@@ -845,7 +845,6 @@ public class PackManager {
                 for (ResourcePack variant : pack.getVariants()) {
                     status = checkPack(playerId, variant, status);
                     if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                        pack = variant;
                         matchReason += " variant";
                         break;
                     }
