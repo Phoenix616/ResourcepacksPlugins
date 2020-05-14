@@ -914,12 +914,12 @@ public class PackManager {
                     continue;
                 }
                 if (pack.getVariants().isEmpty()) {
-                    if (generateHash(sender, pack, true)) {
+                    if (generateHash(sender, pack, pack)) {
                         changed++;
                     }
                 } else {
                     for (ResourcePack packVariant : pack.getVariants()) {
-                        if (generateHash(sender, packVariant, false)) {
+                        if (generateHash(sender, packVariant, pack)) {
                             changed++;
                         }
                     }
@@ -935,7 +935,7 @@ public class PackManager {
         });
     }
 
-    private boolean generateHash(ResourcepacksPlayer sender, ResourcePack pack, boolean addToMap) {
+    private boolean generateHash(ResourcepacksPlayer sender, ResourcePack pack, ResourcePack packToCache) {
         boolean changed = false;
         Path target = new File(plugin.getDataFolder(), pack.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_") + "-downloaded.zip").toPath();
         InputStream in = null;
@@ -953,13 +953,9 @@ public class PackManager {
 
             byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
             if (!Arrays.equals(pack.getRawHash(), hash)) {
-                if (addToMap) {
-                    packHashes.remove(pack.getHash());
-                }
+                packHashes.remove(pack.getHash());
                 pack.setRawHash(hash);
-                if (addToMap) {
-                    packHashes.put(pack.getHash(), pack);
-                }
+                packHashes.put(pack.getHash(), packToCache);
                 changed = true;
             }
             plugin.sendMessage(sender, "generate-hashes.hash-sum",
