@@ -913,59 +913,14 @@ public class PackManager {
                 if (pack.getName().startsWith("backend-")) {
                     continue;
                 }
-                Path target = new File(plugin.getDataFolder(), pack.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_") + "-downloaded.zip").toPath();
-                InputStream in = null;
-                try {
-                    URL url = new URL(pack.getUrl());
-                    plugin.sendMessage(sender, "generate-hashes.downloading",
-                            "pack", pack.getName(),
-                            "url", pack.getUrl(),
-                            "hash", pack.getHash()
-                    );
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestProperty("User-Agent", plugin.getName() + "/" + plugin.getVersion());
-                    in = con.getInputStream();
-                    Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-
-                    byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
-                    if (!Arrays.equals(pack.getRawHash(), hash)) {
-                        packHashes.remove(pack.getHash());
-                        pack.setRawHash(hash);
-                        packHashes.put(pack.getHash(), pack);
+                if (pack.getVariants().isEmpty()) {
+                    if (generateHash(sender, pack, true)) {
                         changed++;
                     }
-                    plugin.sendMessage(sender, "generate-hashes.hash-sum",
-                            "pack", pack.getName(),
-                            "url", pack.getUrl(),
-                            "hash", pack.getHash()
-                    );
-                    Files.deleteIfExists(target);
-                } catch (MalformedURLException e) {
-                    plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.invalid-url",
-                            "pack", pack.getName(),
-                            "url", pack.getUrl(),
-                            "hash", pack.getHash(),
-                            "error", e.getMessage()
-                    );
-                } catch (IOException e) {
-                    plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
-                            "pack", pack.getName(),
-                            "url", pack.getUrl(),
-                            "hash", pack.getHash(),
-                            "error", e.getMessage()
-                    );
-                } finally {
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
-                                    "pack", pack.getName(),
-                                    "url", pack.getUrl(),
-                                    "hash", pack.getHash(),
-                                    "error", e.getMessage()
-                            );
-                            e.printStackTrace();
+                } else {
+                    for (ResourcePack packVariant : pack.getVariants()) {
+                        if (generateHash(sender, packVariant, false)) {
+                            changed++;
                         }
                     }
                 }
@@ -978,6 +933,71 @@ public class PackManager {
                 plugin.sendMessage(sender, "generate-hashes.none-changed");
             }
         });
+    }
+
+    private boolean generateHash(ResourcepacksPlayer sender, ResourcePack pack, boolean addToMap) {
+        boolean changed = false;
+        Path target = new File(plugin.getDataFolder(), pack.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_") + "-downloaded.zip").toPath();
+        InputStream in = null;
+        try {
+            URL url = new URL(pack.getUrl());
+            plugin.sendMessage(sender, "generate-hashes.downloading",
+                    "pack", pack.getName(),
+                    "url", pack.getUrl(),
+                    "hash", pack.getHash()
+            );
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestProperty("User-Agent", plugin.getName() + "/" + plugin.getVersion());
+            in = con.getInputStream();
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+
+            byte[] hash = Hashing.sha1().hashBytes(Files.readAllBytes(target)).asBytes();
+            if (!Arrays.equals(pack.getRawHash(), hash)) {
+                if (addToMap) {
+                    packHashes.remove(pack.getHash());
+                }
+                pack.setRawHash(hash);
+                if (addToMap) {
+                    packHashes.put(pack.getHash(), pack);
+                }
+                changed = true;
+            }
+            plugin.sendMessage(sender, "generate-hashes.hash-sum",
+                    "pack", pack.getName(),
+                    "url", pack.getUrl(),
+                    "hash", pack.getHash()
+            );
+            Files.deleteIfExists(target);
+        } catch (MalformedURLException e) {
+            plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.invalid-url",
+                    "pack", pack.getName(),
+                    "url", pack.getUrl(),
+                    "hash", pack.getHash(),
+                    "error", e.getMessage()
+            );
+        } catch (IOException e) {
+            plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
+                    "pack", pack.getName(),
+                    "url", pack.getUrl(),
+                    "hash", pack.getHash(),
+                    "error", e.getMessage()
+            );
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
+                            "pack", pack.getName(),
+                            "url", pack.getUrl(),
+                            "hash", pack.getHash(),
+                            "error", e.getMessage()
+                    );
+                    e.printStackTrace();
+                }
+            }
+        }
+        return changed;
     }
 
     /**
