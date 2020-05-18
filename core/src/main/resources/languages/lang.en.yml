@@ -53,7 +53,7 @@ command:
     invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
     player-not-online: "&cThe player &f%input%&c is not online"
     already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"
-    usepack: "&cYou don't have the permission &f%permission%%c to set the restricted pack '&f%pack%&c'!"
+    restricted: "&cYou don't have the permission &f%permission%%c to set the restricted pack '&f%pack%&c'!"
     unknown-pack: "&cError: There is no pack with the name '&f%input%&c'!"
     success-other: "&f%player% &anow uses the pack '&f%pack%&a'!"
     success: "&aYou now use the pack %pack%!"
