@@ -34,8 +34,16 @@ packs:
    # the default bungeeresourcepacks.pack.<packname> permission!
     permission: bungeeresourcepacks.pack.lobbypack
   gamepack:
-    url: http://example.com/minigameresourcepack.zip
-    hash: 012345678abcdef012345678abcdef012345678a
+    # Set different variants e.g. for different versions or permissions
+    # This list supports all normal pack settings and is checked top to bottom.
+    # The first one that matches the player will be used.
+    variants:
+    - url: http://example.com/minigameresourcepack_1_15.zip
+      hash: 012345678abcdef012345678abcdef012345678a
+      version: '1.15'
+    - url: http://example.com/minigameresourcepack_1_12.zip
+      hash: 012345678abcdef01234567dddcdef012345678a
+      version: '1.12'
 # Empty pack to reset the pack to the default one
 empty:
   url: http://cdn.moep.tv/files/Empty.zip
