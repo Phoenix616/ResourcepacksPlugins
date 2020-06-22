@@ -33,6 +33,9 @@ packs:
    # If you want you can define a specific permission for this pack if you don't want
    # the default bungeeresourcepacks.pack.<packname> permission!
     permission: bungeeresourcepacks.pack.lobbypack
+  globalpack:
+    url: http://example.com/globalpack.zip
+    hash: abcdef012345678abcdef012345678abcdef0123
   gamepack:
     # Set different variants e.g. for different versions or permissions
     # This list supports all normal pack settings and is checked top to bottom.
@@ -49,13 +52,15 @@ empty:
   url: http://cdn.moep.tv/files/Empty.zip
   hash: 01517226212d27586ea0c5d6aff1aa5492dd2484
 global:
+  # Define a global pack:
+  pack: globalpack
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
   # the pack if the user has a non secondary one
   # Also this list will be used to select a pack if a user does not have the permission
   # or the right version to use that pack. (From top to bottom)
-  # secondary:
-  # - lobbypack
+  secondary:
+  - lobbypack
   # Delay in ticks before sending the pack to a player after he logs in/switches to the server
   send-delay: 20
 servers:
