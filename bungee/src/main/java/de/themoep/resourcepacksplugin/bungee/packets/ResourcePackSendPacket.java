@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.bungee.packets;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,7 +31,6 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
@@ -48,13 +48,14 @@ public class ResourcePackSendPacket extends DefinedPacket {
     private String hash;
 
     public final static List<IdMapping> ID_MAPPINGS = Arrays.asList(
-            new IdMapping("1.8", ProtocolConstants.MINECRAFT_1_8, 0x48),
-            new IdMapping("1.9", ProtocolConstants.MINECRAFT_1_9, 0x32),
-            new IdMapping("1.12", ProtocolConstants.MINECRAFT_1_12, 0x33),
-            new IdMapping("1.12.1", ProtocolConstants.MINECRAFT_1_12_1, 0x34),
-            new IdMapping("1.13", ProtocolConstants.MINECRAFT_1_13, 0x37),
-            new IdMapping("1.14", ProtocolConstants.MINECRAFT_1_14, 0x39),
-            new IdMapping("1.15", ProtocolConstants.MINECRAFT_1_15, 0x3A)
+            new IdMapping("1.8", MinecraftVersion.MINECRAFT_1_8.getProtocolNumber(), 0x48),
+            new IdMapping("1.9", MinecraftVersion.MINECRAFT_1_9.getProtocolNumber(), 0x32),
+            new IdMapping("1.12", MinecraftVersion.MINECRAFT_1_12.getProtocolNumber(), 0x33),
+            new IdMapping("1.12.1", MinecraftVersion.MINECRAFT_1_12_1.getProtocolNumber(), 0x34),
+            new IdMapping("1.13", MinecraftVersion.MINECRAFT_1_13.getProtocolNumber(), 0x37),
+            new IdMapping("1.14", MinecraftVersion.MINECRAFT_1_14.getProtocolNumber(), 0x39),
+            new IdMapping("1.15", MinecraftVersion.MINECRAFT_1_15.getProtocolNumber(), 0x3A),
+            new IdMapping("1.16", MinecraftVersion.MINECRAFT_1_16.getProtocolNumber(), 0x39)
     );
 
     public ResourcePackSendPacket() {};
