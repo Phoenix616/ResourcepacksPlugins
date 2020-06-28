@@ -39,7 +39,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                     @Override
                     public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (plugin.isEnabled()) {
-                            boolean resend = args.length > 1 && "resend".equalsIgnoreCase(args[1]);
+                            boolean resend = args.length > 0 && "resend".equalsIgnoreCase(args[0]);
                             plugin.reloadConfig(resend);
                             plugin.sendMessage(sender, "command.reloaded",
                                     "plugin", plugin.getName(),
