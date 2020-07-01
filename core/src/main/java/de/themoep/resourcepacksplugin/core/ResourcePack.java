@@ -83,7 +83,7 @@ public class ResourcePack {
      * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
      */
     public ResourcePack(String name, String url, String hash, int format, boolean restricted) {
-        this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name);
+        this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name.toLowerCase());
     }
 
     /**

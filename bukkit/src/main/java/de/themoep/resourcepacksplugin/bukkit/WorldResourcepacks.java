@@ -204,10 +204,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             for (String s : packs.getKeys(false)) {
                 ConfigurationSection packSection = packs.getConfigurationSection(s);
                 try {
-                    ResourcePack pack = getPackManager().loadPack(s.toLowerCase(), getConfigMap(packSection));
+                    ResourcePack pack = getPackManager().loadPack(s, getConfigMap(packSection));
                     getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
-                    getPackManager().addPack(pack);
+                    ResourcePack previous = getPackManager().addPack(pack);
+                    if (previous != null) {
+                        getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
+                    }
 
                     registerPackPermission(pack);
                 } catch (IllegalArgumentException e) {
