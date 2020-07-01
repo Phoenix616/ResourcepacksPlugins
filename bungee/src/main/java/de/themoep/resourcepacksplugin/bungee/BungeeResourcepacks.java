@@ -717,7 +717,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public void logDebug(String message, Throwable throwable) {
-        logDebug("[DEBUG] " + message, throwable);
+        getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
     }
 
     @Override

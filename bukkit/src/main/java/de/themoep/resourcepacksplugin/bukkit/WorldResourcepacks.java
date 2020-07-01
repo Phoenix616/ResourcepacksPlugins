@@ -512,7 +512,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public void logDebug(String message, Throwable throwable) {
-        logDebug("[DEBUG] " + message, throwable);
+        getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
     }
     
     @Override
