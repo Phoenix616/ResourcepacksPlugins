@@ -76,7 +76,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         }
                         sendMessage(player, "success", "pack", pack.getName());
                         String senderName = sender != null ? sender.getName() : "CONSOLE";
-                        plugin.getLogger().log(plugin.getLogLevel(), senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
+                        plugin.logDebug(senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
                     } else {
                         sendMessage(sender, "already-in-use", "player", player.getName(), "pack", pack.getName());
                     }

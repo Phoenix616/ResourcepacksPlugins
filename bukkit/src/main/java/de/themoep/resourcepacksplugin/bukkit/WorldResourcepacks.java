@@ -113,7 +113,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             String versionNumberString = versionString.substring(0, minus > -1 ? minus : versionString.length());
             try {
                 serverProtocolVersion = MinecraftVersion.parseVersion(versionNumberString).getProtocolNumber();
-                getLogger().log(getLogLevel(), "Detected server server protocol version " + serverProtocolVersion + "!");
+                logDebug("Detected server server protocol version " + serverProtocolVersion + "!");
             } catch(IllegalArgumentException e) {
                 getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
             }
@@ -199,7 +199,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         getPackManager().init();
         if (getConfig().isSet("packs") && getConfig().isConfigurationSection("packs")) {
-            getLogger().log(getLogLevel(), "Loading packs:");
+            logDebug("Loading packs:");
             ConfigurationSection packs = getConfig().getConfigurationSection("packs");
             for (String s : packs.getKeys(false)) {
                 ConfigurationSection packSection = packs.getConfigurationSection(s);
@@ -211,6 +211,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                     if (previous != null) {
                         getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
                     }
+                    logDebug(pack.serialize().toString());
 
                     registerPackPermission(pack);
                 } catch (IllegalArgumentException e) {
@@ -218,7 +219,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 }
             }
         } else {
-            getLogger().log(getLogLevel(), "No packs defined!");
+            logDebug("No packs defined!");
         }
 
         if (getConfig().isConfigurationSection("empty")) {
@@ -257,9 +258,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             ConfigurationSection globalSection = getConfig().getConfigurationSection(name);
             PackAssignment globalAssignment = getPackManager().loadAssignment(name, getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
+            logDebug("Loaded " + globalAssignment.toString());
         } else {
-            getLogger().log(getLogLevel(), "No global server assignment defined!");
+            logDebug("No global server assignment defined!");
         }
 
         if (getConfig().isSet("worlds") && getConfig().isConfigurationSection("worlds")) {
@@ -271,17 +272,17 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                     getLogger().log(Level.INFO, "Loading assignment for world " + world + "...");
                     PackAssignment worldAssignment = getPackManager().loadAssignment(world, getValues(worldSection));
                     getPackManager().addAssignment(worldAssignment);
-                    getLogger().log(getLogLevel(), "Loaded " + worldAssignment.toString() );
+                    logDebug("Loaded " + worldAssignment.toString() );
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for world " + world + " but it is not a configuration section?");
                 }
             }
         } else {
-            getLogger().log(getLogLevel(), "No world assignments defined!");
+            logDebug("No world assignments defined!");
         }
 
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
-        getLogger().log(getLogLevel(), "Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
+        logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
 
         if (getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
             authmeApi = AuthMeApi.getInstance();
@@ -446,7 +447,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         } else {
             player.setResourcePack(pack.getUrl());
         }
-        getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+        logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
     public void clearPack(UUID playerId) {
@@ -499,10 +500,22 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return false;
     }
 
+    @Override
     public String getVersion() {
         return getDescription().getVersion();
     }
+    
+    @Override
+    public void logDebug(String message) {
+        logDebug(message, null);
+    }
 
+    @Override
+    public void logDebug(String message, Throwable throwable) {
+        logDebug("[DEBUG] " + message, throwable);
+    }
+    
+    @Override
     public Level getLogLevel() {
         return loglevel;
     }

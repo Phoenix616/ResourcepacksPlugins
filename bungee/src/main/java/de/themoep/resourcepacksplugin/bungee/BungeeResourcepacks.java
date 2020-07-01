@@ -196,10 +196,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
             List<IdMapping> idMappings = (List<IdMapping>) field.get(null);
 
-            getLogger().log(getLogLevel(), "Registering " + packetClass.getSimpleName() + "...");
+            logDebug("Registering " + packetClass.getSimpleName() + "...");
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if (bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
-                getLogger().log(getLogLevel(), "BungeeCord 1.8 (" + bungeeVersion + ") detected!");
+                logDebug("BungeeCord 1.8 (" + bungeeVersion + ") detected!");
                 Method reg = direction.getClass().getDeclaredMethod("registerPacket", int.class, Class.class);
                 reg.setAccessible(true);
                 int id = -1;
@@ -215,7 +215,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 }
                 reg.invoke(direction, id, packetClass);
             } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9 && bungeeVersion < ProtocolConstants.MINECRAFT_1_9_4) {
-                getLogger().log(getLogLevel(), "BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
+                logDebug("BungeeCord 1.9-1.9.3 (" + bungeeVersion + ") detected!");
                 Method reg = direction.getClass().getDeclaredMethod("registerPacket", int.class, int.class, Class.class);
                 reg.setAccessible(true);
                 int id18 = -1;
@@ -233,7 +233,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 }
                 reg.invoke(direction, id18, id19, packetClass);
             } else if (bungeeVersion >= ProtocolConstants.MINECRAFT_1_9_4) {
-                getLogger().log(getLogLevel(), "BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
+                logDebug("BungeeCord 1.9.4+ (" + bungeeVersion + ") detected!");
                 Method map = Protocol.class.getDeclaredMethod("map", int.class, int.class);
                 map.setAccessible(true);
                 Map<String, Object> mappings = new LinkedHashMap<>();
@@ -254,7 +254,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for (IdMapping mapping : additionalMappings) {
                     for (int id : ProtocolConstants.SUPPORTED_VERSION_IDS) {
                         if (!registeredVersions.contains(id) && id > mapping.getProtocolVersion()) {
-                            getLogger().log(getLogLevel(), "Using unregistered mapping " + mapping.getName() + "/" + mapping.getProtocolVersion() + " for unregistered version " + id);
+                            logDebug("Using unregistered mapping " + mapping.getName() + "/" + mapping.getProtocolVersion() + " for unregistered version " + id);
                             mappings.put(mapping.getName(), map.invoke(null, id, mapping.getPacketId()));
                             registeredVersions.add(id);
                             break;
@@ -267,7 +267,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
                     Map.Entry<String, Object> entry = it.next();
                     Array.set(mappingsObject, i, entry.getValue());
-                    getLogger().log(getLogLevel(), "Found mapping for " + entry.getKey() + "+");
+                    logDebug("Found mapping for " + entry.getKey() + "+");
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 Method reg = direction.getClass().getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
@@ -346,12 +346,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     if (previous != null) {
                         getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
                     }
+                    logDebug(pack.serialize().toString());
                 } catch (IllegalArgumentException e) {
                     getLogger().log(Level.SEVERE, e.getMessage());
                 }
             }
         } else {
-            getLogger().log(getLogLevel(), "No packs defined!");
+            logDebug("No packs defined!");
         }
 
         if (getConfig().isSection("empty")) {
@@ -385,9 +386,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             Configuration globalSection = getConfig().getSection("global");
             PackAssignment globalAssignment = getPackManager().loadAssignment("global", getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
-            getLogger().log(getLogLevel(), "Loaded " + globalAssignment.toString());
+            logDebug("Loaded " + globalAssignment.toString());
         } else {
-            getLogger().log(getLogLevel(), "No global assignment defined!");
+            logDebug("No global assignment defined!");
         }
 
         if (getConfig().isSet("servers", true) && getConfig().isSection("servers")) {
@@ -399,17 +400,17 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment(server, getValues(serverSection));
                     getPackManager().addAssignment(serverAssignment);
-                    getLogger().log(getLogLevel(), "Loaded server assignment " + serverAssignment.toString());
+                    logDebug("Loaded server assignment " + serverAssignment.toString());
                 } else {
                     getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
                 }
             }
         } else {
-            getLogger().log(getLogLevel(), "No server assignments defined!");
+            logDebug("No server assignments defined!");
         }
 
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
-        getLogger().log(getLogLevel(), "Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
+        logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
         return true;
     }
 
@@ -567,7 +568,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 ResourcePackSendPacket packet = new ResourcePackSendPacket(pack.getUrl(), pack.getHash());
                 player.unsafe().sendPacket(packet);
                 sendPackInfo(player, pack);
-                getLogger().log(getLogLevel(), "Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+                logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
             } catch(BadPacketException e) {
                 getLogger().log(Level.SEVERE, e.getMessage() + " Please check for updates!");
             } catch(ClassCastException e) {
@@ -699,14 +700,27 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return false;
     }
 
+    @Override
     public String getName() {
         return getDescription().getName();
     }
 
+    @Override
     public String getVersion() {
         return getDescription().getVersion();
     }
 
+    @Override
+    public void logDebug(String message) {
+        logDebug(message, null);
+    }
+
+    @Override
+    public void logDebug(String message, Throwable throwable) {
+        logDebug("[DEBUG] " + message, throwable);
+    }
+
+    @Override
     public Level getLogLevel() {
         return loglevel;
     }

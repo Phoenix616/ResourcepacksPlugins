@@ -170,6 +170,23 @@ public interface ResourcepacksPlugin {
 
     File getDataFolder();
 
+    /**
+     * Log a debug message
+     * @param message The message
+     */
+    void logDebug(String message);
+
+    /**
+     * Log a debug message with a stacktrace
+     * @param message   The message
+     * @param throwable The throwable
+     */
+    void logDebug(String message, Throwable throwable);
+
+    /**
+     * The debug log level
+     * @return The debug log level
+     */
     Level getLogLevel();
 
     /**

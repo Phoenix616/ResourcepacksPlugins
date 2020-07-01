@@ -537,7 +537,7 @@ public class PackManager {
             } else {
                 try {
                     assignment.setRegex(Pattern.compile(((String) config.get("regex"))));
-                    plugin.getLogger().log(plugin.getLogLevel(), "Regex: " + assignment.getRegex().toString());
+                    plugin.logDebug("Regex: " + assignment.getRegex().toString());
                 } catch (PatternSyntaxException e) {
                     plugin.getLogger().log(Level.WARNING, "The assignment's regex '" + config.get("regex") + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
                 }
@@ -550,7 +550,7 @@ public class PackManager {
                 ResourcePack pack = getByName((String) config.get("pack"));
                 if (pack != null) {
                     assignment.setPack(pack);
-                    plugin.getLogger().log(plugin.getLogLevel(), "Pack: " + pack.getName());
+                    plugin.logDebug("Pack: " + pack.getName());
                 } else {
                     plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
                 }
@@ -562,13 +562,13 @@ public class PackManager {
                     && !(((List) config.get("secondary")).get(0) instanceof String)){
                 plugin.getLogger().log(Level.WARNING, "'secondary' option has to be a String List!");
             } else {
-                plugin.getLogger().log(plugin.getLogLevel(), "Secondary packs:");
+                plugin.logDebug("Secondary packs:");
                 List<String> secondary = (List<String>) config.get("secondary");
                 for(String secondaryPack : secondary) {
                     ResourcePack pack = getByName(secondaryPack);
                     if (pack != null) {
                         assignment.addSecondary(pack);
-                        plugin.getLogger().log(plugin.getLogLevel(), "- " + pack.getName());
+                        plugin.logDebug("- " + pack.getName());
                     } else {
                         plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
                     }
@@ -580,7 +580,7 @@ public class PackManager {
                 plugin.getLogger().log(Level.WARNING, "'send-delay' option has to be a number!");
             } else {
                 assignment.setSendDelay(((Number) config.get("send-delay")).longValue());
-                plugin.getLogger().log(plugin.getLogLevel(), "Send delay: " + assignment.getSendDelay());
+                plugin.logDebug("Send delay: " + assignment.getSendDelay());
             }
         }
         return assignment;
@@ -715,7 +715,7 @@ public class PackManager {
         if (pack == null) {
             pack = getByName(plugin.getStoredPack(playerId));
             if (pack != null) {
-                plugin.getLogger().log(plugin.getLogLevel(), playerId + " has the pack " + pack.getName() + " stored!");
+                plugin.logDebug(playerId + " has the pack " + pack.getName() + " stored!");
             }
         }
         if (pack != null && pack.equals(prev)) {
@@ -726,7 +726,7 @@ public class PackManager {
         }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
-            plugin.getLogger().log(plugin.getLogLevel(), "Pack send event for " + playerId + " was cancelled!");
+            plugin.logDebug("Pack send event for " + playerId + " was cancelled!");
             return false;
         }
         pack = sendEvent.getPack();
@@ -779,16 +779,16 @@ public class PackManager {
         if (getStoredPacksOverride() && stored != null) {
             if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
                 if (stored.equals(prev)) {
-                    plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " already uses the stored pack " + stored.getName());
+                    plugin.logDebug(player.getName() + " already uses the stored pack " + stored.getName());
                 } else {
-                    plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " had the pack " + stored.getName() + " stored, using that");
+                    plugin.logDebug(player.getName() + " had the pack " + stored.getName() + " stored, using that");
                 }
                 return stored;
             }
         }
 
         if(getGlobalAssignment().isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-            plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched global assignment");
+            plugin.logDebug(player.getName() + " matched global assignment");
             return prev;
         }
 
@@ -797,7 +797,7 @@ public class PackManager {
         if(serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
             if(assignment.isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + assignment.getName());
+                plugin.logDebug(player.getName() + " matched assignment " + assignment.getName());
                 return prev;
             }
             ResourcePack serverPack = getByName(assignment.getPack());
@@ -851,7 +851,7 @@ public class PackManager {
                 }
             }
             if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                plugin.getLogger().log(plugin.getLogLevel(), player.getName() + " matched assignment " + matchReason);
+                plugin.logDebug(player.getName() + " matched assignment " + matchReason);
             }
         }
 

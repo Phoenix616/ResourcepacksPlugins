@@ -122,7 +122,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 }
             }
             plugin.setBackend(usercon.getUniqueId());
-            plugin.getLogger().log(BungeeResourcepacks.getInstance().getLogLevel(), "Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
+            plugin.logDebug("Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
             plugin.getUserManager().setUserPack(usercon.getUniqueId(), pack);
         }
     }
