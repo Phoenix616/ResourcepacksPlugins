@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.version>1.8.0-SNAPSHOT</plugin.version>
         <lang.version>1.2-SNAPSHOT</lang.version>
-        <minedown.version>1.5-SNAPSHOT</minedown.version>
+        <minedown.version>1.6.1-SNAPSHOT</minedown.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <build.number>${buildNumber}</build.number>
