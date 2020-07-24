@@ -98,7 +98,7 @@ public class PackAssignment {
     /**
      * Check whether or not a certain pack is a secondary in this assignment
      * @param pack  The name of the pack
-     * @return      <tt>true</tt> if this secondary list contains this pack; <tt>false</tt> if not
+     * @return      <code>true</code> if this secondary list contains this pack; <code>false</code> if not
      */
     public boolean isSecondary(String pack) {
         return secondaries.contains(pack.toLowerCase());
@@ -107,7 +107,7 @@ public class PackAssignment {
     /**
      * Check whether or not a certain pack is a secondary in this assignment
      * @param pack  The the pack
-     * @return      <tt>true</tt> if this secondary list contains this pack; <tt>false</tt> if not (or pack is null)
+     * @return      <code>true</code> if this secondary list contains this pack; <code>false</code> if not (or pack is null)
      */
     public boolean isSecondary(ResourcePack pack) {
         return pack != null && isSecondary(pack.getName());
@@ -116,7 +116,7 @@ public class PackAssignment {
     /**
      * Add a new secondary pack
      * @param pack  The pack to add
-     * @return      <tt>true</tt> as defined in Collections.add
+     * @return      <code>true</code> as defined in Collections.add
      */
     public boolean addSecondary(ResourcePack pack) {
         return addSecondary(pack.getName());
@@ -125,7 +125,7 @@ public class PackAssignment {
     /**
      * Add a new secondary pack
      * @param pack  The name of the pack to add
-     * @return      <tt>true</tt> as defined in Collections.add
+     * @return      <code>true</code> as defined in Collections.add
      */
     public boolean addSecondary(String pack) {
         return secondaries.add(pack.toLowerCase());
@@ -134,7 +134,7 @@ public class PackAssignment {
     /**
      * Remove a secondary pack
      * @param pack  The pack to remove
-     * @return      <tt>true</tt> if that pack was a secondary one, <tt>false</tt> if not
+     * @return      <code>true</code> if that pack was a secondary one, <code>false</code> if not
      */
     public boolean removeSecondary(ResourcePack pack) {
         return removeSecondary(pack.getName());
@@ -143,7 +143,7 @@ public class PackAssignment {
     /**
      * Remove a secondary pack
      * @param pack  The name of the pack to remove
-     * @return      <tt>true</tt> if that pack was a secondary one, <tt>false</tt> if not
+     * @return      <code>true</code> if that pack was a secondary one, <code>false</code> if not
      */
     public boolean removeSecondary(String pack) {
         return secondaries.remove(pack.toLowerCase());
@@ -151,7 +151,7 @@ public class PackAssignment {
 
     /**
      * Check whether or not this assignment contains any pack settings
-     * @return  <tt>true</tt> if it has no packs or secondaries; <tt>false</tt> if it has some
+     * @return  <code>true</code> if it has no packs or secondaries; <code>false</code> if it has some
      */
     public boolean isEmpty() {
         return pack == null && secondaries.isEmpty() && sendDelay == -1;
@@ -208,7 +208,7 @@ public class PackAssignment {
 
     /**
      * Get the compiled Pattern of this assignment's key regex
-     * @return The compiled regex pattern or <tt>null</tt> if none is set and the key should be used literally
+     * @return The compiled regex pattern or <code>null</code> if none is set and the key should be used literally
      */
     public Pattern getRegex() {
         return regex;

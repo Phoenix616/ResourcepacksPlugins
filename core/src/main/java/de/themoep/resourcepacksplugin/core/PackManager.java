@@ -689,7 +689,7 @@ public class PackManager {
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
-     * @return <tt>true</tt> if the pack was set; <tt>false</tt> if not
+     * @return <code>true</code> if the pack was set; <code>false</code> if not
      */
     public boolean setPack(UUID playerId, ResourcePack pack) {
         return setPack(playerId, pack, true);
@@ -700,7 +700,7 @@ public class PackManager {
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
      * @param temporary Should the pack be removed on log out or stored?
-     * @return <tt>true</tt> if the pack was set; <tt>false</tt> if not
+     * @return <code>true</code> if the pack was set; <code>false</code> if not
      */
     public boolean setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
@@ -764,7 +764,7 @@ public class PackManager {
      * Get the pack the player should have on that server
      * @param playerId The UUID of the player
      * @param serverName The name of the server
-     * @return The pack for that server; <tt>null</tt> if he should have none
+     * @return The pack for that server; <code>null</code> if he should have none
      */
     public ResourcePack getApplicablePack(UUID playerId, String serverName) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
@@ -999,7 +999,7 @@ public class PackManager {
     /**
      * Get the format of the pack a player can maximally use
      * @param version The Protocol version to get the format for
-     * @return The pack format; <tt>-1</tt> if the player has an unknown version
+     * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
         if (version >= 565) { // 1.15 / pre release 1

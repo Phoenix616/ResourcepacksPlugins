@@ -66,7 +66,7 @@ public interface ResourcepacksPlugin {
 
     /**
      * Get whether the plugin successful enabled or not
-     * @return <tt>true</tt> if the plugin was proberly enabled
+     * @return <code>true</code> if the plugin was proberly enabled
      */
     boolean isEnabled();
 
@@ -150,7 +150,7 @@ public interface ResourcepacksPlugin {
      * Check whether or not the language config contains a certain message
      * @param sender The sender
      * @param key The message key
-     * @return <tt>true</tt> if the config contains the message; <tt>false</tt> if not
+     * @return <code>true</code> if the config contains the message; <code>false</code> if not
      */
     boolean hasMessage(ResourcepacksPlayer sender, String key);
 
@@ -208,7 +208,7 @@ public interface ResourcepacksPlugin {
      * @param player The player
      * @param key The key of the message to send
      * @param replacements An optional array with placeholder replacements
-     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline or the message empty
+     * @return <code>true</code> if the message was sent; <code>false</code> if the player was offline or the message empty
      */
     boolean sendMessage(ResourcepacksPlayer player, String key, String... replacements);
 
@@ -218,7 +218,7 @@ public interface ResourcepacksPlugin {
      * @param level The level to log to if the sender is the console!
      * @param key The key of the message to send
      * @param replacements An optional array with placeholder replacements
-     * @return <tt>true</tt> if the message was sent; <tt>false</tt> if the player was offline or the message empty
+     * @return <code>true</code> if the message was sent; <code>false</code> if the player was offline or the message empty
      */
     boolean sendMessage(ResourcepacksPlayer sender, Level level, String key, String... replacements);
 
@@ -233,7 +233,7 @@ public interface ResourcepacksPlugin {
      * Check whether or not a player has a permission
      * @param resourcepacksPlayer The player to check
      * @param perm The permission to check for
-     * @return <tt>true</tt> if the player has the permission; <tt>false</tt> if not
+     * @return <code>true</code> if the player has the permission; <code>false</code> if not
      */
     boolean checkPermission(ResourcepacksPlayer resourcepacksPlayer, String perm);
 
@@ -241,7 +241,7 @@ public interface ResourcepacksPlugin {
      * Check whether or not a player has a permission
      * @param playerId The UUID of the player
      * @param perm The permission to check for
-     * @return <tt>true</tt> if the player has the permission; <tt>false</tt> if not
+     * @return <code>true</code> if the player has the permission; <code>false</code> if not
      */
     boolean checkPermission(UUID playerId, String perm);
 
@@ -285,7 +285,7 @@ public interface ResourcepacksPlugin {
     /**
      * Check whether or not a certain player is currently logged in with auth plugins (currently supports AuthMe Reloaded)
      * @param playerId The UUID of the player
-     * @return <tt>true</tt> if he is loggedin; <tt>false</tt> if not or the status is unknown
+     * @return <code>true</code> if he is loggedin; <code>false</code> if not or the status is unknown
      */
     boolean isAuthenticated(UUID playerId);
 
@@ -319,13 +319,13 @@ public interface ResourcepacksPlugin {
     /**
      * Get the pack that a certain player has stored
      * @param playerId  The UUID of the player
-     * @return The name of the pack or <tt>null</tt> if none was stored
+     * @return The name of the pack or <code>null</code> if none was stored
      */
     String getStoredPack(UUID playerId);
 
     /**
      * Get whether or not the default /usepack behaviour is to apply temporary opr permanent
-     * @return <tt>true</tt> if it's temporary, <tt>false</tt> if not
+     * @return <code>true</code> if it's temporary, <code>false</code> if not
      */
     boolean isUsepackTemporary();
     

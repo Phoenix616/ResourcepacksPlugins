@@ -43,11 +43,11 @@ public interface IResourcePackSelectEvent {
 
     /**
      * The status of the select event<br>
-     * <tt>SUCCESS</tt> - Pack found and is not null<br>
-     * <tt>NO_PERMISSION</tt> - Selection failed because the player does not have the permission for the pack<br>
-     * <tt>WRONG_VERSION</tt> - Selection failed because there is not compatible pack<br>
-     * <tt>NO_PERM_AND_WRONG_VERSION</tt> - Both failures happened<br>
-     * <tt>UNKNOWN</tt> - We don't know why it failed<br>
+     * <code>SUCCESS</code> - Pack found and is not null<br>
+     * <code>NO_PERMISSION</code> - Selection failed because the player does not have the permission for the pack<br>
+     * <code>WRONG_VERSION</code> - Selection failed because there is not compatible pack<br>
+     * <code>NO_PERM_AND_WRONG_VERSION</code> - Both failures happened<br>
+     * <code>UNKNOWN</code> - We don't know why it failed<br>
      * @return The status of the event
      */
     Status getStatus();
@@ -60,11 +60,11 @@ public interface IResourcePackSelectEvent {
 
     /**
      * The status of the select event<br>
-     * <tt>SUCCESS</tt> - Pack found and is not null<br>
-     * <tt>NO_PERMISSION</tt> - Selection failed because the player does not have the permission for the pack<br>
-     * <tt>WRONG_VERSION</tt> - Selection failed because there is not compatible pack<br>
-     * <tt>NO_PERM_AND_WRONG_VERSION</tt> - Both failures happened<br>
-     * <tt>UNKNOWN</tt> - We don't know why it failed<br>
+     * <code>SUCCESS</code> - Pack found and is not null<br>
+     * <code>NO_PERMISSION</code> - Selection failed because the player does not have the permission for the pack<br>
+     * <code>WRONG_VERSION</code> - Selection failed because there is not compatible pack<br>
+     * <code>NO_PERM_AND_WRONG_VERSION</code> - Both failures happened<br>
+     * <code>UNKNOWN</code> - We don't know why it failed<br>
      */
     public enum Status {
         SUCCESS,

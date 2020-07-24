@@ -207,7 +207,7 @@ public class ResourcePack {
 
     /**
      * Whether or not this pack is restricted and a permission should be used
-     * @return <tt>true</tt> if one needs the permission, <tt>false</tt> if not
+     * @return <code>true</code> if one needs the permission, <code>false</code> if not
      */
     public boolean isRestricted() {
         return restricted;
@@ -215,7 +215,7 @@ public class ResourcePack {
 
     /**
      * Whether or not this pack is restricted and a permission should be used
-     * @param restricted <tt>true</tt> if one needs the permission, <tt>false</tt> if not
+     * @param restricted <code>true</code> if one needs the permission, <code>false</code> if not
      * @return Whether or not the restricted status changed
      */
     public boolean setRestricted(boolean restricted) {
