@@ -56,9 +56,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>3.2.0</version>
                 <configuration>
-                    <aggregate>true</aggregate>
+                    <source>8</source>
+                    <excludePackageNames>de.themoep.resourcepacksplugin.bukkit.internal</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
