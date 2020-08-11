@@ -55,7 +55,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
             new IdMapping("1.13", MinecraftVersion.MINECRAFT_1_13.getProtocolNumber(), 0x37),
             new IdMapping("1.14", MinecraftVersion.MINECRAFT_1_14.getProtocolNumber(), 0x39),
             new IdMapping("1.15", MinecraftVersion.MINECRAFT_1_15.getProtocolNumber(), 0x3A),
-            new IdMapping("1.16", MinecraftVersion.MINECRAFT_1_16.getProtocolNumber(), 0x39)
+            new IdMapping("1.16", MinecraftVersion.MINECRAFT_1_16.getProtocolNumber(), 0x39),
+            new IdMapping("1.16.2", MinecraftVersion.MINECRAFT_1_16_2.getProtocolNumber(), 0x38)
     );
 
     public ResourcePackSendPacket() {};

@@ -22,6 +22,7 @@ import java.util.Map;
  */
 
 public enum MinecraftVersion {
+    MINECRAFT_1_16_2(751),
     MINECRAFT_1_16_1(736),
     MINECRAFT_1_16(735),
     MINECRAFT_1_15_2(578),
