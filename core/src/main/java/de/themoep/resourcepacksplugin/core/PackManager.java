@@ -1002,7 +1002,9 @@ public class PackManager {
      * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version >= 565) { // 1.15 / pre release 1
+        if (version >= 749) { // 1.16.2 / release candidate 1
+            return 6;
+        }if (version >= 565) { // 1.15 / pre release 1
             return 5;
         } else if (version >= 348) { // pre 1.13 / 17w48a
             return 4;
