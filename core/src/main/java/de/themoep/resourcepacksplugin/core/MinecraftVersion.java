@@ -88,12 +88,6 @@ public enum MinecraftVersion {
             return valueOf(getVersion);
         } catch (IllegalArgumentException ignored) {}
 
-        for (MinecraftVersion value : values()) {
-            if (getVersion.startsWith(value.name())) {
-                return value;
-            }
-        }
-
         throw new IllegalArgumentException(versionString + " is not a valid MinecraftVersion definition!");
     }
 
@@ -129,7 +123,7 @@ public enum MinecraftVersion {
      * @return The human readable config string
      */
     public String toConfigString() {
-        return name().toLowerCase().substring("MINECRAFT_".length()).replace('_', '.');
+        return this == UNKNOWN ? name() : name().toLowerCase().substring("MINECRAFT_".length()).replace('_', '.');
     }
 
     public int getProtocolNumber() {
