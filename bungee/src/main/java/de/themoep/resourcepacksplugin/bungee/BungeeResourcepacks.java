@@ -29,6 +29,7 @@ import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.IdMapping;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -74,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -89,6 +91,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private FileConfiguration config;
 
     private FileConfiguration storedPacks;
+
+    private FileConfiguration packetMap;
     
     private PackManager pm = new PackManager(this);
 
@@ -189,12 +193,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 supportedVersions = (List<Integer>) svIdField.get(null);
             }
 
-            Field field = packetClass.getField("ID_MAPPINGS");
-            if (field == null) {
-                getLogger().log(Level.SEVERE, packetClass.getSimpleName() + " does not contain ID_MAPPINGS field!");
+            List<IdMapping> idMappings = getIdMappings(packetClass);
+            if (idMappings.isEmpty()) {
+                getLogger().log(Level.SEVERE, "No mappings set in packetmap.yml for " + packetClass.getSimpleName() + "!");
                 return false;
             }
-            List<IdMapping> idMappings = (List<IdMapping>) field.get(null);
 
             logDebug("Registering " + packetClass.getSimpleName() + "...");
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
@@ -293,6 +296,42 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return false;
     }
 
+    private List<IdMapping> getIdMappings(Class<? extends DefinedPacket> packetClass) {
+        Configuration packetConfig = packetMap.getSection(packetClass.getSimpleName());
+        if (packetConfig.getKeys().isEmpty()) {
+            packetConfig = packetMap.getSection(packetClass.getSimpleName().toLowerCase());
+        }
+        Map<Integer, IdMapping> protocolVersionMap = new TreeMap<>();
+
+        for (MinecraftVersion value : MinecraftVersion.values()) {
+            int packetId = packetConfig.getInt(value.toConfigString().replace('.', '_'));
+            if (packetId > 0) {
+                protocolVersionMap.put(value.getProtocolNumber(), new IdMapping(value.toConfigString(), value.getProtocolNumber(), packetId));
+            }
+        }
+
+        for (String key : packetConfig.getKeys()) {
+            int protocolId = -1;
+            try {
+                protocolId = MinecraftVersion.parseVersion(key).getProtocolNumber();
+            } catch (IllegalArgumentException e1) {
+                try {
+                    protocolId = Integer.parseInt(key);
+                } catch (NumberFormatException e2) {
+                    getLogger().log(Level.WARNING, key + " in packetmap.yml for " + packetClass.getSimpleName() + " is not a known version!");
+                }
+            }
+            if (protocolId > 0) {
+                int packetId = packetConfig.getInt(key);
+                if (packetId > 0) {
+                    protocolVersionMap.put(protocolId, new IdMapping(key.replace('_', '.'), protocolId, packetId));
+                }
+            }
+        }
+
+        return new ArrayList<>(protocolVersionMap.values());
+    }
+
     protected void registerCommand(PluginCommandExecutor executor) {
         getProxy().getPluginManager().registerCommand(this, new ForwardingCommand(executor));
     }
@@ -310,6 +349,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             storedPacks = new FileConfiguration(this, new File(getDataFolder(), "players.yml"));
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Unable to load players.yml! Stored player packs will not work!", e);
+        }
+
+        try {
+            packetMap = new FileConfiguration(this, new File(getDataFolder(), "packetmap.yml"));
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Unable to load packetmap.yml! The plugin will not work!", e);
+            return false;
         }
 
         String debugString = getConfig().getString("debug");
