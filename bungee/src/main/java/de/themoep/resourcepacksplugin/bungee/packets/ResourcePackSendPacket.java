@@ -97,10 +97,10 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 }
             }
         } else {
-            BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sending ResourcePackSend packets to " + handler.getClass().getName() + " is not properly supported by this plugin! (Only players) Trying to handle anyways...");
+            BungeeResourcepacks.getInstance().logDebug("Sending ResourcePackSend packets to " + handler.getClass().getName() + " is not properly supported by this plugin! (Only players) Trying to handle anyways...");
             if (handler instanceof PacketHandler) {
                 ((PacketHandler) handler).handle(packetWrapper);
-            } else {
+            } else if (BungeeResourcepacks.getInstance().getLogLevel().intValue() >= Level.INFO.intValue()) {
                 new UnsupportedOperationException("Unsupported handler type " + handler.getClass().getName()).fillInStackTrace().printStackTrace();
             }
         }
