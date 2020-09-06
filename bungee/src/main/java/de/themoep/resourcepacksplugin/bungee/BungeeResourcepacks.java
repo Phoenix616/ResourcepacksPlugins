@@ -304,7 +304,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         Map<Integer, IdMapping> protocolVersionMap = new TreeMap<>();
 
         for (MinecraftVersion value : MinecraftVersion.values()) {
-            int packetId = packetConfig.getInt(value.toConfigString().replace('.', '_'));
+            Object defaultId = packetConfig.getDefault(value.toConfigString().replace('.', '_'));
+            int packetId;
+            if (defaultId instanceof Integer) {
+                packetId = (int) defaultId;
+            } else {
+                packetId = packetConfig.getInt(value.toConfigString().replace('.', '_'));
+            }
             if (packetId > 0) {
                 protocolVersionMap.put(value.getProtocolNumber(), new IdMapping(value.toConfigString(), value.getProtocolNumber(), packetId));
             }
@@ -322,7 +328,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 }
             }
             if (protocolId > 0) {
-                int packetId = packetConfig.getInt(key);
+                Object defaultId = packetConfig.getDefault(key);
+                int packetId;
+                if (defaultId instanceof Integer) {
+                    packetId = (int) defaultId;
+                } else {
+                    packetId = packetConfig.getInt(key);
+                }
                 if (packetId > 0) {
                     protocolVersionMap.put(protocolId, new IdMapping(key.replace('_', '.'), protocolId, packetId));
                 }
