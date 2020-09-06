@@ -21,6 +21,14 @@
             <id>bungee-repo</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
+        <repository>
+            <id>viaversion-repo</id>
+            <url>https://repo.viaversion.com/</url>
+        </repository>
+        <repository>
+            <id>bstats-repo</id>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -58,12 +66,6 @@
             <groupId>de.themoep</groupId>
             <artifactId>minedown</artifactId>
             <version>${minedown.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.minecrell.mcstats</groupId>
-            <artifactId>statslite-bungee</artifactId>
-            <version>0.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -105,10 +107,6 @@
                         <relocation>
                             <pattern>de.themoep.bungeeplugin</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bungee</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>net.minecrell.mcstats</pattern>
-                            <shadedPattern>de.themoep.resourcepacksplugin.bungee.libs.mcstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>

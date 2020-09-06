@@ -100,10 +100,6 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>org.mcstats</pattern>
-                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.mcstats</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.bstats</shadedPattern>
                         </relocation>

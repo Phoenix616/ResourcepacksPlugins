@@ -54,7 +54,6 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.minecrell.mcstats.BungeeStatsLite;
 import org.bstats.MetricsLite;
 import us.myles.ViaVersion.api.ViaAPI;
 import us.myles.ViaVersion.api.platform.ViaPlatform;
@@ -162,7 +161,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         getProxy().registerChannel("rp:plugin");
 
         if (!getConfig().getBoolean("disable-metrics", false)) {
-            new BungeeStatsLite(this).start();
             new MetricsLite(this);
         }
 
