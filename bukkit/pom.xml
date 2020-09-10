@@ -20,10 +20,6 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>perfectdreams-repo</id>
-            <url>https://repo.perfectdreams.net/</url>
-        </repository>
-        <repository>
             <id>authme-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
@@ -34,6 +30,10 @@
         <repository>
             <id>bstats-repo</id>
             <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id><!-- Protocol Support -->
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.github.ProtocolSupport</groupId>
             <artifactId>ProtocolSupport</artifactId>
-            <version>417781cc1d</version>
+            <version>6d46fc5164</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
