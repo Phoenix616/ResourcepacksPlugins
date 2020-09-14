@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.core;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
 import java.io.File;
@@ -692,7 +693,7 @@ public class PackManager {
      * @return <code>true</code> if the pack was set; <code>false</code> if not
      */
     public boolean setPack(UUID playerId, ResourcePack pack) {
-        return setPack(playerId, pack, true);
+        return setPack(playerId, pack, true) == IResourcePackSelectEvent.Status.SUCCESS;
     }
 
     /**
@@ -700,9 +701,9 @@ public class PackManager {
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
      * @param temporary Should the pack be removed on log out or stored?
-     * @return <code>true</code> if the pack was set; <code>false</code> if not
+     * @return the status, SUCCESS if the pack was set
      */
-    public boolean setPack(UUID playerId, ResourcePack pack, boolean temporary) {
+    public Status setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
         if (!temporary) {
             if (pack == null) {
@@ -719,15 +720,15 @@ public class PackManager {
             }
         }
         if (pack != null && pack.equals(prev)) {
-            return false;
+            return Status.UNKNOWN;
         }
         if (prev == null && (pack == null || pack.equals(getEmptyPack()))) {
-            return false;
+            return Status.UNKNOWN;
         }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
             plugin.logDebug("Pack send event for " + playerId + " was cancelled!");
-            return false;
+            return Status.UNKNOWN;
         }
         pack = sendEvent.getPack();
         if (pack == null && prev != null) {
@@ -737,17 +738,23 @@ public class PackManager {
             plugin.getUserManager().setUserPack(playerId, pack);
             if (pack.getVariants().isEmpty()) {
                 plugin.sendPack(playerId, pack);
-                return true;
+                return Status.SUCCESS;
             } else {
+                Status status = Status.SUCCESS;
                 for (ResourcePack variant : pack.getVariants()) {
-                    if (checkPack(playerId, variant, IResourcePackSelectEvent.Status.UNKNOWN) == IResourcePackSelectEvent.Status.SUCCESS) {
+                    Status varStatus = checkPack(playerId, variant, Status.UNKNOWN);
+                    if (varStatus == Status.SUCCESS) {
                         plugin.sendPack(playerId, variant);
-                        return true;
+                        return IResourcePackSelectEvent.Status.SUCCESS;
+                    }
+                    if (varStatus.ordinal() > status.ordinal()) {
+                        status = varStatus;
                     }
                 }
+                return status;
             }
         }
-        return false;
+        return IResourcePackSelectEvent.Status.UNKNOWN;
     }
 
     /**

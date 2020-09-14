@@ -22,7 +22,6 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,15 +69,27 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
                         return true;
                     }
-                    if (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
-                        if (!player.equals(sender)) {
-                            sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
-                        }
-                        sendMessage(player, "success", "pack", pack.getName());
-                        String senderName = sender != null ? sender.getName() : "CONSOLE";
-                        plugin.logDebug(senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
-                    } else {
-                        sendMessage(sender, "already-in-use", "player", player.getName(), "pack", pack.getName());
+                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
+                        case SUCCESS:
+                            if (!player.equals(sender)) {
+                                sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
+                            }
+                            sendMessage(player, "success", "pack", pack.getName());
+                            String senderName = sender != null ? sender.getName() : "CONSOLE";
+                            plugin.logDebug(senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
+                            break;
+                        case NO_PERMISSION:
+                            sendMessage(sender, "no-variant-found.permission", "player", player.getName(), "pack", pack.getName());
+                            break;
+                        case WRONG_VERSION:
+                            sendMessage(sender, "no-variant-found.version", "player", player.getName(), "pack", pack.getName());
+                            break;
+                        case NO_PERM_AND_WRONG_VERSION:
+                            sendMessage(sender, "no-variant-found.perm-and-version", "player", player.getName(), "pack", pack.getName());
+                            break;
+                        case UNKNOWN:
+                            sendMessage(sender, "already-in-use", "player", player.getName(), "pack", pack.getName());
+                            break;
                     }
                 } else {
                     sendMessage(sender, "restricted", "permission", pack.getPermission(), "pack", pack.getName());

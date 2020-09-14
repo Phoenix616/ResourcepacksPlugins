@@ -20,6 +20,7 @@ package de.themoep.resourcepacksplugin.core.commands;
 
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -71,7 +72,7 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
             }
         }
 
-        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp)) {
+        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp) == Status.SUCCESS) {
             if (!player.equals(sender)) {
                 sendMessage(sender, "success-other", "player", player.getName());
             }
