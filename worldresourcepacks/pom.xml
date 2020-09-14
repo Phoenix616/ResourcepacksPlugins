@@ -65,12 +65,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.mcstats.bukkit</groupId>
-            <artifactId>metrics-lite</artifactId>
-            <version>R8-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit-lite</artifactId>
             <version>1.1</version>
