@@ -5,7 +5,7 @@ command:
   version: "&a%plugin% version: %version%"
   not-enabled: "&c%plugin% is not enabled!"
   invalid-input: "&f%input%&c is not a valid %expected%"
-  no-permission: "&cYou don't have the permission &f%permision%&c!"
+  no-permission: "&cYou don't have the permission &f%permission%&c!"
   unknown-pack: "&cNo pack with the name &e%input%&c found!"
   addpack:
     name-already-used: "&cA pack with the name of &f%name%&c already exists!"
