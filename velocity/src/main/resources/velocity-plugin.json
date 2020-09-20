@@ -1,0 +1,13 @@
+{
+  "id": "velocityresourcepacks",
+  "name": "VelocityResourcepacks",
+  "version": "${minecraft.plugin.version}",
+  "main": "de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks",
+  "authors": ["Phoenix616"],
+  "dependencies": [
+    {
+      "id": "viaversion",
+      "optional": true
+    }
+  ]
+}

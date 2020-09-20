@@ -67,12 +67,6 @@
         <resources>
             <resource>
                 <filtering>true</filtering>
-                <includes>
-                    <include>VelocityResourcepacks.class</include>
-                </includes>
-                <directory>${project.basedir}/src/main/java/de/themoep/resourcepacksplugin/velocity</directory>
-            </resource>
-            <resource>
                 <directory>${project.basedir}/src/main/resources/</directory>
             </resource>
             <resource>
@@ -83,6 +77,14 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <proc>none</proc>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

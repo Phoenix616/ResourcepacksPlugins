@@ -18,14 +18,14 @@ package de.themoep.resourcepacksplugin.velocity;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
@@ -62,6 +62,8 @@ import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -75,18 +77,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Plugin(id = "velocityresourcepacks",
-        name = "VelocityResourcepacks",
-        version = "${minecraft.plugin.version}",
-        authors = {"Phoenix616"},
-        dependencies = {@Dependency(id = "viaversion", optional = true)}
-        )
 public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     private static VelocityResourcepacks instance;
     private final ProxyServer proxy;
     private final Logger logger;
     private final File dataFolder;
+    private final Map pluginInfo;
 
     private static final ChannelIdentifier PLUGIN_MESSAGE_CHANNEL = MinecraftChannelIdentifier.create("rp", "plugin");
 
@@ -120,8 +117,6 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      */
     private boolean enabled = false;
 
-    private int bungeeVersion;
-
     private Optional<PluginContainer> viaPlugin;
 
     @Inject
@@ -130,6 +125,18 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         this.proxy = proxy;
         this.logger = logger;
         this.dataFolder = dataFolder.toFile();
+        Map<?, ?> pluginInfo;
+        try (InputStream in = getResourceAsStream("velocity-plugin.json");
+            InputStreamReader reader = new InputStreamReader(in)) {
+            pluginInfo = new Gson().fromJson(reader, Map.class);
+        } catch (IOException e) {
+            pluginInfo = ImmutableMap.of(
+                    "name", getClass().getSimpleName(),
+                    "version", "Unknown"
+            );
+            getLogger().log(Level.WARNING, "Unable to load plugin info from jar file", e);
+        }
+        this.pluginInfo = pluginInfo;
     }
 
     @Subscribe
@@ -574,12 +581,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public String getName() {
-        return getClass().getAnnotation(Plugin.class).name();
+        return (String) pluginInfo.get("name");
     }
 
     @Override
     public String getVersion() {
-        return getClass().getAnnotation(Plugin.class).version();
+        return (String) pluginInfo.get("version");
     }
 
     public ProxyServer getProxy() {
@@ -713,9 +720,5 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         } else {
             authenticatedPlayers.remove(playerId);
         }
-    }
-
-    public int getBungeeVersion() {
-        return bungeeVersion;
     }
 }
