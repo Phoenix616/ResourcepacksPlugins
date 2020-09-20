@@ -113,6 +113,10 @@ public abstract class PluginCommandExecutor {
         return true;
     }
 
+    public Map<String, PluginCommandExecutor> getSubCommands() {
+        return subCommands;
+    }
+
     public PluginCommandExecutor getSubCommand(String name) {
         PluginCommandExecutor subCommand = subCommands.get(name.toLowerCase());
         if (subCommand == null) {

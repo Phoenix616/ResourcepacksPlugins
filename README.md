@@ -1,7 +1,7 @@
 # ResourcepacksPlugins
-[![Donate via PayPal](https://img.shields.io/badge/donate-paypal-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=M4JWT75XB3QPJ&item_name=Buy+Phoenix616+a+beer+for+BungeeResourcepacks+%28from+GitHub%29) [![Total downloads](https://img.shields.io/github/downloads/Phoenix616/BungeeResourcepacks/total.svg)](https://github.com/Phoenix616/BungeeResourcepacks/releases)
+[![Total downloads](https://img.shields.io/github/downloads/Phoenix616/ResourcepacksPlugins/total.svg)](https://github.com/Phoenix616/ResourcepacksPlugins/releases) ![Work time](https://buttons.phoenix616.dev//ResourcepacksPluginsWork.svg)
 
-Repository for the different resourcepacks plugins by Phoenix616: [BungeeResourcepacks](https://www.spigotmc.org/resources/bungee-resourcepacks.6137/) and [WorldResourcepacks](https://www.spigotmc.org/resources/world-resourcepacks.18950/)
+Repository for the different resourcepacks plugins by Phoenix616: [BungeeResourcepacks](https://www.spigotmc.org/resources/bungee-resourcepacks.6137/), [WorldResourcepacks](https://www.spigotmc.org/resources/world-resourcepacks.18950/) and VelocityResourcepacks.
 
 ## Development
 
@@ -9,11 +9,9 @@ Dev builds: https://ci.minebench.de/job/ResourcepacksPlugins/
 
 ### Integrating
 
-Javadocs: https://docs.minebench.de/resourcepacksplugins/
+Javadocs: https://docs.phoenix616.dev/resourcepacksplugins/
 
 You can easily depend on it via maven (or gradle). The core contains all the management and the bukkit/bungee artifacts the platform depended code.
-
-Make sure to use WorldResourcepacks or BungeeResourcepacks respectively as the depend in the plugin.yml!
 
 #### Repository
 ```xml
@@ -31,19 +29,25 @@ Make sure to use WorldResourcepacks or BungeeResourcepacks respectively as the d
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
+            <version>1.8.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bungee</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
+            <version>1.8.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.8.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>core</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
+            <version>1.8.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

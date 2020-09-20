@@ -727,7 +727,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return TextComponent.toLegacyText(getComponents(sender, key, replacements));
     }
 
-    @Override
+    /**
+     * Get message components from the language config
+     * @param sender The sender to get the message from, will use the client language if available
+     * @param key The message key
+     * @param replacements Optional placeholder replacement array
+     * @return The components or an error message if not available, never null
+     */
     public BaseComponent[] getComponents(ResourcepacksPlayer sender, String key, String... replacements) {
         if (lm != null) {
             ProxiedPlayer player = null;

@@ -12,6 +12,7 @@
     <modules>
         <module>core</module>
         <module>bungee</module>
+        <module>velocity</module>
         <module>bukkit</module>
         <module>bukkit-v1_8_R3</module>
         <module>bukkit-v1_9_R1</module>
