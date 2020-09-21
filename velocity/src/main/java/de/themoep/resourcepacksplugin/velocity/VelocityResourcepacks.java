@@ -271,13 +271,13 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             ConfigurationNode servers = getConfig().getRawConfig("servers");
             for (Map.Entry<Object, ? extends ConfigurationNode> server : servers.getChildrenMap().entrySet()) {
                 ConfigurationNode serverSection = server.getValue();
-                if (!serverSection.hasMapChildren()) {
-                    getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
+                if (serverSection.isMap()) {
+                    getLogger().log(Level.INFO, "Loading assignment for server " + server.getKey() + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment((String) server.getKey(), getValues(serverSection));
                     getPackManager().addAssignment(serverAssignment);
                     logDebug("Loaded server assignment " + serverAssignment.toString());
                 } else {
-                    getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
+                    getLogger().log(Level.WARNING, "Config has entry for server " + server.getKey() + " but it is not a configuration section?");
                 }
             }
         } else {
