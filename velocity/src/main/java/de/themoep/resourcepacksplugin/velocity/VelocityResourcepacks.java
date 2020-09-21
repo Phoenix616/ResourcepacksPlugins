@@ -18,15 +18,14 @@ package de.themoep.resourcepacksplugin.velocity;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.PluginContainer;
+import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -62,8 +61,6 @@ import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -79,13 +76,12 @@ import java.util.logging.Logger;
 
 public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
-    private static VelocityResourcepacks instance;
     private final ProxyServer proxy;
     private final Logger logger;
     private final File dataFolder;
-    private final Map pluginInfo;
+    private PluginContainer ownContainer = null;
 
-    private static final ChannelIdentifier PLUGIN_MESSAGE_CHANNEL = MinecraftChannelIdentifier.create("rp", "plugin");
+    public static final ChannelIdentifier PLUGIN_MESSAGE_CHANNEL = MinecraftChannelIdentifier.create("rp", "plugin");
 
     private PluginConfig config;
 
@@ -121,22 +117,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
-        instance = this;
         this.proxy = proxy;
         this.logger = logger;
         this.dataFolder = dataFolder.toFile();
-        Map<?, ?> pluginInfo;
-        try (InputStream in = getResourceAsStream("velocity-plugin.json");
-            InputStreamReader reader = new InputStreamReader(in)) {
-            pluginInfo = new Gson().fromJson(reader, Map.class);
-        } catch (IOException e) {
-            pluginInfo = ImmutableMap.of(
-                    "name", getClass().getSimpleName(),
-                    "version", "Unknown"
-            );
-            getLogger().log(Level.WARNING, "Unable to load plugin info from jar file", e);
-        }
-        this.pluginInfo = pluginInfo;
     }
 
     @Subscribe
@@ -404,10 +387,6 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         return getConfig().getInt("permanent-pack-remove-time");
     }
     
-    public static VelocityResourcepacks getInstance() {
-        return instance;
-    }
-    
     public PluginConfig getConfig() {
         return config;
     }
@@ -581,12 +560,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public String getName() {
-        return (String) pluginInfo.get("name");
+        return getDescription().getName().orElse(getDescription().getId());
     }
 
     @Override
     public String getVersion() {
-        return (String) pluginInfo.get("version");
+        return getDescription().getVersion().orElse("Unknown");
     }
 
     public ProxyServer getProxy() {
@@ -601,6 +580,18 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Override
     public File getDataFolder() {
         return dataFolder;
+    }
+
+    public PluginDescription getDescription() {
+        if (ownContainer == null) {
+            ownContainer = proxy.getPluginManager().fromInstance(this).orElse(null);
+        }
+        return ownContainer != null ? ownContainer.getDescription() : new PluginDescription() {
+            @Override
+            public String getId() {
+                return getClass().getSimpleName();
+            }
+        };
     }
 
     @Override
