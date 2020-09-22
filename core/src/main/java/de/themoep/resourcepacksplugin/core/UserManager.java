@@ -91,7 +91,7 @@ public class UserManager {
      */
     public void onDisconnect(UUID playerId) {
         if (checkStoredPack(playerId)) {
-            plugin.getLogger().log(plugin.getLogLevel(), "Removed stored pack from " + playerId + " as he logged out in under " + plugin.getPermanentPackRemoveTime() + " seconds after it got applied!");
+            plugin.log(plugin.getLogLevel(), "Removed stored pack from " + playerId + " as he logged out in under " + plugin.getPermanentPackRemoveTime() + " seconds after it got applied!");
         }
         userPackTime.remove(playerId);
         plugin.clearPack(playerId); //call plugin method because that might send a clear info

@@ -22,6 +22,8 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
 
+import java.util.logging.Level;
+
 /**
  * Created by Phoenix616 on 03.02.2016.
  */
@@ -59,7 +61,7 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
         } else if (sender != null) {
             player = sender;
         } else {
-            plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /resetpack <playername> [<temp>]");
+            plugin.log(Level.WARNING, "You have to specify a player if you want to run this command from the console! /resetpack <playername> [<temp>]");
             return true;
         }
 

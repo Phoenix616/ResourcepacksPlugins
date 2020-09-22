@@ -32,6 +32,7 @@ import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
@@ -100,6 +101,18 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private LanguageManager lm;
     
     private Level loglevel = Level.INFO;
+
+    private PluginLogger pluginLogger = new PluginLogger() {
+        @Override
+        public void log(Level level, String message) {
+            getLogger().log(level, message);
+        }
+
+        @Override
+        public void log(Level level, String message, Throwable e) {
+            getLogger().log(level, message);
+        }
+    };
 
     protected ResourcepacksPluginCommandExecutor pluginCommand;
 
@@ -773,6 +786,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     @Override
+    public PluginLogger getPluginLogger() {
+        return null;
+    }
+
+    @Override
     public void logDebug(String message) {
         logDebug(message, null);
     }
@@ -831,6 +849,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     @Override
     public void log(Level level, String message) {
         getLogger().log(level, ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
+    @Override
+    public void log(Level level, String message, Throwable throwable) {
+        getLogger().log(level, ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', message)), throwable);
     }
 
     @Override

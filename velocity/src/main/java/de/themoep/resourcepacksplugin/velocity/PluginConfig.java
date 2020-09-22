@@ -18,7 +18,6 @@ package de.themoep.resourcepacksplugin.velocity;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ValueType;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 
 import java.io.BufferedReader;
@@ -26,9 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -63,10 +60,10 @@ public class PluginConfig {
                         .setSource(() -> new BufferedReader(new InputStreamReader(plugin.getResourceAsStream(defaultFile))))
                         .build().load();
             }
-            plugin.getLogger().log(Level.INFO, "Loaded " + configFile.getName());
+            plugin.log(Level.INFO, "Loaded " + configFile.getName());
             return true;
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Unable to load configuration file " + configFile.getName(), e);
+            plugin.log(Level.SEVERE, "Unable to load configuration file " + configFile.getName(), e);
             return false;
         }
     }
@@ -74,7 +71,7 @@ public class PluginConfig {
     public boolean createDefaultConfig() throws IOException {
         try (InputStream in = plugin.getResourceAsStream(defaultFile)) {
             if (in == null) {
-                plugin.getLogger().log(Level.WARNING, "No default config '" + defaultFile + "' found in " + plugin.getName() + "!");
+                plugin.log(Level.WARNING, "No default config '" + defaultFile + "' found in " + plugin.getName() + "!");
                 return false;
             }
             if (!configFile.exists()) {
@@ -86,11 +83,11 @@ public class PluginConfig {
                     Files.copy(in, configFile.toPath());
                     return true;
                 } catch (IOException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "Could not save " + configFile.getName() + " to " + configFile, ex);
+                    plugin.log(Level.SEVERE, "Could not save " + configFile.getName() + " to " + configFile, ex);
                 }
             }
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not load default config from " + defaultFile, ex);
+            plugin.log(Level.SEVERE, "Could not load default config from " + defaultFile, ex);
         }
         return false;
     }

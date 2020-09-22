@@ -32,6 +32,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import de.themoep.minedown.adventure.MineDown;
+import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.velocity.listeners.PluginMessageListener;
@@ -49,6 +50,7 @@ import de.themoep.resourcepacksplugin.core.commands.ResourcepacksPluginCommandEx
 import de.themoep.resourcepacksplugin.core.commands.UsePackCommandExecutor;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import de.themoep.utils.lang.LangLogger;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.velocity.LanguageManager;
 import de.themoep.utils.lang.velocity.Languaged;
@@ -57,6 +59,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.slf4j.Logger;
 import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
@@ -72,12 +75,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     private final ProxyServer proxy;
-    private final Logger logger;
+    private final VelocityPluginLogger logger;
     private final File dataFolder;
     private PluginContainer ownContainer = null;
 
@@ -118,7 +120,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
         this.proxy = proxy;
-        this.logger = logger;
+        this.logger = new VelocityPluginLogger(logger);
         this.dataFolder = dataFolder.toFile();
     }
 
@@ -138,7 +140,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         viaPlugin = getProxy().getPluginManager().getPlugin("ViaVersion");
         if (viaPlugin.isPresent()) {
-            getLogger().log(Level.INFO, "Detected ViaVersion " + ((ViaPlatform) viaPlugin.get()).getApi().getVersion());
+            log(Level.INFO, "Detected ViaVersion " + ((ViaPlatform) viaPlugin.get()).getApi().getVersion());
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
@@ -184,7 +186,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         storedPacks = new PluginConfig(this, new File(getDataFolder(), "players.conf"), null);
         if (!storedPacks.load()) {
-            getLogger().log(Level.SEVERE, "Unable to load players.yml! Stored player packs will not apply!");
+            log(Level.SEVERE, "Unable to load players.yml! Stored player packs will not apply!");
         }
 
         String debugString = getConfig().getString("debug", "true");
@@ -196,34 +198,34 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             try {
                 loglevel = Level.parse(debugString.toUpperCase());
             } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, "Wrong config value for debug! To disable debugging just set it to \"false\"! (" + e.getMessage() + ")");
+                log(Level.SEVERE, "Wrong config value for debug! To disable debugging just set it to \"false\"! (" + e.getMessage() + ")");
             }
         }
-        getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
+        log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
         if (getConfig().getBoolean("useauth")) {
-            getLogger().log(Level.INFO, "Compatibility with backend AuthMe install ('useauth') is enabled.");
+            log(Level.INFO, "Compatibility with backend AuthMe install ('useauth') is enabled.");
         }
 
         lm = new LanguageManager(this, getConfig().getString("default-language"));
 
         getPackManager().init();
         if (getConfig().isSection("packs")) {
-            getLogger().log(Level.INFO, "Loading packs:");
+            log(Level.INFO, "Loading packs:");
             ConfigurationNode packs = getConfig().getRawConfig("packs");
             for (Map.Entry<Object, ? extends ConfigurationNode> s : packs.getChildrenMap().entrySet()) {
                 ConfigurationNode packSection = s.getValue();
                 try {
                     ResourcePack pack = getPackManager().loadPack((String) s.getKey(), getConfigMap(packSection));
-                    getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
+                    log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                     ResourcePack previous = getPackManager().addPack(pack);
                     if (previous != null) {
-                        getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
+                        log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
                     }
                     logDebug(pack.serialize().toString());
                 } catch (IllegalArgumentException e) {
-                    getLogger().log(Level.SEVERE, e.getMessage());
+                    log(Level.SEVERE, e.getMessage());
                 }
             }
         } else {
@@ -234,30 +236,30 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             ConfigurationNode packSection = getConfig().getRawConfig("empty");
             try {
                 ResourcePack pack = getPackManager().loadPack(PackManager.EMPTY_IDENTIFIER, getConfigMap(packSection));
-                getLogger().log(Level.INFO, "Empty pack - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
+                log(Level.INFO, "Empty pack - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
             } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, e.getMessage());
+                log(Level.SEVERE, e.getMessage());
             }
         } else {
             String emptypackname = getConfig().getString("empty");
             if (emptypackname != null && !emptypackname.isEmpty()) {
                 ResourcePack ep = getPackManager().getByName(emptypackname);
                 if (ep != null) {
-                    getLogger().log(Level.INFO, "Empty pack: " + ep.getName());
+                    log(Level.INFO, "Empty pack: " + ep.getName());
                     getPackManager().setEmptyPack(ep);
                 } else {
-                    getLogger().log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
+                    log(Level.WARNING, "Cannot set empty resourcepack as there is no pack with the name " + emptypackname + " defined!");
                 }
             } else {
-                getLogger().log(Level.WARNING, "No empty pack defined!");
+                log(Level.WARNING, "No empty pack defined!");
             }
         }
 
         if (getConfig().isSection("global")) {
-            getLogger().log(Level.INFO, "Loading global assignment...");
+            log(Level.INFO, "Loading global assignment...");
             ConfigurationNode globalSection = getConfig().getRawConfig("global");
             PackAssignment globalAssignment = getPackManager().loadAssignment("global", getValues(globalSection));
             getPackManager().setGlobalAssignment(globalAssignment);
@@ -267,17 +269,17 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         }
 
         if (getConfig().isSection("servers")) {
-            getLogger().log(Level.INFO, "Loading server assignments...");
+            log(Level.INFO, "Loading server assignments...");
             ConfigurationNode servers = getConfig().getRawConfig("servers");
             for (Map.Entry<Object, ? extends ConfigurationNode> server : servers.getChildrenMap().entrySet()) {
                 ConfigurationNode serverSection = server.getValue();
                 if (serverSection.isMap()) {
-                    getLogger().log(Level.INFO, "Loading assignment for server " + server.getKey() + "...");
+                    log(Level.INFO, "Loading assignment for server " + server.getKey() + "...");
                     PackAssignment serverAssignment = getPackManager().loadAssignment((String) server.getKey(), getValues(serverSection));
                     getPackManager().addAssignment(serverAssignment);
                     logDebug("Loaded server assignment " + serverAssignment.toString());
                 } else {
-                    getLogger().log(Level.WARNING, "Config has entry for server " + server.getKey() + " but it is not a configuration section?");
+                    log(Level.WARNING, "Config has entry for server " + server.getKey() + " but it is not a configuration section?");
                 }
             }
         } else {
@@ -317,9 +319,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      */
     public void reloadConfig(boolean resend) {
         loadConfig();
-        getLogger().log(Level.INFO, "Reloaded config.");
-        if(isEnabled() && resend) {
-            getLogger().log(Level.INFO, "Resending packs for all online players!");
+        log(Level.INFO, "Reloaded config.");
+        if (isEnabled() && resend) {
+            log(Level.INFO, "Resending packs for all online players!");
             um = new UserManager(this);
             for (Player p : getProxy().getAllPlayers()) {
                 resendPack(p);
@@ -433,8 +435,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if (clientVersion.getProtocol() >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
             player.sendResourcePack(pack.getUrl(), pack.getRawHash());
         } else {
-            getLogger().log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
-            getLogger().log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
+            log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
+            log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
         }
     }
 
@@ -573,7 +575,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     @Override
-    public Logger getLogger() {
+    public PluginLogger getPluginLogger() {
+        return logger;
+    }
+
+    @Override
+    public LangLogger getLangLogger() {
         return logger;
     }
 
@@ -601,7 +608,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public void logDebug(String message, Throwable throwable) {
-        getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
+        log(getLogLevel(), "[DEBUG] " + message, throwable);
     }
 
     @Override
@@ -648,7 +655,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public void log(Level level, String message) {
-        getLogger().log(level, message);
+        getPluginLogger().log(level, message);
+    }
+
+    @Override
+    public void log(Level level, String message, Throwable throwable) {
+        getPluginLogger().log(level, message, throwable);
     }
 
     @Override

@@ -534,26 +534,26 @@ public class PackManager {
         PackAssignment assignment = new PackAssignment(name);
         if (config.get("regex") != null) {
             if (!(config.get("regex") instanceof String)) {
-                plugin.getLogger().log(Level.WARNING, "'regex' option has to be a String!");
+                plugin.log(Level.WARNING, "'regex' option has to be a String!");
             } else {
                 try {
                     assignment.setRegex(Pattern.compile(((String) config.get("regex"))));
                     plugin.logDebug("Regex: " + assignment.getRegex().toString());
                 } catch (PatternSyntaxException e) {
-                    plugin.getLogger().log(Level.WARNING, "The assignment's regex '" + config.get("regex") + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
+                    plugin.log(Level.WARNING, "The assignment's regex '" + config.get("regex") + "' isn't valid! Using the key name literally! (" + e.getMessage() + ")");
                 }
             }
         }
         if(config.get("pack") != null) {
             if (!(config.get("pack") instanceof String)) {
-                plugin.getLogger().log(Level.WARNING, "'pack' option has to be a String!");
+                plugin.log(Level.WARNING, "'pack' option has to be a String!");
             } else if (!((String) config.get("pack")).isEmpty()) {
                 ResourcePack pack = getByName((String) config.get("pack"));
                 if (pack != null) {
                     assignment.setPack(pack);
                     plugin.logDebug("Pack: " + pack.getName());
                 } else {
-                    plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                    plugin.log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
                 }
             }
         }
@@ -561,7 +561,7 @@ public class PackManager {
             if (!(config.get("secondary") instanceof List)
                     || !((List) config.get("secondary")).isEmpty()
                     && !(((List) config.get("secondary")).get(0) instanceof String)){
-                plugin.getLogger().log(Level.WARNING, "'secondary' option has to be a String List!");
+                plugin.log(Level.WARNING, "'secondary' option has to be a String List!");
             } else {
                 plugin.logDebug("Secondary packs:");
                 List<String> secondary = (List<String>) config.get("secondary");
@@ -571,14 +571,14 @@ public class PackManager {
                         assignment.addSecondary(pack);
                         plugin.logDebug("- " + pack.getName());
                     } else {
-                        plugin.getLogger().log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                        plugin.log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
                     }
                 }
             }
         }
         if (config.get("send-delay") != null) {
             if (!(config.get("send-delay") instanceof Number)) {
-                plugin.getLogger().log(Level.WARNING, "'send-delay' option has to be a number!");
+                plugin.log(Level.WARNING, "'send-delay' option has to be a number!");
             } else {
                 assignment.setSendDelay(((Number) config.get("send-delay")).longValue());
                 plugin.logDebug("Send delay: " + assignment.getSendDelay());

@@ -21,9 +21,9 @@ package de.themoep.resourcepacksplugin.core;
 
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -35,18 +35,18 @@ import java.util.logging.Logger;
 public interface ResourcepacksPlugin {
 
     default void startupMessage() {
-        getLogger().log(getLogLevel(), "");
-        getLogger().log(getLogLevel(), "  If you enjoy my " + getName() + " plugin then you might also be");
-        getLogger().log(getLogLevel(), "  interested in the more advanced ForceResourcepacks version!");
-        getLogger().log(getLogLevel(), "");
-        getLogger().log(getLogLevel(), "  Besides getting additional features like WorldGuard support and");
-        getLogger().log(getLogLevel(), "  the ability to force a player to accept the resources pack you");
-        getLogger().log(getLogLevel(), "  will also support the continued development of this plugin!");
-        getLogger().log(getLogLevel(), "");
-        getLogger().log(getLogLevel(), "  Check it out here on spigotmc.org: https://s.moep.tv/frp");
-        getLogger().log(getLogLevel(), "");
-        getLogger().log(getLogLevel(), "  - Phoenix616");
-        getLogger().log(getLogLevel(), "");
+        log(getLogLevel(), "");
+        log(getLogLevel(), "  If you enjoy my " + getName() + " plugin then you might also be");
+        log(getLogLevel(), "  interested in the more advanced ForceResourcepacks version!");
+        log(getLogLevel(), "");
+        log(getLogLevel(), "  Besides getting additional features like WorldGuard support and");
+        log(getLogLevel(), "  the ability to force a player to accept the resources pack you");
+        log(getLogLevel(), "  will also support the continued development of this plugin!");
+        log(getLogLevel(), "");
+        log(getLogLevel(), "  Check it out here on spigotmc.org: https://s.moep.tv/frp");
+        log(getLogLevel(), "");
+        log(getLogLevel(), "  - Phoenix616");
+        log(getLogLevel(), "");
     }
 
     boolean loadConfig();
@@ -157,7 +157,7 @@ public interface ResourcepacksPlugin {
      */
     String getVersion();
 
-    Logger getLogger();
+    PluginLogger getPluginLogger();
 
     File getDataFolder();
 
@@ -219,6 +219,14 @@ public interface ResourcepacksPlugin {
      * @param message The message to log
      */
     void log(Level level, String message);
+
+    /**
+     * Log a message. This strips out all color codes
+     * @param level The level at which the message should be logged
+     * @param message The message to log
+     * @param throwable The error to log
+     */
+    void log(Level level, String message, Throwable throwable);
 
     /**
      * Check whether or not a player has a permission

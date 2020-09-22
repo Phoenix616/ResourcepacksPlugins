@@ -23,6 +23,7 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +67,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                     } else if (sender != null) {
                         player = sender;
                     } else {
-                        plugin.getLogger().warning("You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
+                        plugin.log(Level.WARNING, "You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
                         return true;
                     }
                     switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {

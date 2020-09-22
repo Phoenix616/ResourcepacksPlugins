@@ -30,6 +30,7 @@ import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
@@ -81,6 +82,18 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private LanguageManager lm;
 
     private Level loglevel = Level.INFO;
+
+    private PluginLogger pluginLogger = new PluginLogger() {
+        @Override
+        public void log(Level level, String message) {
+            getLogger().log(level, message);
+        }
+
+        @Override
+        public void log(Level level, String message, Throwable e) {
+            getLogger().log(level, message);
+        }
+    };
 
     private int serverProtocolVersion = 0;
 
@@ -503,7 +516,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public String getVersion() {
         return getDescription().getVersion();
     }
-    
+
+    @Override
+    public PluginLogger getPluginLogger() {
+        return pluginLogger;
+    }
+
     @Override
     public void logDebug(String message) {
         logDebug(message, null);
@@ -563,6 +581,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public void log(Level level, String message) {
         getLogger().log(level, ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
+    @Override
+    public void log(Level level, String message, Throwable throwable) {
+        getLogger().log(level, ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', message)), throwable);
     }
 
     @Override
