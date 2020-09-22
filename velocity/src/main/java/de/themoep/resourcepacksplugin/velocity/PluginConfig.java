@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.velocity;
  */
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
+import org.yaml.snakeyaml.DumperOptions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,7 +49,11 @@ public class PluginConfig {
         this.plugin = plugin;
         this.configFile = configFile;
         this.defaultFile = defaultFile;
-        configLoader = YAMLConfigurationLoader.builder().setIndent(2).setPath(configFile.toPath()).build();
+        configLoader = YAMLConfigurationLoader.builder()
+                .setIndent(2)
+                .setPath(configFile.toPath())
+                .setFlowStyle(DumperOptions.FlowStyle.BLOCK)
+                .build();
     }
 
     public boolean load() {
