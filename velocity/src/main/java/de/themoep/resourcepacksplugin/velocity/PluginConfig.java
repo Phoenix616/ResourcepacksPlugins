@@ -55,10 +55,13 @@ public class PluginConfig {
         try {
             config = configLoader.load();
             if (defaultFile != null) {
-                defaultConfig = config = YAMLConfigurationLoader.builder()
+                defaultConfig = YAMLConfigurationLoader.builder()
                         .setIndent(2)
                         .setSource(() -> new BufferedReader(new InputStreamReader(plugin.getResourceAsStream(defaultFile))))
                         .build().load();
+                if (config.isEmpty()) {
+                    config = defaultConfig.copy();
+                }
             }
             plugin.log(Level.INFO, "Loaded " + configFile.getName());
             return true;
