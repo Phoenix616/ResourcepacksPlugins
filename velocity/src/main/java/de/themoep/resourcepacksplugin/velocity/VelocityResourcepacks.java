@@ -708,7 +708,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public int runTask(Runnable runnable) {
-        getProxy().getScheduler().buildTask(this, runnable);
+        getProxy().getScheduler().buildTask(this, runnable).schedule();
         return 0;
     }
 
