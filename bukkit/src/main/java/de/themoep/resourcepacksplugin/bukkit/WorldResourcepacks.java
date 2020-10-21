@@ -60,10 +60,13 @@ import protocolsupport.api.ProtocolVersion;
 import us.myles.ViaVersion.ViaVersionPlugin;
 import us.myles.ViaVersion.api.ViaAPI;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -109,6 +112,23 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public void onEnable() {
         boolean firstStart = !getDataFolder().exists();
         storedPacks = new ConfigAccessor(this, "players.yml");
+
+        File serverPropertiesFile = new File("server.properties");
+        if (serverPropertiesFile.exists() && serverPropertiesFile.isFile()) {
+            try (FileInputStream in = new FileInputStream(serverPropertiesFile)) {
+                Properties properties = new Properties();
+                properties.load(in);
+                String resourcePack = properties.getProperty("resource-pack");
+                if (resourcePack != null && !resourcePack.isEmpty()) {
+                    getLogger().log(Level.WARNING, "You seem to have defined a resource-pack in your server.properties file, " +
+                            "if you experience issues then please remove it and configure the pack via this plugin's config directly " +
+                            "as it works better when it can completely handle the whole sending itself.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
