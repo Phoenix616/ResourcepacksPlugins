@@ -542,10 +542,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             if (config != null) {
                 return MineDown.parse(config.get(key), replacements);
             } else {
-                return TextComponent.of("Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")");
+                return Component.text("Missing language config! (default language: " + lm.getDefaultLocale() + ", key: " + key + ")");
             }
         }
-        return TextComponent.of(key);
+        return Component.text(key);
     }
 
     @Override
