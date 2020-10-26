@@ -471,7 +471,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         if (pack.getRawHash().length != 0) {
             internalHelper.setResourcePack(player, pack);
         } else {
-            player.setResourcePack(pack.getUrl());
+            player.setResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash());
         }
         logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }

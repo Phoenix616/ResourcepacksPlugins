@@ -52,6 +52,8 @@ public class PackManager {
 
     public static final String EMPTY_IDENTIFIER = "empty";
 
+    public static final String HASH_KEY = "#hash=";
+
     private final ResourcepacksPlugin plugin;
     /**
      * packname -> ResourcePack
@@ -258,6 +260,9 @@ public class PackManager {
      * @return The resourcepack with that url, null if there is none
      */
     public ResourcePack getByUrl(String url) {
+        if (url.contains(HASH_KEY)) {
+            url = url.substring(0, url.lastIndexOf(HASH_KEY));
+        }
         return packUrls.get(url);
     }
 

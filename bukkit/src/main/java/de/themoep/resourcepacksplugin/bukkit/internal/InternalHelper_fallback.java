@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.bukkit.internal;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -63,17 +64,17 @@ public class InternalHelper_fallback implements InternalHelper {
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
         if (hasSetResourcePack) {
-            player.setResourcePack(pack.getUrl(), pack.getRawHash());
+            player.setResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
             return;
         }
 
         try {
             if (setPackWithHashMethod != null) {
-                setPackWithHashMethod.invoke(player, pack.getUrl(), pack.getRawHash());
+                setPackWithHashMethod.invoke(player, pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
                 return;
             } else if (getHandle != null && setResourcePack != null) {
                 Object entityPlayer = getHandle.invoke(player);
-                setResourcePack.invoke(entityPlayer, pack.getUrl(), pack.getHash());
+                setResourcePack.invoke(entityPlayer, pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getHash());
                 return;
             }
         } catch (InvocationTargetException e) {

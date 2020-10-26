@@ -433,7 +433,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     protected void sendPack(Player player, ResourcePack pack) {
         ProtocolVersion clientVersion = player.getProtocolVersion();
         if (clientVersion.getProtocol() >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
-            player.sendResourcePack(pack.getUrl(), pack.getRawHash());
+            player.sendResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
         } else {
             log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
             log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
