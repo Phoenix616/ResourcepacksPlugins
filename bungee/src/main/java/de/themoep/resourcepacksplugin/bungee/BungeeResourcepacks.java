@@ -662,6 +662,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
       */
     public void sendPackInfo(ProxiedPlayer player, ResourcePack pack) {
         if (player.getServer() == null) {
+            logDebug("Tried to send pack info of " + pack.getName() + " for player " + player.getName() + " but server was null!");
             return;
         }
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
