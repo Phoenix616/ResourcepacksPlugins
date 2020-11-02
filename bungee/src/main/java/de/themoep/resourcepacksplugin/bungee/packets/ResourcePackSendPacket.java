@@ -21,7 +21,6 @@ package de.themoep.resourcepacksplugin.bungee.packets;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
-import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,8 +34,6 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -46,18 +43,6 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     private String url;
     private String hash;
-
-    public final static List<IdMapping> ID_MAPPINGS = Arrays.asList(
-            new IdMapping("1.8", MinecraftVersion.MINECRAFT_1_8.getProtocolNumber(), 0x48),
-            new IdMapping("1.9", MinecraftVersion.MINECRAFT_1_9.getProtocolNumber(), 0x32),
-            new IdMapping("1.12", MinecraftVersion.MINECRAFT_1_12.getProtocolNumber(), 0x33),
-            new IdMapping("1.12.1", MinecraftVersion.MINECRAFT_1_12_1.getProtocolNumber(), 0x34),
-            new IdMapping("1.13", MinecraftVersion.MINECRAFT_1_13.getProtocolNumber(), 0x37),
-            new IdMapping("1.14", MinecraftVersion.MINECRAFT_1_14.getProtocolNumber(), 0x39),
-            new IdMapping("1.15", MinecraftVersion.MINECRAFT_1_15.getProtocolNumber(), 0x3A),
-            new IdMapping("1.16", MinecraftVersion.MINECRAFT_1_16.getProtocolNumber(), 0x39),
-            new IdMapping("1.16.2", MinecraftVersion.MINECRAFT_1_16_2.getProtocolNumber(), 0x38)
-    );
 
     public ResourcePackSendPacket() {};
 
