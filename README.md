@@ -1,7 +1,7 @@
 # ResourcepacksPlugins
 [![Total downloads](https://img.shields.io/github/downloads/Phoenix616/ResourcepacksPlugins/total.svg)](https://github.com/Phoenix616/ResourcepacksPlugins/releases) ![Work time](https://buttons.phoenix616.dev//ResourcepacksPluginsWork.svg)
 
-Repository for the different resourcepacks plugins by Phoenix616: [BungeeResourcepacks](https://www.spigotmc.org/resources/bungee-resourcepacks.6137/), [WorldResourcepacks](https://www.spigotmc.org/resources/world-resourcepacks.18950/) and VelocityResourcepacks.
+Repository for the different resourcepacks plugins by Phoenix616: [BungeeResourcepacks](https://www.spigotmc.org/resources/bungee-resourcepacks.6137/), [WorldResourcepacks](https://www.spigotmc.org/resources/world-resourcepacks.18950/) and [VelocityResourcepacks](https://forums.velocitypowered.com/t/velocityresourcepacks/515).
 
 ## Development
 
