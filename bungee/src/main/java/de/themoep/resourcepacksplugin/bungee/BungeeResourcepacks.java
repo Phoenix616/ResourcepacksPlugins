@@ -771,7 +771,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if (sender != null) {
                 player = getProxy().getPlayer(sender.getUniqueId());
             }
-            return lm.getConfig(player).contains(key, true);
+            LanguageConfig config = lm.getConfig(player);
+            if (config != null) {
+                return config.contains(key, true);
+            }
         }
         return false;
     }

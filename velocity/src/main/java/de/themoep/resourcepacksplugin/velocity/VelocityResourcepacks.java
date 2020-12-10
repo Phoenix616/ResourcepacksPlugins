@@ -555,7 +555,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             if (sender != null) {
                 player = getProxy().getPlayer(sender.getUniqueId()).orElse(null);
             }
-            return lm.getConfig(player).contains(key, true);
+            LanguageConfig config = lm.getConfig(player);
+            if (config != null) {
+                return config.contains(key, true);
+            }
         }
         return false;
     }

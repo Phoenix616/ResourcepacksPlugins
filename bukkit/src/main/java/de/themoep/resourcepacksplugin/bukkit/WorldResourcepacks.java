@@ -527,7 +527,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (sender != null) {
                 player = getServer().getPlayer(sender.getUniqueId());
             }
-            return lm.getConfig(player).contains(key, true);
+            LanguageConfig config = lm.getConfig(player);
+            if (config != null) {
+                return config.contains(key, true);
+            }
         }
         return false;
     }
