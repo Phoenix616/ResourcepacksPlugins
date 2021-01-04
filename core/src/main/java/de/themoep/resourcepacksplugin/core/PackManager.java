@@ -719,9 +719,10 @@ public class PackManager {
             }
         }
         if (pack == null) {
-            pack = getByName(plugin.getStoredPack(playerId));
-            if (pack != null) {
-                plugin.logDebug(playerId + " has the pack " + pack.getName() + " stored!");
+            ResourcePack stored = getByName(plugin.getStoredPack(playerId));
+            if (stored != null && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                pack = stored;
+                plugin.logDebug(playerId + " has the pack " + stored.getName() + " stored!");
             }
         }
         if (pack != null && pack.equals(prev)) {
