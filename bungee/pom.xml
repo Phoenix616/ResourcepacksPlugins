@@ -118,7 +118,7 @@
                         </relocation>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
-                            <shadedPattern>de.themoep.resourcepacksplugin.bungee.libs.minedown</shadedPattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.libs.minedown</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
