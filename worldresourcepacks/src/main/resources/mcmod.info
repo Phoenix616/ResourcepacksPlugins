@@ -1,0 +1,12 @@
+[{
+  "modid": "worldresourcepacks",
+  "name": "WorldResourcepacks",
+  "version": "${minecraft.plugin.version}",
+  "description": "Send different server resource packs to players per world.",
+  "authorList": [
+    "Phoenix616"
+  ],
+  "dependencies": [
+    {"id":"ViaVersion", "optional": true}
+  ]
+}]

@@ -70,6 +70,43 @@
             <version>1.1</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Sponge -->
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>sponge</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.utils</groupId>
+            <artifactId>lang-sponge</artifactId>
+            <version>${lang.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>minedown-adventure</artifactId>
+            <version>${minedown.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-platform-spongeapi</artifactId>
+            <version>4.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-serializer-legacy</artifactId>
+            <version>4.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>4.4.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -94,16 +131,40 @@
                 <configuration>
                     <relocations>
                         <relocation>
+                            <pattern>de.themoep.utils.lang</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.libs.lang</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>de.themoep.minedown</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.libs.minedown</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.bstats</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>de.themoep.utils.lang</pattern>
+                            <pattern>de.themoep.utils.lang.bukkit</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.lang</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>de.themoep.minedown</pattern>
-                            <shadedPattern>de.themoep.resourcepacksplugin.bukkit.libs.minedown</shadedPattern>
+                            <pattern>de.themoep.utils.lang.sponge</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.lang</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.kyori</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.checkerframework</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.checkerframework</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.intellij.lang.annotations</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.intellijlanganno</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.jetbrains.annotations</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.jetbrainsanno</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
