@@ -74,7 +74,7 @@ public class ProxyPackListener implements PluginMessageListener {
                 }
             }
 
-            plugin.getLogger().log(plugin.getLogLevel(), "BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.getName());
+            plugin.logDebug("BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.getName());
             plugin.getUserManager().setUserPack(player.getUniqueId(), pack);
         } else if(subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
@@ -83,7 +83,7 @@ public class ProxyPackListener implements PluginMessageListener {
                 return;
             }
 
-            plugin.getLogger().log(plugin.getLogLevel(), "BungeeCord proxy send command to clear the pack of player " + player.getName());
+            plugin.logDebug("BungeeCord proxy send command to clear the pack of player " + player.getName());
             plugin.clearPack(player);
         } else if (subChannels.containsKey(subchannel)) {
             subChannels.get(subchannel).execute(p, in);

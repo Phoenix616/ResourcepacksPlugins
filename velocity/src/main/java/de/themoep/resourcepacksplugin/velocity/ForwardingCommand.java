@@ -23,9 +23,9 @@ import com.velocitypowered.api.proxy.Player;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ForwardingCommand implements SimpleCommand {
     private final PluginCommandExecutor executor;
@@ -57,7 +57,10 @@ public class ForwardingCommand implements SimpleCommand {
                 return Collections.emptyList();
             }
         }
-        return new ArrayList<>(last.getSubCommands().keySet());
+        return last.getSubCommands().values().stream()
+                .filter(c -> c.getPermission() == null || i.source().hasPermission(c.getPermission()))
+                .map(PluginCommandExecutor::getName)
+                .collect(Collectors.toList());
     }
 
 }

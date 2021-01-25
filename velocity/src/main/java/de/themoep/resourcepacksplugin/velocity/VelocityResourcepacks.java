@@ -171,6 +171,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     public boolean loadConfig() {
+        log(Level.INFO, "Loading config!");
         config = new PluginConfig(this, new File(getDataFolder(), "config.yml"), "velocity-config.yml");
 
         try {
