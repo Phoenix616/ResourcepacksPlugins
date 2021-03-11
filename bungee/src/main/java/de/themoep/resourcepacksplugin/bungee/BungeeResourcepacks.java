@@ -524,6 +524,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public void saveConfigChanges() {
         for (ResourcePack pack : getPackManager().getPacks()) {
+            if (pack.getName().startsWith("backend-")) {
+                continue;
+            }
             String path = "packs." + pack.getName();
             if (pack.equals(getPackManager().getEmptyPack()) && getConfig().isSection("empty")) {
                 path = "empty";
