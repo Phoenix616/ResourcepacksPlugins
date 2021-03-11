@@ -58,6 +58,7 @@ public class ProxyPackListener implements PluginMessageListener {
 
             Player player = plugin.getServer().getPlayer(playerName);
             if(player == null || !player.isOnline()) {
+                plugin.logDebug("BungeeCord proxy send pack " + packName + " (" + packUrl + ") to player " + playerName + " but they aren't online?");
                 return;
             }
 
@@ -80,6 +81,7 @@ public class ProxyPackListener implements PluginMessageListener {
             String playerName = in.readUTF();
             Player player = plugin.getServer().getPlayer(playerName);
             if (player == null || !player.isOnline()) {
+                plugin.logDebug("BungeeCord proxy send command to clear the pack of player " + playerName + " but they aren't online?");
                 return;
             }
 
