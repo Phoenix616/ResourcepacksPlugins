@@ -523,6 +523,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     public void saveConfigChanges() {
+        getConfig().set("packs", null);
         for (ResourcePack pack : getPackManager().getPacks()) {
             if (pack.getName().startsWith("backend-")) {
                 continue;

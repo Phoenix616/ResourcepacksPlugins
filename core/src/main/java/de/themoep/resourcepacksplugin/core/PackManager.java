@@ -184,6 +184,28 @@ public class PackManager {
         return packNames.put(pack.getName().toLowerCase(), pack);
     }
 
+    /**
+     * Unregisters a resource pack from the packmanager
+     * @param pack The resourcepack to unregister
+     * @return If that pack was known before it returns true, if not false
+     */
+    public boolean removePack(ResourcePack pack) {
+        boolean known = false;
+        if (pack.getVariants().isEmpty()) {
+            if (pack.getUrl() != null && pack.getUrl().isEmpty()) {
+                known |= packUrls.remove(pack.getUrl(), pack);
+            }
+            if (pack.getHash().length() > 0) {
+                known |= packHashes.remove(pack.getHash(), pack);
+            }
+        } else {
+            for (ResourcePack variant : pack.getVariants()) {
+                known |= uncacheVariant(variant, pack);
+            }
+        }
+        return packNames.remove(pack.getName().toLowerCase(), pack) || known;
+    }
+
     private void cacheVariant(ResourcePack variant, ResourcePack pack) {
         if (variant.getVariants().isEmpty()) {
             packUrls.putIfAbsent(variant.getUrl(), pack);
@@ -193,6 +215,19 @@ public class PackManager {
                 cacheVariant(variantVariant, pack);
             }
         }
+    }
+
+    private boolean uncacheVariant(ResourcePack variant, ResourcePack pack) {
+        boolean known = false;
+        if (variant.getVariants().isEmpty()) {
+            known |= packUrls.remove(variant.getUrl(), pack);
+            known |= packHashes.remove(variant.getHash(), pack);
+        } else {
+            for (ResourcePack variantVariant : variant.getVariants()) {
+                known |= uncacheVariant(variantVariant, pack);
+            }
+        }
+        return known;
     }
 
     /**

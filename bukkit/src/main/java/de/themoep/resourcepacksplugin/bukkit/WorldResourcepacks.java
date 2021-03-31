@@ -374,6 +374,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void saveConfigChanges() {
+        getConfig().set("packs", null);
         for (ResourcePack pack : getPackManager().getPacks()) {
             String path = "packs." + pack.getName();
             if (pack.equals(getPackManager().getEmptyPack()) && getConfig().isConfigurationSection("empty")) {

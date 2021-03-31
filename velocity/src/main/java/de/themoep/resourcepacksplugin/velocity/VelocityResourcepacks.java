@@ -331,6 +331,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     public void saveConfigChanges() {
+        getConfig().set("packs", null);
         for (ResourcePack pack : getPackManager().getPacks()) {
             String path = "packs." + pack.getName();
             if (pack.equals(getPackManager().getEmptyPack()) && getConfig().isSection("empty")) {

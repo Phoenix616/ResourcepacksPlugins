@@ -90,6 +90,23 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
                 },
+                new PluginCommandExecutor(plugin, this, "removepack <name>") {
+                    @Override
+                    public boolean run(ResourcepacksPlayer sender, String[] args) {
+                        if (args.length < 1) {
+                            return false;
+                        }
+                        ResourcePack pack = plugin.getPackManager().getByName(args[0]);
+                        if (pack == null) {
+                            sendMessage(sender, "unknown-pack", "input", args[0]);
+                            return true;
+                        }
+                        plugin.getPackManager().removePack(pack);
+                        plugin.saveConfigChanges();
+                        sendMessage(sender, "removed", pack.getReplacements());
+                        return true;
+                    }
+                },
                 new PluginCommandExecutor(plugin, this, "pack <pack> [url|hash|format|restricted|permission]") {
                     @Override
                     public boolean run(ResourcepacksPlayer sender, String[] args) {

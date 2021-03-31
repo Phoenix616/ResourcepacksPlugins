@@ -11,6 +11,8 @@ command:
     name-already-used: "&cA pack with the name of &f%name%&c already exists!"
     url-already-used: "&cThe pack &f%name%&c is already using the url &f%url%&c!"
     added: "&eAdded new pack &f%name%&e with url &f%url%"
+  removepack:
+    removed: "&eRemoved pack &f%name%&e with url &f%url%"
   pack:
     updated: "&eSet &f%type%&e of pack &f%pack%&e to &f%value%"
     info: |-
