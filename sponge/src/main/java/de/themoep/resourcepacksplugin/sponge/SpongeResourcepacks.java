@@ -665,7 +665,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
             return ClientType.BEDROCK;
         }
 
-        return ClientType.ORIGINAL;
+        return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 
     @Override

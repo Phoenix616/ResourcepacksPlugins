@@ -923,7 +923,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return ClientType.BEDROCK;
         }
 
-        return ClientType.ORIGINAL;
+        return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 
     @Override

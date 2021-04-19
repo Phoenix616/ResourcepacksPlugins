@@ -269,7 +269,12 @@ public interface ResourcepacksPlugin {
      * @param playerId The UUID of the player
      * @return The type of the player's client
      */
-    ClientType getPlayerClientType(UUID playerId);
+    default ClientType getPlayerClientType(UUID playerId) {
+        if (playerId.toString().startsWith("00000000-0000-0000-")) {
+            return ClientType.BEDROCK;
+        }
+        return ClientType.ORIGINAL;
+    }
 
     /**
      * Call the ResourcePackSelectEvent on the corresponding server

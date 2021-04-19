@@ -677,7 +677,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             return ClientType.BEDROCK;
         }
 
-        return ClientType.ORIGINAL;
+        return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 
     @Override
