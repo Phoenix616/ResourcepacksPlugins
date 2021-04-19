@@ -21,6 +21,10 @@
             <id>velocity-repo</id>
             <url>https://repo.velocitypowered.com/snapshots/</url>
         </repository>
+        <repository>
+            <id>geyser-repo</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -46,6 +50,18 @@
             <groupId>us.myles</groupId>
             <artifactId>viaversion-common</artifactId>
             <version>3.0.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc</groupId>
+            <artifactId>connector</artifactId>
+            <version>1.3.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>velocity</artifactId>
+            <version>2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

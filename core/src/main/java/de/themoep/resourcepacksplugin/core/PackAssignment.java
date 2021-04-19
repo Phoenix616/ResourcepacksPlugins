@@ -23,6 +23,7 @@ import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -70,10 +71,10 @@ public class PackAssignment {
      */
     public boolean setPack(String pack) {
         if (this.pack == null && pack != null) {
-            this.pack = pack.toLowerCase();
+            this.pack = pack.toLowerCase(Locale.ROOT);
             return true;
         } else if (this.pack != null && !this.pack.equalsIgnoreCase(pack)) {
-            this.pack = pack != null ? pack.toLowerCase() : null;
+            this.pack = pack != null ? pack.toLowerCase(Locale.ROOT) : null;
             return true;
         }
         return false;
@@ -101,7 +102,7 @@ public class PackAssignment {
      * @return      <code>true</code> if this secondary list contains this pack; <code>false</code> if not
      */
     public boolean isSecondary(String pack) {
-        return secondaries.contains(pack.toLowerCase());
+        return secondaries.contains(pack.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -128,7 +129,7 @@ public class PackAssignment {
      * @return      <code>true</code> as defined in Collections.add
      */
     public boolean addSecondary(String pack) {
-        return secondaries.add(pack.toLowerCase());
+        return secondaries.add(pack.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -146,7 +147,7 @@ public class PackAssignment {
      * @return      <code>true</code> if that pack was a secondary one, <code>false</code> if not
      */
     public boolean removeSecondary(String pack) {
-        return secondaries.remove(pack.toLowerCase());
+        return secondaries.remove(pack.toLowerCase(Locale.ROOT));
     }
 
     /**

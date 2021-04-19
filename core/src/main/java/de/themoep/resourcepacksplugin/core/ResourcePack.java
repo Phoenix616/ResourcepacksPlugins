@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,6 +40,7 @@ public class ResourcePack {
     private int version;
     private boolean restricted;
     private String permission;
+    private ClientType type;
 
     private List<ResourcePack> variants = new ArrayList<>();
 
@@ -83,7 +85,7 @@ public class ResourcePack {
      * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
      */
     public ResourcePack(String name, String url, String hash, int format, boolean restricted) {
-        this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name.toLowerCase());
+        this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -110,6 +112,21 @@ public class ResourcePack {
      * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
      */
     public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission) {
+        this(name, url, hash, format, version, restricted, permission, ClientType.ORIGINAL);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param type The type of the pack depending on the client which should receive it
+     */
+    public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission, ClientType type) {
         this.name = name;
         this.url = url;
         if (hash != null && !hash.isEmpty()) {
@@ -123,6 +140,7 @@ public class ResourcePack {
         this.version = version;
         this.restricted = restricted;
         this.permission = permission;
+        this.type = type;
     }
     
     /**
@@ -154,7 +172,7 @@ public class ResourcePack {
     }
 
     void setHash(String hash) {
-        this.hash = BaseEncoding.base16().lowerCase().decode(hash.toLowerCase());
+        this.hash = BaseEncoding.base16().lowerCase().decode(hash.toLowerCase(Locale.ROOT));
     }
 
     public byte[] getRawHash() {
@@ -248,6 +266,27 @@ public class ResourcePack {
     }
 
     /**
+     * Get the client type that the resource pack is for
+     * @return The type
+     */
+    public ClientType getType() {
+        return type;
+    }
+
+    /**
+     * Set the client type that the resource pack is for
+     * @param type The type
+     * @return
+     */
+    public boolean setType(ClientType type) {
+        if (this.type == type) {
+            return false;
+        }
+        this.type = type;
+        return true;
+    }
+
+    /**
      * Get a list of different pack variants. Used to get, add and remove variants.
      * @return The list of pack variants
      */
@@ -294,6 +333,10 @@ public class ResourcePack {
                 return false;
             }
 
+            if (this.getType() != other.getType()) {
+                return false;
+            }
+
             return true;
         }
     }
@@ -307,6 +350,7 @@ public class ResourcePack {
                 "version", String.valueOf(getVersion()),
                 "restricted", String.valueOf(isRestricted()),
                 "permission", getPermission(),
+                "type", getType().humanName(),
                 "variants", String.valueOf(getVariants().size())
         };
     }
@@ -331,6 +375,11 @@ public class ResourcePack {
             }
             map.put("restricted", restricted);
             map.put("permission", permission);
+            if (type == ClientType.ORIGINAL) {
+                map.put("type", null);
+            } else {
+                map.put("type", type.name().toLowerCase(Locale.ROOT));
+            }
         }
         if (variants.isEmpty()) {
             map.put("variants", null);

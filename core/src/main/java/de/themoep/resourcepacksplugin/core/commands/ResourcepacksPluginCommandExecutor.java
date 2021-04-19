@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -26,6 +27,8 @@ import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -33,7 +36,7 @@ import java.util.Arrays;
 public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
 
     public ResourcepacksPluginCommandExecutor(ResourcepacksPlugin plugin) {
-        super(plugin, null, plugin.getName().toLowerCase().charAt(0) + "rp", plugin.getName().toLowerCase() + ".command", new String[]{plugin.getName().toLowerCase()});
+        super(plugin, null, plugin.getName().toLowerCase(Locale.ROOT).charAt(0) + "rp", plugin.getName().toLowerCase(Locale.ROOT) + ".command", new String[]{plugin.getName().toLowerCase(Locale.ROOT)});
         registerSubCommands(
                 new PluginCommandExecutor(plugin, this, "reload") {
                     @Override
@@ -107,7 +110,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
                 },
-                new PluginCommandExecutor(plugin, this, "pack <pack> [url|hash|format|restricted|permission]") {
+                new PluginCommandExecutor(plugin, this, "pack <pack> [url|hash|format|restricted|permission|type]") {
                     @Override
                     public boolean run(ResourcepacksPlayer sender, String[] args) {
                         if (args.length == 0) {
@@ -135,6 +138,13 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                         } else if ("permission".equalsIgnoreCase(args[1])) {
                             save = pack.setPermission(args[2]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
+                        } else if ("type".equalsIgnoreCase(args[1])) {
+                            try {
+                                save = pack.setType(ClientType.valueOf(args[2].toUpperCase(Locale.ROOT)));
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "type", "value", pack.getType().humanName());
+                            } catch (IllegalArgumentException e) {
+                                sendMessage(sender, "invalid-input", "expected", "number", "type (" + Arrays.stream(ClientType.values()).map(ClientType::humanName).collect(Collectors.joining(", ")) + ")", args[2]);
+                            }
                         } else if ("format".equalsIgnoreCase(args[1])) {
                             try {
                                 save = pack.setFormat(Integer.parseInt(args[2]));

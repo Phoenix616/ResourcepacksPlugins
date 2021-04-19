@@ -20,6 +20,7 @@ package de.themoep.resourcepacksplugin.sponge;
 
 import com.google.inject.Inject;
 import de.themoep.minedown.adventure.MineDown;
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.sponge.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.sponge.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.sponge.listeners.DisconnectListener;
@@ -47,6 +48,7 @@ import net.kyori.adventure.platform.spongeapi.SpongeAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.geysermc.connector.GeyserConnector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
@@ -115,6 +117,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
     protected ResourcepacksPluginCommandExecutor pluginCommand;
 
     private ViaAPI viaApi;
+    private GeyserConnector geyser;
 
     @Inject
     SpongeResourcepacks(final SpongeAudiences adventure) {
@@ -166,6 +169,12 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
                 ViaPlatform viaPlugin = (ViaPlatform) viaContainer.get().getInstance().get();
                 viaApi = viaPlugin.getApi();
                 log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+            }
+
+            Optional<PluginContainer> geyserPlugin = Sponge.getPluginManager().getPlugin("geyser");
+            if (geyserPlugin.isPresent()) {
+                geyser = GeyserConnector.getInstance();
+                log(Level.INFO, "Detected Geyser " + geyserPlugin.get().getVersion());
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {
@@ -648,6 +657,15 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
             return protocol;
         }
         return -1;
+    }
+
+    @Override
+    public ClientType getPlayerClientType(UUID playerId) {
+        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        return ClientType.ORIGINAL;
     }
 
     @Override

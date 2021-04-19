@@ -32,6 +32,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import de.themoep.minedown.adventure.MineDown;
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
@@ -59,6 +60,8 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.geysermc.connector.GeyserConnector;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.slf4j.Logger;
 import us.myles.ViaVersion.api.platform.ViaPlatform;
 
@@ -116,6 +119,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private boolean enabled = false;
 
     private Optional<PluginContainer> viaPlugin;
+    private GeyserConnector geyser;
+    private FloodgateApi floodgate;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -141,6 +146,18 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         viaPlugin = getProxy().getPluginManager().getPlugin("ViaVersion");
         if (viaPlugin.isPresent()) {
             log(Level.INFO, "Detected ViaVersion " + ((ViaPlatform) viaPlugin.get()).getApi().getVersion());
+        }
+
+        Optional<PluginContainer> geyserPlugin = getProxy().getPluginManager().getPlugin("geyser");
+        if (geyserPlugin.isPresent()) {
+            geyser = GeyserConnector.getInstance();
+            log(Level.INFO, "Detected Geyser " + geyserPlugin.get().getDescription().getVersion());
+        }
+
+        Optional<PluginContainer> floodgatePlugin = getProxy().getPluginManager().getPlugin("floodgate");
+        if (floodgatePlugin.isPresent()) {
+            floodgate = FloodgateApi.getInstance();
+            log(Level.INFO, "Detected Floodgate " + floodgatePlugin.get().getDescription().getVersion());
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
@@ -690,6 +707,19 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         }
 
         return getProxy().getPlayer(playerId).map(p -> p.getProtocolVersion().getProtocol()).orElse(-1);
+    }
+
+    @Override
+    public ClientType getPlayerClientType(UUID playerId) {
+        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        return ClientType.ORIGINAL;
     }
 
     @Override

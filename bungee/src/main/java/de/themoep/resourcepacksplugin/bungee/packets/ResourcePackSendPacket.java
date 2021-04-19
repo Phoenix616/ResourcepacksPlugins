@@ -34,6 +34,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.logging.Level;
 
 /**
@@ -61,9 +62,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
         if(hash != null) {
-            this.hash = hash.toLowerCase();
+            this.hash = hash.toLowerCase(Locale.ROOT);
         } else {
-            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().toLowerCase();
+            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().toLowerCase(Locale.ROOT);
         }
     }
 
@@ -99,7 +100,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 pack = plugin.getPackManager().getByUrl(getUrl());
             }
             if (pack == null) {
-                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(), getUrl(), getHash());
+                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(Locale.ROOT), getUrl(), getHash());
                 try {
                     plugin.getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
@@ -139,9 +140,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     public void setHash(String hash) {
         if(hash != null) {
-            this.hash = hash.substring(0, 39).toLowerCase();
+            this.hash = hash.substring(0, 39).toLowerCase(Locale.ROOT);
         } else {
-            this.hash = Hashing.sha1().hashString(this.getUrl(), Charsets.UTF_8).toString().substring(0, 39).toLowerCase();
+            this.hash = Hashing.sha1().hashString(this.getUrl(), Charsets.UTF_8).toString().substring(0, 39).toLowerCase(Locale.ROOT);
         }
     }
 

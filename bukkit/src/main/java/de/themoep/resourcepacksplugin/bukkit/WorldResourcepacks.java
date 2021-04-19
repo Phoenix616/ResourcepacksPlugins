@@ -27,6 +27,7 @@ import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
@@ -54,6 +55,8 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.geysermc.connector.GeyserConnector;
+import org.geysermc.floodgate.api.FloodgateApi;
 import protocolsupport.api.ProtocolSupportAPI;
 import protocolsupport.api.ProtocolType;
 import protocolsupport.api.ProtocolVersion;
@@ -106,6 +109,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private ViaAPI viaApi;
     private boolean protocolSupportApi = false;
+    private GeyserConnector geyser;
+    private FloodgateApi floodgate;
     private AuthMeApi authmeApi;
     private ProxyPackListener proxyPackListener;
 
@@ -168,9 +173,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 internalHelper = new InternalHelper_fallback();
             }
 
-            ViaVersionPlugin viaPlugin = (ViaVersionPlugin) getServer().getPluginManager().getPlugin("ViaVersion");
+            Plugin viaPlugin = getServer().getPluginManager().getPlugin("ViaVersion");
             if (viaPlugin != null && viaPlugin.isEnabled()) {
-                viaApi = viaPlugin.getApi();
+                viaApi = ((ViaVersionPlugin) viaPlugin).getApi();
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
             }
 
@@ -178,6 +183,18 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (protocolSupport != null && protocolSupport.isEnabled()) {
                 protocolSupportApi = true;
                 getLogger().log(Level.INFO, "Detected ProtocolSupport " + protocolSupport.getDescription().getVersion());
+            }
+
+            Plugin geyserPlugin = getServer().getPluginManager().getPlugin("Geyser-Spigot");
+            if (geyserPlugin != null) {
+                geyser = GeyserConnector.getInstance();
+                getLogger().log(Level.INFO, "Detected " + geyserPlugin.getName() + " " + geyserPlugin.getDescription().getVersion());
+            }
+
+            Plugin floodgatePlugin = getServer().getPluginManager().getPlugin("floodgate");
+            if (floodgatePlugin != null) {
+                floodgate = FloodgateApi.getInstance();
+                getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getName() + " " + floodgatePlugin.getDescription().getVersion());
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {
@@ -648,6 +665,19 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             return protocol;
         }
         return -1;
+    }
+
+    @Override
+    public ClientType getPlayerClientType(UUID playerId) {
+        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        return ClientType.ORIGINAL;
     }
 
     @Override

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -68,14 +69,14 @@ public abstract class PluginCommandExecutor {
         if (usage.isEmpty() && parent != null) {
             throw new IllegalArgumentException("You have to set a command name/usage!");
         }
-        this.name = usage.contains(" ") ? usage.substring(0, usage.indexOf(' ')).toLowerCase() : usage.toLowerCase();
+        this.name = usage.contains(" ") ? usage.substring(0, usage.indexOf(' ')).toLowerCase(Locale.ROOT) : usage.toLowerCase(Locale.ROOT);
         this.usage = usage.contains(" ") ? usage.substring(usage.indexOf(' ') + 1) : "";
         this.permission = permission;
         if (permission == null) {
             if (parent != null) {
                 this.permission = parent.permission + "." + name;
             } else {
-                this.permission = plugin.getName().toLowerCase() + ".command." + getPath().replace(' ', '.');
+                this.permission = plugin.getName().toLowerCase(Locale.ROOT) + ".command." + getPath().replace(' ', '.');
             }
         }
         Collections.addAll(this.aliases, aliases);
@@ -118,9 +119,9 @@ public abstract class PluginCommandExecutor {
     }
 
     public PluginCommandExecutor getSubCommand(String name) {
-        PluginCommandExecutor subCommand = subCommands.get(name.toLowerCase());
+        PluginCommandExecutor subCommand = subCommands.get(name.toLowerCase(Locale.ROOT));
         if (subCommand == null) {
-            subCommand = subCommandAliases.get(name.toLowerCase());
+            subCommand = subCommandAliases.get(name.toLowerCase(Locale.ROOT));
         }
         return subCommand;
     }
@@ -158,7 +159,7 @@ public abstract class PluginCommandExecutor {
         for (PluginCommandExecutor subCommand : subCommands) {
             this.subCommands.put(subCommand.name, subCommand);
             for (String alias : subCommand.aliases) {
-                this.subCommandAliases.putIfAbsent(alias.toLowerCase(), subCommand);
+                this.subCommandAliases.putIfAbsent(alias.toLowerCase(Locale.ROOT), subCommand);
             }
         }
     }

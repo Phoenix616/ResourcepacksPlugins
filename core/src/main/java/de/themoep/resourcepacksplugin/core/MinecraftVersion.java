@@ -1,6 +1,7 @@
 package de.themoep.resourcepacksplugin.core;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /*
@@ -126,7 +127,7 @@ public enum MinecraftVersion {
      * @return The human readable config string
      */
     public String toConfigString() {
-        return this == UNKNOWN ? name() : name().toLowerCase().substring("MINECRAFT_".length()).replace('_', '.');
+        return this == UNKNOWN ? name() : name().toLowerCase(Locale.ROOT).substring("MINECRAFT_".length()).replace('_', '.');
     }
 
     public int getProtocolNumber() {

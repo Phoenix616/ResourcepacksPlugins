@@ -8,6 +8,14 @@
     {
       "id": "viaversion",
       "optional": true
+    },
+    {
+      "id": "geyser",
+      "optional": true
+    },
+    {
+      "id": "floodgate",
+      "optional": true
     }
   ]
 }

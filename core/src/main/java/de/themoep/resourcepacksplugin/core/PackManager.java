@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -135,9 +136,11 @@ public class PackManager {
         int mcVersion = MinecraftVersion.parseVersion(get(config , "version", String.valueOf(get(config, "version", 0)))).getProtocolNumber();
 
         boolean restricted = get(config, "restricted", false);
-        String perm = get(config, "permission", plugin.getName().toLowerCase() + ".pack." + name);
+        String perm = get(config, "permission", plugin.getName().toLowerCase(Locale.ROOT) + ".pack." + name);
 
-        ResourcePack pack = new ResourcePack(name, url, hash, format, mcVersion, restricted, perm);
+        ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
+
+        ResourcePack pack = new ResourcePack(name, url, hash, format, mcVersion, restricted, perm, type);
 
         for (int i = 0; i < variantsList.size(); i++) {
             pack.getVariants().add(loadPack(name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));
@@ -181,7 +184,7 @@ public class PackManager {
                 cacheVariant(variant, pack);
             }
         }
-        return packNames.put(pack.getName().toLowerCase(), pack);
+        return packNames.put(pack.getName().toLowerCase(Locale.ROOT), pack);
     }
 
     /**
@@ -203,7 +206,7 @@ public class PackManager {
                 known |= uncacheVariant(variant, pack);
             }
         }
-        return packNames.remove(pack.getName().toLowerCase(), pack) || known;
+        return packNames.remove(pack.getName().toLowerCase(Locale.ROOT), pack) || known;
     }
 
     private void cacheVariant(ResourcePack variant, ResourcePack pack) {
@@ -268,7 +271,7 @@ public class PackManager {
      * @return The resourcepack with that name, null if there is none
      */
     public ResourcePack getByName(String name) {
-        return name != null ? packNames.get(name.toLowerCase()) : null;
+        return name != null ? packNames.get(name.toLowerCase(Locale.ROOT)) : null;
     }
     
     /**
@@ -515,9 +518,9 @@ public class PackManager {
     public PackAssignment addAssignment(PackAssignment assignment) {
         PackAssignment previous;
         if (assignment.getRegex() != null) {
-            previous = regexAssignments.put(assignment.getName().toLowerCase(), assignment);
+            previous = regexAssignments.put(assignment.getName().toLowerCase(Locale.ROOT), assignment);
         } else {
-            previous = literalAssignments.put(assignment.getName().toLowerCase(), assignment);
+            previous = literalAssignments.put(assignment.getName().toLowerCase(Locale.ROOT), assignment);
         }
         checkDirty();
         return previous;
@@ -529,7 +532,7 @@ public class PackManager {
      * @return          The PackAssignment; an empty one if there is none
      */
     public PackAssignment getAssignment(String server) {
-        PackAssignment assignment = literalAssignments.get(server.toLowerCase());
+        PackAssignment assignment = literalAssignments.get(server.toLowerCase(Locale.ROOT));
         if (assignment != null) {
             return assignment;
         }
@@ -547,9 +550,9 @@ public class PackManager {
      * @return      The PackAssignment or null if not found
      */
     public PackAssignment getAssignmentByName(String name) {
-        PackAssignment assignment = literalAssignments.get(name.toLowerCase());
+        PackAssignment assignment = literalAssignments.get(name.toLowerCase(Locale.ROOT));
         if (assignment == null) {
-            assignment = regexAssignments.get(name.toLowerCase());
+            assignment = regexAssignments.get(name.toLowerCase(Locale.ROOT));
         }
         return assignment;
     }
@@ -643,8 +646,8 @@ public class PackManager {
      * @return True if there was a assignment for that key, false if not
      */
     public boolean removeAssignment(String key) {
-        if (literalAssignments.remove(key.toLowerCase()) != null) {
-            regexAssignments.remove(key.toLowerCase());
+        if (literalAssignments.remove(key.toLowerCase(Locale.ROOT)) != null) {
+            regexAssignments.remove(key.toLowerCase(Locale.ROOT));
             checkDirty();
             return true;
         }
@@ -659,9 +662,9 @@ public class PackManager {
     public boolean removeAssignment(PackAssignment assignment) {
         boolean removed;
         if (assignment.getRegex() != null) {
-            removed = regexAssignments.remove(assignment.getName().toLowerCase()) != null;
+            removed = regexAssignments.remove(assignment.getName().toLowerCase(Locale.ROOT)) != null;
         } else {
-            removed = literalAssignments.remove(assignment.getName().toLowerCase()) != null;
+            removed = literalAssignments.remove(assignment.getName().toLowerCase(Locale.ROOT)) != null;
         }
         checkDirty();
         return removed;
@@ -764,6 +767,10 @@ public class PackManager {
             return Status.UNKNOWN;
         }
         if (prev == null && (pack == null || pack.equals(getEmptyPack()))) {
+            return Status.UNKNOWN;
+        }
+        if (pack != null && pack.getType() == ClientType.BEDROCK) {
+            // TODO: Find way to change client pack for Bedrock players
             return Status.UNKNOWN;
         }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
@@ -915,7 +922,9 @@ public class PackManager {
         if(pack == null) {
             return status;
         }
-        boolean rightFormat = pack.getFormat() <= plugin.getPlayerPackFormat(playerId) && pack.getVersion() <= plugin.getPlayerProtocol(playerId);
+        boolean rightFormat = pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
+                && pack.getVersion() <= plugin.getPlayerProtocol(playerId)
+                && pack.getType() == plugin.getPlayerClientType(playerId);
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
             return IResourcePackSelectEvent.Status.SUCCESS;

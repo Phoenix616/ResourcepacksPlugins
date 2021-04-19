@@ -265,6 +265,13 @@ public interface ResourcepacksPlugin {
     }
 
     /**
+     * Get the client type of a player
+     * @param playerId The UUID of the player
+     * @return The type of the player's client
+     */
+    ClientType getPlayerClientType(UUID playerId);
+
+    /**
      * Call the ResourcePackSelectEvent on the corresponding server
      * @param playerId The UUID of the player
      * @param pack The ResourcePack that was selected or null if none was selected

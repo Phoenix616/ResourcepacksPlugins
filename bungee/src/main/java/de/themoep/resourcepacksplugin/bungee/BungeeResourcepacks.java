@@ -29,6 +29,7 @@ import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
 import de.themoep.resourcepacksplugin.bungee.packets.IdMapping;
 import de.themoep.resourcepacksplugin.bungee.packets.ResourcePackSendPacket;
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
@@ -56,6 +57,8 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import org.bstats.MetricsLite;
+import org.geysermc.connector.GeyserConnector;
+import org.geysermc.floodgate.api.FloodgateApi;
 import us.myles.ViaVersion.api.ViaAPI;
 import us.myles.ViaVersion.api.platform.ViaPlatform;
 
@@ -72,6 +75,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -135,6 +139,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private int bungeeVersion;
 
     private ViaAPI viaApi;
+    private GeyserConnector geyser;
+    private FloodgateApi floodgate;
 
     public void onEnable() {
         instance = this;
@@ -156,10 +162,21 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         registerCommand(new UsePackCommandExecutor(this));
         registerCommand(new ResetPackCommandExecutor(this));
 
-        ViaPlatform viaPlugin = (ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion");
-        if (viaPlugin != null) {
-            viaApi = viaPlugin.getApi();
+        if (getProxy().getPluginManager().getPlugin("ViaVersion") != null) {
+            viaApi = ((ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion")).getApi();
             getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+        }
+
+        Plugin geyserPlugin = getProxy().getPluginManager().getPlugin("Geyser-Bungeecord");
+        if (geyserPlugin != null) {
+            geyser = GeyserConnector.getInstance();
+            getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
+        }
+
+        Plugin floodgatePlugin = getProxy().getPluginManager().getPlugin("floodgate");
+        if (floodgatePlugin != null) {
+            floodgate = FloodgateApi.getInstance();
+            getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName() + " " + floodgatePlugin.getDescription().getVersion());
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
@@ -310,7 +327,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private List<IdMapping> getIdMappings(Class<? extends DefinedPacket> packetClass) {
         Configuration packetConfig = packetMap.getSection(packetClass.getSimpleName());
         if (packetConfig.getKeys().isEmpty()) {
-            packetConfig = packetMap.getSection(packetClass.getSimpleName().toLowerCase());
+            packetConfig = packetMap.getSection(packetClass.getSimpleName().toLowerCase(Locale.ROOT));
         }
         Map<Integer, IdMapping> protocolVersionMap = new TreeMap<>();
 
@@ -894,6 +911,19 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return proxiedPlayer.getPendingConnection().getVersion();
         }
         return -1;
+    }
+
+    @Override
+    public ClientType getPlayerClientType(UUID playerId) {
+        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+            return ClientType.BEDROCK;
+        }
+
+        return ClientType.ORIGINAL;
     }
 
     @Override
