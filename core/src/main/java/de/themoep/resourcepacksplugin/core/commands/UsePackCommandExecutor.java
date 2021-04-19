@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
@@ -70,6 +71,12 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         plugin.log(Level.WARNING, "You have to specify a player if you want to run this command from the console! /usepack <packname> <playername> [<temp>]");
                         return true;
                     }
+
+                    if (plugin.getPlayerClientType(player.getUniqueId()) == ClientType.BEDROCK) {
+                        sendMessage(sender, "bedrock-not-supported");
+                        return true;
+                    }
+
                     switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
                         case SUCCESS:
                             if (!player.equals(sender)) {
@@ -106,6 +113,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
                         .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
                                 && pack.getVersion() <= plugin.getPlayerProtocol(sender.getUniqueId())
+                                && pack.getType() == plugin.getPlayerClientType(sender.getUniqueId())
                                 && (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())))
                         .collect(Collectors.toList());
 

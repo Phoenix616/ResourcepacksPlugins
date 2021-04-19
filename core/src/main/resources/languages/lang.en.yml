@@ -54,6 +54,7 @@ command:
   usepack:
     invalid-temporary: "&f%input%&c is not a valid Boolean temporary value! (true/false)"
     player-not-online: "&cThe player &f%input%&c is not online"
+    bedrock-not-supported: "&cChanging the pack of Bedrock players is not supported!"
     already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"
     no-variant-found:
       permission: "&f%player%&c can't use any variant of the pack '&f%pack%&c' due to their permissions!"
@@ -72,6 +73,7 @@ command:
     no-packs: "&cNo packs found!"
   resetpack:
     player-not-online: "&cThe player &f%input%&c is not online"
+    bedrock-not-supported: "&cChanging the pack of Bedrock players is not supported!"
     no-pack-stored: "&cNo pack stored."
     had-stored-pack: "&aHad pack '&f%pack%&a' stored."
     success-other: "&aReset the pack of &f%player%&a!"

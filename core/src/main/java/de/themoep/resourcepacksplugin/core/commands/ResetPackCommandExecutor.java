@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
@@ -62,6 +63,11 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
             player = sender;
         } else {
             plugin.log(Level.WARNING, "You have to specify a player if you want to run this command from the console! /resetpack <playername> [<temp>]");
+            return true;
+        }
+
+        if (plugin.getPlayerClientType(player.getUniqueId()) == ClientType.BEDROCK) {
+            sendMessage(sender, "bedrock-not-supported");
             return true;
         }
 
