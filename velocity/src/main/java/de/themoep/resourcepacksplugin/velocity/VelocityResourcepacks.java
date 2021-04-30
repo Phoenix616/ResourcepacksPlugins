@@ -56,14 +56,14 @@ import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.velocity.LanguageManager;
 import de.themoep.utils.lang.velocity.Languaged;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.slf4j.Logger;
-import us.myles.ViaVersion.api.platform.ViaPlatform;
+import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -118,7 +118,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      */
     private boolean enabled = false;
 
-    private Optional<PluginContainer> viaPlugin;
+    private ViaAPI viaApi;
     private GeyserConnector geyser;
     private FloodgateApi floodgate;
 
@@ -143,9 +143,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         registerCommand(new UsePackCommandExecutor(this));
         registerCommand(new ResetPackCommandExecutor(this));
 
-        viaPlugin = getProxy().getPluginManager().getPlugin("ViaVersion");
+        Optional<PluginContainer> viaPlugin = getProxy().getPluginManager().getPlugin("ViaVersion");
         if (viaPlugin.isPresent()) {
-            log(Level.INFO, "Detected ViaVersion " + ((ViaPlatform) viaPlugin.get()).getApi().getVersion());
+            viaApi = Via.getAPI();
+            log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
         }
 
         Optional<PluginContainer> geyserPlugin = getProxy().getPluginManager().getPlugin("geyser");
@@ -702,8 +703,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public int getPlayerProtocol(UUID playerId) {
-        if (viaPlugin.isPresent()) {
-            return ((ViaPlatform) viaPlugin.get()).getApi().getPlayerVersion(playerId);
+        if (viaApi != null) {
+            return viaApi.getPlayerVersion(playerId);
         }
 
         return getProxy().getPlayer(playerId).map(p -> p.getProtocolVersion().getProtocol()).orElse(-1);

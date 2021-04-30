@@ -59,8 +59,8 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import org.bstats.MetricsLite;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.floodgate.api.FloodgateApi;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.ViaAPI;
-import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
 import java.io.IOException;
@@ -163,7 +163,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         registerCommand(new ResetPackCommandExecutor(this));
 
         if (getProxy().getPluginManager().getPlugin("ViaVersion") != null) {
-            viaApi = ((ViaPlatform) getProxy().getPluginManager().getPlugin("ViaVersion")).getApi();
+            viaApi = Via.getAPI();
             getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
         }
 

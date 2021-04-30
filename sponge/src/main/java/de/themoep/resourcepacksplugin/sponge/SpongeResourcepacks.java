@@ -61,8 +61,8 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.ViaAPI;
-import us.myles.ViaVersion.api.platform.ViaPlatform;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -166,8 +166,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
 
             Optional<PluginContainer> viaContainer = Sponge.getPluginManager().getPlugin("viaversion");
             if (viaContainer.isPresent()) {
-                ViaPlatform viaPlugin = (ViaPlatform) viaContainer.get().getInstance().get();
-                viaApi = viaPlugin.getApi();
+                viaApi = Via.getAPI();
                 log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
             }
 

@@ -42,12 +42,6 @@
         </dependency>
         <dependency>
             <groupId>us.myles</groupId>
-            <artifactId>viaversion-velocity</artifactId>
-            <version>3.0.2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>us.myles</groupId>
             <artifactId>viaversion-common</artifactId>
             <version>3.0.2-SNAPSHOT</version>
             <scope>provided</scope>

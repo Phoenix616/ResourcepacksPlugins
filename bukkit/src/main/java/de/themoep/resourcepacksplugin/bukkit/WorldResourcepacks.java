@@ -60,7 +60,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import protocolsupport.api.ProtocolSupportAPI;
 import protocolsupport.api.ProtocolType;
 import protocolsupport.api.ProtocolVersion;
-import us.myles.ViaVersion.ViaVersionPlugin;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.File;
@@ -175,7 +175,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             Plugin viaPlugin = getServer().getPluginManager().getPlugin("ViaVersion");
             if (viaPlugin != null && viaPlugin.isEnabled()) {
-                viaApi = ((ViaVersionPlugin) viaPlugin).getApi();
+                viaApi = Via.getAPI();
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
             }
 
