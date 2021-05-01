@@ -423,18 +423,20 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Loading packs:");
             Configuration packs = getConfig().getSection("packs");
             for (String s : packs.getKeys()) {
-                Configuration packSection = packs.getSection(s);
-                try {
-                    ResourcePack pack = getPackManager().loadPack(s, getConfigMap(packSection));
-                    getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
+                if (packs.get(s) instanceof Configuration) {
+                    Configuration packSection = packs.getSection(s);
+                    try {
+                        ResourcePack pack = getPackManager().loadPack(s, getConfigMap(packSection));
+                        getLogger().log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
-                    ResourcePack previous = getPackManager().addPack(pack);
-                    if (previous != null) {
-                        getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
+                        ResourcePack previous = getPackManager().addPack(pack);
+                        if (previous != null) {
+                            getLogger().log(Level.WARNING, "Multiple resource packs with name '" + previous.getName().toLowerCase() + "' found!");
+                        }
+                        logDebug(pack.serialize().toString());
+                    } catch (IllegalArgumentException e) {
+                        getLogger().log(Level.SEVERE, e.getMessage());
                     }
-                    logDebug(pack.serialize().toString());
-                } catch (IllegalArgumentException e) {
-                    getLogger().log(Level.SEVERE, e.getMessage());
                 }
             }
         } else {
@@ -481,14 +483,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Loading server assignments...");
             Configuration servers = getConfig().getSection("servers");
             for (String server : servers.getKeys()) {
-                Configuration serverSection = servers.getSection(server);
-                if (!serverSection.getKeys().isEmpty()) {
-                    getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
-                    PackAssignment serverAssignment = getPackManager().loadAssignment(server, getValues(serverSection));
-                    getPackManager().addAssignment(serverAssignment);
-                    logDebug("Loaded server assignment " + serverAssignment.toString());
-                } else {
-                    getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
+                if (servers.get(server) instanceof Configuration) {
+                    Configuration serverSection = servers.getSection(server);
+                    if (!serverSection.getKeys().isEmpty()) {
+                        getLogger().log(Level.INFO, "Loading assignment for server " + server + "...");
+                        PackAssignment serverAssignment = getPackManager().loadAssignment(server, getValues(serverSection));
+                        getPackManager().addAssignment(serverAssignment);
+                        logDebug("Loaded server assignment " + serverAssignment.toString());
+                    } else {
+                        getLogger().log(Level.WARNING, "Config has entry for server " + server + " but it is not a configuration section?");
+                    }
                 }
             }
         } else {
