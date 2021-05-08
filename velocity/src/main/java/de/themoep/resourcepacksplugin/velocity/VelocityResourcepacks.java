@@ -36,6 +36,9 @@ import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration;
+import de.themoep.resourcepacksplugin.velocity.integrations.GeyserIntegration;
+import de.themoep.resourcepacksplugin.velocity.integrations.ViaVersionIntegration;
 import de.themoep.resourcepacksplugin.velocity.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.ServerSwitchListener;
@@ -59,11 +62,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import ninja.leaping.configurate.ConfigurationNode;
-import org.geysermc.connector.GeyserConnector;
-import org.geysermc.floodgate.api.FloodgateApi;
 import org.slf4j.Logger;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.ViaAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -118,9 +117,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      */
     private boolean enabled = false;
 
-    private ViaAPI viaApi;
-    private GeyserConnector geyser;
-    private FloodgateApi floodgate;
+    private ViaVersionIntegration viaApi;
+    private GeyserIntegration geyser;
+    private FloodgateIntegration floodgate;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -143,23 +142,14 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         registerCommand(new UsePackCommandExecutor(this));
         registerCommand(new ResetPackCommandExecutor(this));
 
-        Optional<PluginContainer> viaPlugin = getProxy().getPluginManager().getPlugin("ViaVersion");
-        if (viaPlugin.isPresent()) {
-            viaApi = Via.getAPI();
-            log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
-        }
+        getProxy().getPluginManager().getPlugin("ViaVersion")
+                .ifPresent(c -> viaApi = new ViaVersionIntegration(this, c));
 
-        Optional<PluginContainer> geyserPlugin = getProxy().getPluginManager().getPlugin("geyser");
-        if (geyserPlugin.isPresent()) {
-            geyser = GeyserConnector.getInstance();
-            log(Level.INFO, "Detected Geyser " + geyserPlugin.get().getDescription().getVersion());
-        }
+        getProxy().getPluginManager().getPlugin("geyser")
+                .ifPresent(c -> geyser = new GeyserIntegration(this, c));
 
-        Optional<PluginContainer> floodgatePlugin = getProxy().getPluginManager().getPlugin("floodgate");
-        if (floodgatePlugin.isPresent()) {
-            floodgate = FloodgateApi.getInstance();
-            log(Level.INFO, "Detected Floodgate " + floodgatePlugin.get().getDescription().getVersion());
-        }
+        getProxy().getPluginManager().getPlugin("floodgate")
+                .ifPresent(c -> floodgate = new FloodgateIntegration(this, c));
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
             getPackManager().generateHashes(null);
@@ -712,11 +702,11 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public ClientType getPlayerClientType(UUID playerId) {
-        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+        if (geyser != null && geyser.hasPlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 
-        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+        if (floodgate != null && floodgate.hasPlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 
