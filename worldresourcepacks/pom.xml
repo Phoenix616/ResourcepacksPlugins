@@ -135,6 +135,10 @@
                             <shadedPattern>de.themoep.resourcepacksplugin.libs.lang</shadedPattern>
                         </relocation>
                         <relocation>
+                            <pattern>de.themoep.minedown.adventure</pattern>
+                            <shadedPattern>de.themoep.resourcepacksplugin.sponge.libs.minedown</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>de.themoep.minedown</pattern>
                             <shadedPattern>de.themoep.resourcepacksplugin.libs.minedown</shadedPattern>
                         </relocation>
