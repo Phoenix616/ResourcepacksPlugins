@@ -167,7 +167,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
         }
 
-        Plugin geyserPlugin = getProxy().getPluginManager().getPlugin("Geyser-Bungeecord");
+        Plugin geyserPlugin = getProxy().getPluginManager().getPlugin("Geyser-BungeeCord");
         if (geyserPlugin != null) {
             geyser = GeyserConnector.getInstance();
             getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
