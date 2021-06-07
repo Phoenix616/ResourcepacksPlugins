@@ -35,6 +35,8 @@ import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -43,7 +45,9 @@ import java.util.logging.Level;
 public class ResourcePackSendPacket extends DefinedPacket {
 
     private String url;
-    private String hash;
+    private Optional<String> hash = Optional.empty();
+    private Optional<Boolean> forced = Optional.empty();
+    private Optional<String> forcedMessage = Optional.empty();
 
     public ResourcePackSendPacket() {};
 
@@ -61,11 +65,18 @@ public class ResourcePackSendPacket extends DefinedPacket {
     @ConstructorProperties({"url", "hash"})
     public ResourcePackSendPacket(String url, String hash) {
         this.url = url;
-        if(hash != null) {
-            this.hash = hash.toLowerCase(Locale.ROOT);
+        if  (hash != null) {
+            this.hash = Optional.of(hash.toLowerCase(Locale.ROOT));
         } else {
-            this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).toString().toLowerCase(Locale.ROOT);
+            this.hash = Optional.of(Hashing.sha1().hashString(this.getUrl(), Charsets.UTF_8).toString().toLowerCase(Locale.ROOT));
         }
+    }
+
+    @ConstructorProperties({"url", "hash", "force", "forcedMessage"})
+    public ResourcePackSendPacket(String url, String hash, boolean forced, String forcedMessage) {
+        this(url, hash);
+        this.forced = Optional.of(forced);
+        this.forcedMessage = Optional.of(forcedMessage);
     }
 
     @Override
@@ -117,13 +128,17 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public void read(ByteBuf buf) {
         this.url = readString(buf);
         try {
-            this.hash = readString(buf);
+            this.hash = Optional.of(readString(buf));
+            this.forced = Optional.of(buf.readBoolean());
+            this.forcedMessage = Optional.of(readString(buf));
         } catch (IndexOutOfBoundsException ignored) {} // No hash
     }
 
     public void write(ByteBuf buf) {
-        writeString(this.url, buf);
-        writeString(this.hash, buf);
+        writeString(getUrl(), buf);
+        this.hash.ifPresent(h -> writeString(h, buf));
+        this.forced.ifPresent(buf::writeBoolean);
+        this.forcedMessage.ifPresent(m -> writeString(m, buf));
     }
 
     public String getUrl() {
@@ -131,61 +146,32 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
 
     public String getHash() {
-        return this.hash;
+        return this.hash.orElse(null);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setHash(String hash) {
-        if(hash != null) {
-            this.hash = hash.substring(0, 39).toLowerCase(Locale.ROOT);
-        } else {
-            this.hash = Hashing.sha1().hashString(this.getUrl(), Charsets.UTF_8).toString().substring(0, 39).toLowerCase(Locale.ROOT);
-        }
-    }
-
+    @Override
     public String toString() {
-        return "ResourcePackSend(url=" + this.getUrl() + ", hash=" + this.getHash() + ")";
+        return "ResourcePackSendPacket{" +
+                "url='" + url + '\'' +
+                ", hash=" + hash +
+                ", forced=" + forced +
+                ", forcedMessage=" + forcedMessage +
+                '}';
     }
 
-    public boolean equals(Object obj) {
-        if(obj == this) {
-            return true;
-        } else if(obj instanceof ResourcePackSendPacket) {
-            ResourcePackSendPacket other = (ResourcePackSendPacket)obj;
-            String this$url = this.getUrl();
-            String other$url = other.getUrl();
-            if(this$url == null && other$url == null) {
-                return true;
-            }
-            if(this$url == null || other$url == null) {
-                return false;
-            }
-            if(!this$url.equals(other$url)) {
-                return false;
-            }
-            String this$hash = this.getHash();
-            String other$hash = other.getHash();
-
-            if(this$hash == null && other$hash == null) {
-                return true;
-            }
-            if(this$hash == null || other$hash == null) {
-                return false;
-            }
-            return this$hash.equals(other$hash);
-        }
-        return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResourcePackSendPacket that = (ResourcePackSendPacket) o;
+        return Objects.equals(url, that.url) &&
+                Objects.equals(hash, that.hash) &&
+                Objects.equals(forced, that.forced) &&
+                Objects.equals(forcedMessage, that.forcedMessage);
     }
 
+    @Override
     public int hashCode() {
-        int result = 1;
-        String $url = this.getUrl();
-        result = result * 59 + ($url == null?0:$url.hashCode());
-        String $hash = this.getHash();
-        result = result * 59 + ($hash == null?0:$hash.hashCode());
-        return result;
+        return Objects.hash(url, hash, forced, forcedMessage);
     }
 }
