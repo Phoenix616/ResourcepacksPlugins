@@ -719,4 +719,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public ProxyPackListener getProxyPackListener() {
         return proxyPackListener;
     }
+
+    /**
+     * Get the internal helper
+     * @return The internal helper
+     */
+    protected InternalHelper getInternalHelper() {
+        return internalHelper;
+    }
 }
