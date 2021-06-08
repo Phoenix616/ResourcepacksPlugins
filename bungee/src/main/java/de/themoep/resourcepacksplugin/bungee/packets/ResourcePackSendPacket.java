@@ -46,8 +46,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     private String url;
     private Optional<String> hash = Optional.empty();
-    private Optional<Boolean> forced = Optional.empty();
-    private Optional<String> forcedMessage = Optional.empty();
+    private Optional<Boolean> required = Optional.empty();
+    private Optional<String> promptMessage = Optional.empty();
 
     public ResourcePackSendPacket() {};
 
@@ -72,11 +72,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
         }
     }
 
-    @ConstructorProperties({"url", "hash", "force", "forcedMessage"})
-    public ResourcePackSendPacket(String url, String hash, boolean forced, String forcedMessage) {
+    @ConstructorProperties({"url", "hash", "force", "promptMessage"})
+    public ResourcePackSendPacket(String url, String hash, boolean required, String promptMessage) {
         this(url, hash);
-        this.forced = Optional.of(forced);
-        this.forcedMessage = Optional.of(forcedMessage);
+        this.required = Optional.of(required);
+        this.promptMessage = Optional.of(promptMessage);
     }
 
     @Override
@@ -129,16 +129,24 @@ public class ResourcePackSendPacket extends DefinedPacket {
         this.url = readString(buf);
         try {
             this.hash = Optional.of(readString(buf));
-            this.forced = Optional.of(buf.readBoolean());
-            this.forcedMessage = Optional.of(readString(buf));
-        } catch (IndexOutOfBoundsException ignored) {} // No hash
+            this.required = Optional.of(buf.readBoolean());
+            boolean hasPromptMessage = buf.readBoolean();
+            if (hasPromptMessage) {
+                this.promptMessage = Optional.of(readString(buf));
+            }
+        } catch (IndexOutOfBoundsException ignored) {} // No more data
     }
 
     public void write(ByteBuf buf) {
         writeString(getUrl(), buf);
-        this.hash.ifPresent(h -> writeString(h, buf));
-        this.forced.ifPresent(buf::writeBoolean);
-        this.forcedMessage.ifPresent(m -> writeString(m, buf));
+        writeString(this.hash.orElse(""), buf);
+        buf.writeBoolean(this.required.orElse(false));
+        if (this.promptMessage.isPresent()) {
+            buf.writeBoolean(true);
+            writeString(this.promptMessage.get(), buf);
+        } else {
+            buf.writeBoolean(false);
+        }
     }
 
     public String getUrl() {
@@ -154,8 +162,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
         return "ResourcePackSendPacket{" +
                 "url='" + url + '\'' +
                 ", hash=" + hash +
-                ", forced=" + forced +
-                ", forcedMessage=" + forcedMessage +
+                ", required=" + required +
+                ", promptMessage=" + promptMessage +
                 '}';
     }
 
@@ -166,12 +174,12 @@ public class ResourcePackSendPacket extends DefinedPacket {
         ResourcePackSendPacket that = (ResourcePackSendPacket) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(hash, that.hash) &&
-                Objects.equals(forced, that.forced) &&
-                Objects.equals(forcedMessage, that.forcedMessage);
+                Objects.equals(required, that.required) &&
+                Objects.equals(promptMessage, that.promptMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, hash, forced, forcedMessage);
+        return Objects.hash(url, hash, required, promptMessage);
     }
 }
