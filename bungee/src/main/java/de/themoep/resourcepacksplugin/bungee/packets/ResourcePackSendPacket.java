@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.bungee.packets;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,6 +31,7 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
@@ -129,23 +131,35 @@ public class ResourcePackSendPacket extends DefinedPacket {
         this.url = readString(buf);
         try {
             this.hash = Optional.of(readString(buf));
+        } catch (IndexOutOfBoundsException ignored) {} // No more data
+    }
+
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        read(buf);
+        if (protocolVersion >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
             this.required = Optional.of(buf.readBoolean());
             boolean hasPromptMessage = buf.readBoolean();
             if (hasPromptMessage) {
                 this.promptMessage = Optional.of(readString(buf));
             }
-        } catch (IndexOutOfBoundsException ignored) {} // No more data
+        }
     }
 
     public void write(ByteBuf buf) {
         writeString(getUrl(), buf);
         writeString(this.hash.orElse(""), buf);
-        buf.writeBoolean(this.required.orElse(false));
-        if (this.promptMessage.isPresent()) {
-            buf.writeBoolean(true);
-            writeString(this.promptMessage.get(), buf);
-        } else {
-            buf.writeBoolean(false);
+    }
+
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        write(buf);
+        if (protocolVersion >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
+            buf.writeBoolean(this.required.orElse(false));
+            if (this.promptMessage.isPresent()) {
+                buf.writeBoolean(true);
+                writeString(this.promptMessage.get(), buf);
+            } else {
+                buf.writeBoolean(false);
+            }
         }
     }
 
