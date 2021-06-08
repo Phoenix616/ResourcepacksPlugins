@@ -243,7 +243,10 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                 new PluginCommandExecutor(plugin, this, "globalassignment", null, "global") {
                     @Override
                     public boolean run(ResourcepacksPlayer sender, String[] args) {
-                        return plugin.getPackManager().getGlobalAssignment().update(this, sender, args);
+                        boolean success = plugin.getPackManager().getGlobalAssignment().update(this, sender, args);
+                        plugin.getPackManager().setDirty(true);
+                        plugin.getPackManager().checkDirty();
+                        return success;
                     }
 
                     @Override
