@@ -78,7 +78,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public ResourcePackSendPacket(String url, String hash, boolean required, String promptMessage) {
         this(url, hash);
         this.required = Optional.of(required);
-        this.promptMessage = Optional.of(promptMessage);
+        this.promptMessage = Optional.ofNullable(promptMessage);
     }
 
     @Override
