@@ -83,6 +83,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -151,7 +152,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return;
         }
 
-        if (!registerPacket(Protocol.GAME, "TO_CLIENT", ResourcePackSendPacket.class)) {
+        if (!registerPacket(Protocol.GAME, "TO_CLIENT", ResourcePackSendPacket.class, ResourcePackSendPacket::new)) {
             getLogger().log(Level.SEVERE, "Disabling the plugin as it can't work without the ResourcePackSendPacket!");
             return;
         }
@@ -199,7 +200,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
     }
 
-    protected boolean registerPacket(Protocol protocol, String directionName, Class<? extends DefinedPacket> packetClass) {
+    protected boolean registerPacket(Protocol protocol, String directionName, Class<? extends DefinedPacket> packetClass, Supplier<? extends DefinedPacket> constructor) {
         try {
             Field directionField;
             try {
@@ -301,13 +302,25 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     logDebug("Found mapping for " + entry.getKey() + "+ " + entry.getValue());
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
-                Method reg = direction.getClass().getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
-                reg.setAccessible(true);
                 try {
-                    reg.invoke(direction, packetClass, mappingsArray);
-                } catch (Throwable t) {
-                    getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
-                    return false;
+                    Method reg = direction.getClass().getDeclaredMethod("registerPacket", Class.class, Supplier.class, mappingsArray.getClass());
+                    reg.setAccessible(true);
+                    try {
+                        reg.invoke(direction, packetClass, constructor, mappingsArray);
+                    } catch (Throwable t) {
+                        getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
+                        return false;
+                    }
+                } catch (NoSuchMethodException e) {
+                    // Old pre build 1580
+                    Method reg = direction.getClass().getDeclaredMethod("registerPacket", Class.class, mappingsArray.getClass());
+                    reg.setAccessible(true);
+                    try {
+                        reg.invoke(direction, packetClass, mappingsArray);
+                    } catch (Throwable t) {
+                        getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
+                        return false;
+                    }
                 }
             } else {
                 getLogger().log(Level.SEVERE, "Unsupported BungeeCord version (" + bungeeVersion + ") found! You need at least 1.8 for this plugin to work!");
