@@ -109,16 +109,20 @@ public class ResourcePackSendPacket extends DefinedPacket {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
         if(plugin.isEnabled()) {
             ResourcePack pack = plugin.getPackManager().getByHash(getHash());
-            if (pack == null) {
-                pack = plugin.getPackManager().getByUrl(getUrl());
+            String url = getUrl();
+            if (url.endsWith("#" + getHash())) {
+                url = url.substring(0, url.lastIndexOf('#'));
             }
             if (pack == null) {
-                pack = new ResourcePack("backend-" + getUrl().substring(getUrl().lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(Locale.ROOT), getUrl(), getHash());
+                pack = plugin.getPackManager().getByUrl(url);
+            }
+            if (pack == null) {
+                pack = new ResourcePack("backend-" + getUrl().substring(url.lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(Locale.ROOT), url, getHash());
                 try {
                     plugin.getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
                     // Can only happen when pack was gotten by hash but another pack had the same url
-                    pack = plugin.getPackManager().getByUrl(getUrl());
+                    pack = plugin.getPackManager().getByUrl(url);
                 }
             }
             plugin.setBackend(usercon.getUniqueId());
