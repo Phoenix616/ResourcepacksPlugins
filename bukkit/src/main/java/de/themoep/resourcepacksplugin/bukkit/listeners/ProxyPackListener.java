@@ -27,6 +27,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -52,14 +53,14 @@ public class ProxyPackListener implements PluginMessageListener {
 
         if(subchannel.equals("packChange")) {
             String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
             String packName = in.readUTF();
             String packUrl = in.readUTF();
             String packHash = in.readUTF();
 
-            Player player = plugin.getServer().getPlayer(playerName);
+            Player player = plugin.getServer().getPlayer(playerUuid);
             if(player == null || !player.isOnline()) {
-                plugin.logDebug("BungeeCord proxy send pack " + packName + " (" + packUrl + ") to player " + playerName + " but they aren't online?");
-                return;
+                plugin.logDebug("Proxy send pack " + packName + " (" + packUrl + ") to player " + playerName + " but they aren't online?");
             }
 
             ResourcePack pack = plugin.getPackManager().getByName(packName);
@@ -75,22 +76,22 @@ public class ProxyPackListener implements PluginMessageListener {
                 }
             }
 
-            plugin.logDebug("BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.getName());
-            plugin.getUserManager().setUserPack(player.getUniqueId(), pack);
+            plugin.logDebug("Proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
+            plugin.getUserManager().setUserPack(playerUuid, pack);
         } else if(subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
-            Player player = plugin.getServer().getPlayer(playerName);
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+            Player player = plugin.getServer().getPlayer(playerUuid);
             if (player == null || !player.isOnline()) {
-                plugin.logDebug("BungeeCord proxy send command to clear the pack of player " + playerName + " but they aren't online?");
-                return;
+                plugin.logDebug("Proxy send command to clear the pack of player " + playerName + " but they aren't online?");
             }
 
-            plugin.logDebug("BungeeCord proxy send command to clear the pack of player " + player.getName());
-            plugin.clearPack(player);
+            plugin.logDebug("Proxy send command to clear the pack of player " + playerName);
+            plugin.clearPack(playerUuid);
         } else if (subChannels.containsKey(subchannel)) {
             subChannels.get(subchannel).execute(p, in);
         } else {
-            plugin.getLogger().log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your BungeeCord!");
+            plugin.getLogger().log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your Proxy!");
         }
     }
 

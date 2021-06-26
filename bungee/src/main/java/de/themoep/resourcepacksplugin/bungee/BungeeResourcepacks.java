@@ -707,12 +707,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(pack != null) {
             out.writeUTF("packChange");
             out.writeUTF(player.getName());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
             out.writeUTF(pack.getName());
             out.writeUTF(pack.getUrl());
             out.writeUTF(pack.getHash());
         } else {
             out.writeUTF("clearPack");
             out.writeUTF(player.getName());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
         }
         player.getServer().sendData("rp:plugin", out.toByteArray());
     }

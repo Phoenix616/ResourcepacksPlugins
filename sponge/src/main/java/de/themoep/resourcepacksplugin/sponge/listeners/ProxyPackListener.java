@@ -33,6 +33,7 @@ import org.spongepowered.api.network.RemoteConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -58,13 +59,14 @@ public class ProxyPackListener implements RawDataListener {
 
         if (subchannel.equals("packChange")) {
             String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
             String packName = in.readUTF();
             String packUrl = in.readUTF();
             String packHash = in.readUTF();
 
             Optional<Player> player = Sponge.getServer().getPlayer(playerName);
             if (!player.isPresent() || !player.get().isOnline()) {
-                return;
+                plugin.logDebug("Proxy send pack " + packName + " (" + packUrl + ") to player " + playerName + " but they aren't online?");
             }
 
             ResourcePack pack = plugin.getPackManager().getByName(packName);
@@ -80,21 +82,22 @@ public class ProxyPackListener implements RawDataListener {
                 }
             }
 
-            plugin.logDebug("BungeeCord proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.get().getName());
+            plugin.logDebug("Proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + player.get().getName());
             plugin.getUserManager().setUserPack(player.get().getUniqueId(), pack);
         } else if (subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
-            Optional<Player> player = Sponge.getServer().getPlayer(playerName);
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+            Optional<Player> player = Sponge.getServer().getPlayer(playerUuid);
             if (!player.isPresent() || !player.get().isOnline()) {
-                return;
+                plugin.logDebug("Proxy send command to clear the pack of player " + playerName + " but they aren't online?");
             }
 
-            plugin.logDebug("BungeeCord proxy send command to clear the pack of player " + player.get().getName());
-            plugin.clearPack(player.get());
+            plugin.logDebug("Proxy send command to clear the pack of player " + playerName);
+            plugin.clearPack(playerUuid);
         } else if (subChannels.containsKey(subchannel)) {
             subChannels.get(subchannel).execute(((PlayerConnection) connection).getPlayer(), in);
         } else {
-            plugin.log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your BungeeCord!");
+            plugin.log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your Proxy!");
         }
     }
 

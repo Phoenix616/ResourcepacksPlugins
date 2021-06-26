@@ -469,12 +469,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if(pack != null) {
             out.writeUTF("packChange");
             out.writeUTF(player.getUsername());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
             out.writeUTF(pack.getName());
             out.writeUTF(pack.getUrl());
             out.writeUTF(pack.getHash());
         } else {
             out.writeUTF("clearPack");
             out.writeUTF(player.getUsername());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
         }
         player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
     }
