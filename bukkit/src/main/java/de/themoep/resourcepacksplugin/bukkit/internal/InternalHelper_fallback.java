@@ -23,7 +23,6 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -40,7 +39,7 @@ public class InternalHelper_fallback implements InternalHelper {
 
     public InternalHelper_fallback() {
         try {
-            hasSetResourcePack = Player.class.getDeclaredMethod("setResourcePack", String.class, Array.class) != null;
+            hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
         } catch (NoSuchMethodException e) {
             // Old version, method still not there
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
