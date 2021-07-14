@@ -50,6 +50,7 @@
                 <configuration>
                     <source>8</source>
                     <excludePackageNames>de.themoep.resourcepacksplugin.bukkit.internal</excludePackageNames>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>
         </plugins>
