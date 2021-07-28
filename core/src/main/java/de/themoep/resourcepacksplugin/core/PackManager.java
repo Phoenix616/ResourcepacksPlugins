@@ -778,12 +778,8 @@ public class PackManager {
             plugin.logDebug("Pack send event for " + playerId + " was cancelled!");
             return Status.UNKNOWN;
         }
-        pack = sendEvent.getPack();
-        if (pack == null && prev != null) {
-            pack = getEmptyPack();
-        }
-        if (pack != null && !pack.equals(prev)) {
-            plugin.getUserManager().setUserPack(playerId, pack);
+        pack = processSendEvent(sendEvent, prev);
+        if (pack != null) {
             if (pack.getVariants().isEmpty()) {
                 plugin.sendPack(playerId, pack);
                 return Status.SUCCESS;
@@ -803,6 +799,27 @@ public class PackManager {
             }
         }
         return IResourcePackSelectEvent.Status.UNKNOWN;
+    }
+
+    /**
+     * Process the pack send event using the previous pack, this calculates if a pack should
+     * be sent (if it's null then the empty one will be returned and when it isn't different
+     * from the previous one then it will return null).
+     * Will also set the pack of the player in the UserManager
+     * @param event The event
+     * @param prev The previous pack
+     * @return The pack that should be sent to the player or null if no pack should be sent
+     */
+    public ResourcePack processSendEvent(IResourcePackSendEvent event, ResourcePack prev) {
+        ResourcePack pack = event.getPack();
+        if (pack == null && prev != null) {
+            pack = getEmptyPack();
+        }
+        if (pack != null && !pack.equals(prev)) {
+            plugin.getUserManager().setUserPack(event.getPlayerId(), pack);
+            return pack;
+        }
+        return null;
     }
 
     /**
