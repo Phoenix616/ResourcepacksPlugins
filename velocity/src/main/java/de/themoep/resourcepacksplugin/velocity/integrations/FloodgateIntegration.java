@@ -26,14 +26,12 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class FloodgateIntegration {
-    private final FloodgateApi floodgateApi;
 
     public FloodgateIntegration(VelocityResourcepacks plugin, PluginContainer floodgatePlugin) {
-        floodgateApi = FloodgateApi.getInstance();
         plugin.log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName().orElse(floodgatePlugin.getDescription().getId()) + " " + floodgatePlugin.getDescription().getVersion().orElse(""));
     }
 
     public boolean hasPlayer(UUID playerId) {
-        return floodgateApi.getPlayer(playerId) != null;
+        return FloodgateApi.getInstance().getPlayer(playerId) != null;
     }
 }

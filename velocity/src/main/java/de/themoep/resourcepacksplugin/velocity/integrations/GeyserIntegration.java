@@ -26,14 +26,12 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class GeyserIntegration {
-    private final GeyserConnector geyserConnector;
 
     public GeyserIntegration(VelocityResourcepacks plugin, PluginContainer geyserPlugin) {
-        geyserConnector = GeyserConnector.getInstance();
         plugin.log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName().orElse(geyserPlugin.getDescription().getId()) + " " + geyserPlugin.getDescription().getVersion().orElse(""));
     }
 
     public boolean hasPlayer(UUID playerId) {
-        return geyserConnector.getPlayerByUuid(playerId) != null;
+        return GeyserConnector.getInstance().getPlayerByUuid(playerId) != null;
     }
 }
