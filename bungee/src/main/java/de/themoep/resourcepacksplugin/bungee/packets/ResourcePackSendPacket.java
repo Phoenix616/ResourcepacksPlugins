@@ -117,8 +117,8 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 pack = plugin.getPackManager().getByUrl(url);
             }
             if (pack == null) {
-                pack = new ResourcePack("backend-" + getUrl().substring(url.lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(Locale.ROOT), url, getHash());
                 try {
+                    pack = new ResourcePack("backend-" + getUrl().substring(url.lastIndexOf('/') + 1).replace(".zip", "").toLowerCase(Locale.ROOT), url, getHash());
                     plugin.getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
                     // Can only happen when pack was gotten by hash but another pack had the same url

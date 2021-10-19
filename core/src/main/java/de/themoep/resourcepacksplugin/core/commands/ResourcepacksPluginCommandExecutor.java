@@ -133,8 +133,12 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             save = plugin.getPackManager().setPackUrl(pack, args[2]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "url", "value", pack.getUrl());
                         } else if ("hash".equalsIgnoreCase(args[1])) {
-                            save = plugin.getPackManager().setPackHash(pack, args[2]);
-                            sendMessage(sender, "updated", "pack", pack.getName(), "type", "hash", "value", pack.getHash());
+                            try {
+                                save = plugin.getPackManager().setPackHash(pack, args[2]);
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "hash", "value", pack.getHash());
+                            } catch (IllegalArgumentException e) {
+                                sendMessage(sender, "invalid-input", "expected", "40 characters long sha1 hash sum", "input", args[2]);
+                            }
                         } else if ("permission".equalsIgnoreCase(args[1])) {
                             save = pack.setPermission(args[2]);
                             sendMessage(sender, "updated", "pack", pack.getName(), "type", "permission", "value", pack.getPermission());
@@ -143,7 +147,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                                 save = pack.setType(ClientType.valueOf(args[2].toUpperCase(Locale.ROOT)));
                                 sendMessage(sender, "updated", "pack", pack.getName(), "type", "type", "value", pack.getType().humanName());
                             } catch (IllegalArgumentException e) {
-                                sendMessage(sender, "invalid-input", "expected", "number", "type (" + Arrays.stream(ClientType.values()).map(ClientType::humanName).collect(Collectors.joining(", ")) + ")", args[2]);
+                                sendMessage(sender, "invalid-input", "expected", "type (" + Arrays.stream(ClientType.values()).map(ClientType::humanName).collect(Collectors.joining(", ")) + ")", "input", args[2]);
                             }
                         } else if ("format".equalsIgnoreCase(args[1])) {
                             try {

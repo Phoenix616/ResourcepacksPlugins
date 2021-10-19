@@ -71,8 +71,8 @@ public class ProxyPackListener implements RawDataListener {
 
             ResourcePack pack = plugin.getPackManager().getByName(packName);
             if (pack == null) {
-                pack = new ResourcePack(packName, packUrl, packHash);
                 try {
+                    pack = new ResourcePack(packName, packUrl, packHash);
                     plugin.getPackManager().addPack(pack);
                 } catch (IllegalArgumentException e) {
                     pack = plugin.getPackManager().getByHash(packHash);

@@ -130,11 +130,7 @@ public class ResourcePack {
         this.name = name;
         this.url = url;
         if (hash != null && !hash.isEmpty()) {
-            if (hash.length() == 40) {
-                setHash(hash);
-            } else {
-                this.hash = Hashing.sha1().hashString(url, Charsets.UTF_8).asBytes();
-            }
+            setHash(hash);
         }
         this.format = format;
         this.version = version;
@@ -172,7 +168,7 @@ public class ResourcePack {
     }
 
     void setHash(String hash) {
-        this.hash = BaseEncoding.base16().lowerCase().decode(hash.toLowerCase(Locale.ROOT));
+        setRawHash(BaseEncoding.base16().lowerCase().decode(hash.toLowerCase(Locale.ROOT)));
     }
 
     public byte[] getRawHash() {
@@ -180,6 +176,9 @@ public class ResourcePack {
     }
 
     public void setRawHash(byte[] hash) {
+        if (hash.length > 0 && hash.length != 20) {
+            throw new IllegalArgumentException("Hash needs to be either 0 or 20 bytes long!");
+        }
         this.hash = hash;
     }
 

@@ -31,6 +31,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
+import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
@@ -443,7 +444,13 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     protected void sendPack(Player player, ResourcePack pack) {
         ProtocolVersion clientVersion = player.getProtocolVersion();
         if (clientVersion.getProtocol() >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
-            player.sendResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
+            ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(pack.getUrl() + PackManager.HASH_KEY + pack.getHash());
+            if (pack.getRawHash().length == 20) {
+                packInfoBuilder.setHash(pack.getRawHash());
+            } else if (pack.getRawHash().length > 0) {
+                log(Level.WARNING, "Invalid sha1 hash sum for pack " + pack.getName() + " detected! (It was '" + pack.getHash() + "')");
+            }
+            player.sendResourcePackOffer(packInfoBuilder.build());
         } else {
             log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
             log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
