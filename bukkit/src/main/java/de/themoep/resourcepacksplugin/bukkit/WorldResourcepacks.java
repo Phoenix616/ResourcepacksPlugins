@@ -18,6 +18,9 @@ package de.themoep.resourcepacksplugin.bukkit;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.nickuc.openlogin.bukkit.OpenLoginBukkit;
+import com.nickuc.openlogin.common.OpenLogin;
+import com.nickuc.openlogin.common.api.OpenLoginAPI;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
@@ -25,6 +28,7 @@ import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper_fallback;
 import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
+import de.themoep.resourcepacksplugin.bukkit.listeners.OpeNLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.WorldSwitchListener;
 import de.themoep.resourcepacksplugin.core.ClientType;
@@ -111,7 +115,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private boolean protocolSupportApi = false;
     private GeyserConnector geyser;
     private FloodgateApi floodgate;
-    private AuthMeApi authmeApi;
+    private AuthMeApi authmeApi = null;
+    private OpenLoginBukkit openLogin = null;
     private ProxyPackListener proxyPackListener;
 
     public void onEnable() {
@@ -327,11 +332,19 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
 
-        if (getConfig().getBoolean("useauthme", true) && getServer().getPluginManager().getPlugin("AuthMe") != null) {
-            authmeApi = AuthMeApi.getInstance();
-            getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
-            LoginEvent.getHandlerList().unregister(this);
-            getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
+        if (getConfig().getBoolean("useauthme", true)) {
+            if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
+                authmeApi = AuthMeApi.getInstance();
+                getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
+                LoginEvent.getHandlerList().unregister(this);
+                getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
+            }
+            if (getServer().getPluginManager().getPlugin("OpeNLogin") != null) {
+                openLogin = (OpenLoginBukkit) getServer().getPluginManager().getPlugin("OpeNLogin");
+                getLogger().log(Level.INFO, "Detected OpeNLogin " + openLogin.getDescription().getVersion());
+                LoginEvent.getHandlerList().unregister(this);
+                getServer().getPluginManager().registerEvents(new OpeNLoginListener(this), this);
+            }
         }
         return true;
     }
@@ -696,10 +709,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public boolean isAuthenticated(UUID playerId) {
-        if(authmeApi == null)
-            return true;
         Player player = getServer().getPlayer(playerId);
-        return player != null && authmeApi.isAuthenticated(player);
+        if (authmeApi != null) {
+            return player != null && authmeApi.isAuthenticated(player);
+        } else if (openLogin != null) {
+            return player != null && openLogin.getLoginManagement().isAuthenticated(player.getName());
+        }
+        return true;
     }
 
     @Override

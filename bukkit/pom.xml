@@ -36,6 +36,10 @@
             <url>http://repo.bstats.org/content/repositories/releases/</url>
         </repository>
         <repository>
+            <id>nickuc-repo</id>
+            <url>https://repo.nickuc.com/maven2/</url>
+        </repository>
+        <repository>
             <id>jitpack.io</id><!-- Protocol Support -->
             <url>https://jitpack.io</url>
         </repository>
@@ -100,6 +104,12 @@
             <groupId>fr.xephi</groupId>
             <artifactId>authme</artifactId>
             <version>5.5.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nickuc.openlogin</groupId>
+            <artifactId>openlogin-universal</artifactId>
+            <version>1.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
