@@ -346,9 +346,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 LoginEvent.getHandlerList().unregister(this);
                 getServer().getPluginManager().registerEvents(new OpeNLoginListener(this), this);
             }
-            if (getServer().getPluginManager().getPlugin("NLogin") != null) {
+            if (getServer().getPluginManager().getPlugin("nLogin") != null) {
                 nLogin = nLoginAPI.getApi();
-                getLogger().log(Level.INFO, "Detected NLogin " + nLogin.getVersion());
+                getLogger().log(Level.INFO, "Detected nLogin " + nLogin.getVersion());
                 LoginEvent.getHandlerList().unregister(this);
                 getServer().getPluginManager().registerEvents(new NLoginListener(this), this);
             }
