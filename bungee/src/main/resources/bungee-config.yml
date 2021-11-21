@@ -12,6 +12,9 @@ stored-packs-override-assignments: false
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
 # 0 or anything below will disable this functionality
 permanent-pack-remove-time: 30
+# Whether to only send packs if authenticated on the Minecraft server
+# Requires WorldResourcepacks to be installed on the Minecraft server too
+use-auth-plugin: false
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.

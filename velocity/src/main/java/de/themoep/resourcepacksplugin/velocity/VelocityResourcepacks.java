@@ -213,8 +213,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         }
         log(Level.INFO, "Debug level: " + getLogLevel().getName());
 
-        if (getConfig().getBoolean("useauth")) {
-            log(Level.INFO, "Compatibility with backend AuthMe install ('useauth') is enabled.");
+        if (getConfig().getBoolean("use-auth-plugin", getConfig().getBoolean("useauth", false))) {
+            log(Level.INFO, "Compatibility with backend authentication plugin ('use-auth-plugin') is enabled.");
         }
 
         lm = new LanguageManager(this, getConfig().getString("default-language"));
@@ -740,7 +740,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public boolean isAuthenticated(UUID playerId) {
-        return !getConfig().getBoolean("useauth") || authenticatedPlayers.contains(playerId);
+        return !getConfig().getBoolean("use-auth-plugin", getConfig().getBoolean("useauth", false)) || authenticatedPlayers.contains(playerId);
     }
 
     @Override

@@ -12,6 +12,9 @@ stored-packs-override-assignments: false
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
 # 0 or anything below will disable this functionality
 permanent-pack-remove-time: 30
+# Whether to hook into authentication plugins
+# Currently supported: AuthMe, OpeNLogin and nLogin
+use-auth-plugin: true
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.

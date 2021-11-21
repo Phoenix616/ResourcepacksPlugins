@@ -333,7 +333,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
 
-        if (getConfig().getBoolean("useauthme", true)) {
+        if (getConfig().getBoolean("use-auth-plugin", getConfig().getBoolean("useauthme", true))) {
             if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
                 authmeApi = AuthMeApi.getInstance();
                 getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());

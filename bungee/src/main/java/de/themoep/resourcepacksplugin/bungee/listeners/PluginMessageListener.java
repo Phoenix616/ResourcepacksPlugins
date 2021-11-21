@@ -52,7 +52,7 @@ public class PluginMessageListener implements Listener {
             UUID playerId = UUID.fromString(in.readUTF());
 
             plugin.setAuthenticated(playerId, true);
-            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("useauth", false)) {
+            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
                 ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
                 if(player != null) {
                     String serverName = "";
