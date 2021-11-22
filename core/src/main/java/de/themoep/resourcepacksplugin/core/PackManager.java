@@ -936,12 +936,13 @@ public class PackManager {
     }
 
     protected IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
-        if(pack == null) {
+        if (pack == null) {
             return status;
         }
-        boolean rightFormat = pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
-                && pack.getVersion() <= plugin.getPlayerProtocol(playerId)
-                && pack.getType() == plugin.getPlayerClientType(playerId);
+        boolean rightFormat = pack.getType() == plugin.getPlayerClientType(playerId)
+                && (plugin.getPlayerProtocol(playerId) < 0 /* unknown version */ || (
+                        pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
+                                && pack.getVersion() <= plugin.getPlayerProtocol(playerId)));
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
             return IResourcePackSelectEvent.Status.SUCCESS;
