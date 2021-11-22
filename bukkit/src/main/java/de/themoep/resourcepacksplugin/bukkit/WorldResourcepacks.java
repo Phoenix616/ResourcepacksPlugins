@@ -49,7 +49,6 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bukkit.LanguageManager;
 import fr.xephi.authme.api.v3.AuthMeApi;
-import fr.xephi.authme.events.LoginEvent;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
@@ -337,19 +336,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
                 authmeApi = AuthMeApi.getInstance();
                 getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
-                LoginEvent.getHandlerList().unregister(this);
                 getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
             }
             if (getServer().getPluginManager().getPlugin("OpeNLogin") != null) {
                 openLogin = (OpenLoginBukkit) getServer().getPluginManager().getPlugin("OpeNLogin");
                 getLogger().log(Level.INFO, "Detected OpeNLogin " + openLogin.getDescription().getVersion());
-                LoginEvent.getHandlerList().unregister(this);
                 getServer().getPluginManager().registerEvents(new OpeNLoginListener(this), this);
             }
             if (getServer().getPluginManager().getPlugin("nLogin") != null) {
                 nLogin = nLoginAPI.getApi();
                 getLogger().log(Level.INFO, "Detected nLogin " + nLogin.getVersion());
-                LoginEvent.getHandlerList().unregister(this);
                 getServer().getPluginManager().registerEvents(new NLoginListener(this), this);
             }
         }
