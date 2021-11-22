@@ -1076,7 +1076,9 @@ public class PackManager {
      * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
+        if (version >= MinecraftVersion.MINECRAFT_1_18.getProtocolNumber()) {
+            return 8;
+        } else if (version >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
             return 7;
         } else if (version >= 749) { // 1.16.2 / release candidate 1
             return 6;
