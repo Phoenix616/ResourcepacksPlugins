@@ -158,7 +158,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 serverProtocolVersion = MinecraftVersion.parseVersion(versionNumberString).getProtocolNumber();
                 logDebug("Detected server server protocol version " + serverProtocolVersion + "!");
             } catch(IllegalArgumentException e) {
-                getLogger().log(Level.WARNING, "Could not get version of the server! (" + versionString + "/" + versionNumberString + ")");
+                logDebug("Could not get protocol number of the server! (" + versionString + "/" + versionNumberString + ")");
             }
 
             String packageName = getServer().getClass().getPackage().getName();
