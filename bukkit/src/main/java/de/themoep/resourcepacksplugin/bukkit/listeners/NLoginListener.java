@@ -20,7 +20,7 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.nickuc.login.api.events.AsyncAuthenticateEvent;
+import com.nickuc.login.api.event.bukkit.auth.AuthenticateEvent;;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,8 +41,8 @@ public class NLoginListener implements Listener {
      * @param event nLogin's auth event
      */
     @EventHandler
-    public void onNLoginAuth(AsyncAuthenticateEvent event) {
-        if (plugin.isEnabled()) {
+    public void onNLoginAuth(AuthenticateEvent event) {
+        if (plugin.isEnabled() && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
             plugin.runTask(() -> {
                 long sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getWorld().getName()).getSendDelay();
                 if (sendDelay < 0) {
@@ -53,12 +53,6 @@ public class NLoginListener implements Listener {
                 } else {
                     plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName());
                 }
-
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("authMeLogin"); // yes it's not the plugin's name but it's the sub channel we used before and there is no reason to change it I guess?
-                out.writeUTF(event.getPlayer().getName());
-                out.writeUTF(event.getPlayer().getUniqueId().toString());
-                event.getPlayer().sendPluginMessage(plugin, "rp:plugin", out.toByteArray());
             });
         }
     }

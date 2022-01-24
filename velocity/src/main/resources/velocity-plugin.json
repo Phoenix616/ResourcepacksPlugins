@@ -16,6 +16,10 @@
     {
       "id": "floodgate",
       "optional": true
+    },
+    {
+      "id": "nlogin",
+      "optional": true
     }
   ]
 }

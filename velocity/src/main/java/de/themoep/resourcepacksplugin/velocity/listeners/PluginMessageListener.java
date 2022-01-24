@@ -28,10 +28,8 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Phoenix616 on 24.04.2016.
- */
 public class PluginMessageListener {
 
     private final VelocityResourcepacks plugin;
@@ -42,7 +40,7 @@ public class PluginMessageListener {
 
     @Subscribe
     public void pluginMessageReceived(PluginMessageEvent event) {
-        if(!plugin.isEnabled() || !event.getIdentifier().getId().equals("rp:plugin") || !(event.getSource() instanceof ServerConnection))
+        if (!plugin.isEnabled() || !event.getIdentifier().getId().equals("rp:plugin") || !(event.getSource() instanceof ServerConnection))
             return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
@@ -60,7 +58,16 @@ public class PluginMessageListener {
                     if (server.isPresent()) {
                         serverName = server.get().getServerInfo().getName();
                     }
-                    plugin.getPackManager().applyPack(playerId, serverName);
+                    long sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
+                    if (sendDelay < 0) {
+                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+                    }
+                    if (sendDelay > 0) {
+                        String finalServerName = serverName;
+                        plugin.getProxy().getScheduler().buildTask(plugin, () -> plugin.getPackManager().applyPack(playerId, finalServerName)).delay(sendDelay * 20, TimeUnit.MILLISECONDS);
+                    } else {
+                        plugin.getPackManager().applyPack(playerId, serverName);
+                    }
                 }
             }
         }

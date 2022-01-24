@@ -25,6 +25,10 @@
             <id>geyser-repo</id>
             <url>https://repo.opencollab.dev/maven-snapshots/</url>
         </repository>
+        <repository>
+            <id>nickuc-repo</id>
+            <url>https://repo.nickuc.com/maven2/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -63,6 +67,12 @@
                     <artifactId>cloud-velocity</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.nickuc.login</groupId>
+            <artifactId>nlogin-api</artifactId>
+            <version>10.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.utils</groupId>

@@ -115,7 +115,7 @@
         <dependency>
             <groupId>com.nickuc.login</groupId>
             <artifactId>nlogin-api</artifactId>
-            <version>9.3.0</version>
+            <version>10.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

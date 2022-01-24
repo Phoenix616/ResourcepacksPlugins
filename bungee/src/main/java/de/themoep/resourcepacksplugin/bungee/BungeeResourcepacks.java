@@ -24,6 +24,7 @@ import de.themoep.bungeeplugin.FileConfiguration;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bungee.listeners.NLoginListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.ServerSwitchListener;
@@ -178,6 +179,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if (floodgatePlugin != null) {
             floodgate = FloodgateApi.getInstance();
             getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName() + " " + floodgatePlugin.getDescription().getVersion());
+        }
+
+        Plugin nLoginPlugin = getProxy().getPluginManager().getPlugin("nLogin");
+        if (nLoginPlugin != null) {
+            getLogger().log(Level.INFO, "Detected nLogin " + nLoginPlugin.getDescription().getVersion());
+            getProxy().getPluginManager().registerListener(this, new NLoginListener(this));
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {

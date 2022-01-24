@@ -28,10 +28,8 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Phoenix616 on 24.04.2016.
- */
 public class PluginMessageListener implements Listener {
 
     private final BungeeResourcepacks plugin;
@@ -42,24 +40,33 @@ public class PluginMessageListener implements Listener {
 
     @EventHandler
     public void pluginMessageReceived(PluginMessageEvent event) {
-        if(!plugin.isEnabled() || !event.getTag().equals("rp:plugin") || !(event.getSender() instanceof Server))
+        if (!plugin.isEnabled() || !event.getTag().equals("rp:plugin") || !(event.getSender() instanceof Server))
             return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
         String subchannel = in.readUTF();
-        if("authMeLogin".equals(subchannel)) {
+        if ("authMeLogin".equals(subchannel)) {
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
 
             plugin.setAuthenticated(playerId, true);
-            if(!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
+            if (!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
                 ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-                if(player != null) {
+                if (player != null) {
                     String serverName = "";
-                    if(player.getServer() != null) {
+                    if (player.getServer() != null) {
                         serverName = player.getServer().getInfo().getName();
                     }
-                    plugin.getPackManager().applyPack(playerId, serverName);
+                    long sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
+                    if (sendDelay < 0) {
+                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+                    }
+                    if (sendDelay > 0) {
+                        String finalServerName = serverName;
+                        plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.getPackManager().applyPack(playerId, finalServerName), sendDelay * 20, TimeUnit.MILLISECONDS);
+                    } else {
+                        plugin.getPackManager().applyPack(playerId, serverName);
+                    }
                 }
             }
         }

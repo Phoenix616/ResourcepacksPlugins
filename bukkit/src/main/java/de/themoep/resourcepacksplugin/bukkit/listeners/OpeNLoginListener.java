@@ -44,14 +44,17 @@ public class OpeNLoginListener implements Listener {
     public void onOpeNLoginAuth(AsyncAuthenticateEvent event) {
         if (plugin.isEnabled()) {
             plugin.runTask(() -> {
-                long sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getWorld().getName()).getSendDelay();
-                if (sendDelay < 0) {
-                    sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                }
-                if (sendDelay > 0) {
-                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName()), sendDelay);
-                } else {
-                    plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName());
+                if (plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false)))
+                {
+                    long sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getWorld().getName()).getSendDelay();
+                    if (sendDelay < 0) {
+                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+                    }
+                    if (sendDelay > 0) {
+                        plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName()), sendDelay);
+                    } else {
+                        plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName());
+                    }
                 }
 
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
