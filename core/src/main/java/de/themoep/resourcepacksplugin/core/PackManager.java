@@ -350,151 +350,6 @@ public class PackManager {
     }
 
     /**
-     * Set the global Resource Pack
-     * @param pack The pack to set as global
-     * @return The previous global pack, null if none was set
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#setPack(ResourcePack)}
-     */
-    @Deprecated
-    public ResourcePack setGlobalPack(ResourcePack pack) {
-        ResourcePack rp = getGlobalPack();
-        getGlobalAssignment().setPack(pack);
-        return rp;
-    }
-
-    /**
-     * Set the global Resource Pack
-     * @param packname The name of the pack to set as global
-     * @return The previous global pack, null if none was set
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#setPack(String)}
-     */
-    @Deprecated
-    public ResourcePack setGlobalPack(String packname) {
-        return setGlobalPack(getByName(packname));
-    }
-
-    /**
-     * Get the global Resource Pack
-     * @return The global pack, null if none is set
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#getPack()}
-     */
-    @Deprecated
-    public ResourcePack getGlobalPack() {
-        return getByName(getGlobalAssignment().getPack());
-    }
-
-    /**
-     * Add a secondary global Resource Pack
-     * @param pack The pack to add to the list of secondary ones
-     * @return False if the pack already was in the list; True if not
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#addSecondary(ResourcePack)}
-     */
-    @Deprecated
-    public boolean addGlobalSecondary(ResourcePack pack) {
-        return getGlobalAssignment().addSecondary(pack);
-    }
-
-    /**
-     * Add a secondary global Resource Pack
-     * @param packname The name of the pack to add to the list of secondary ones
-     * @return False if the pack already was in the list; True if not
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#addSecondary(String)}
-     */
-    @Deprecated
-    public boolean addGlobalSecondary(String packname) {
-        return getGlobalAssignment().addSecondary(packname);
-    }
-
-    /**
-     * Get if a pack is in the list of secondary global Resource Packs
-     * @param pack The pack to check
-     * @return True if it is a global secondary pack, false if not
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#isSecondary(ResourcePack)}
-     */
-    @Deprecated
-    public boolean isGlobalSecondary(ResourcePack pack) {
-        return getGlobalAssignment().isSecondary(pack);
-    }
-
-    /**
-     * Get if a pack is in the list of secondary global Resource Packs
-     * @param packname The name of the pack to check
-     * @return True if it is a global secondary pack, false if not
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#isSecondary(String)}
-     */
-    @Deprecated
-    public boolean isGlobalSecondary(String packname) {
-        return getGlobalAssignment().isSecondary(packname);
-    }
-
-    /**
-     * Get the list of global seconday packs
-     * @return A list of packnames that are global secondary packs
-     * @deprecated Use {@link PackManager#getGlobalAssignment()} and {@link PackAssignment#getSecondaries()}
-     */
-    @Deprecated
-    public List<String> getGlobalSecondary() {
-        return new ArrayList<>(global.getSecondaries());
-    }
-    
-    /**
-     * Get the resourcepack of a server
-     * @param server The name of the server, "!global" for the global pack
-     * @return The resourcepack of the server, null if there is none
-     * @deprecated Use {@link PackManager#getAssignment(String)} ()} and {@link PackAssignment#getPack()}
-     */
-    @Deprecated
-    public ResourcePack getServerPack(String server) {
-        return getByName(getAssignment(server).getPack());
-    }
-    
-    /**
-     * Get the resourcepack of a user
-     * @param playerid The UUID of this player
-     * @return The resourcepack the player has selected, null if he has none/isn't known
-     * @deprecated Use {@link UserManager#getUserPack} instead!
-     */
-    @Deprecated
-    public ResourcePack getUserPack(UUID playerid) {
-        return plugin.getUserManager().getUserPack(playerid);
-    }
-    
-    /**
-     * Set the resourcepack of a user
-     * @param playerid The UUID of this player
-     * @param pack The resourcepack of the user
-     * @return The resourcepack the player had selected previous, null if he had none before
-     * @deprecated Use {@link UserManager#setUserPack} instead!
-     */
-    @Deprecated
-    public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
-        return plugin.getUserManager().setUserPack(playerid, pack);
-    }
-
-    /**
-     * Clear the resourcepack of a user
-     * @param playerid The UUID of this player
-     * @return The resourcepack the player had selected previous, null if he had none before
-     * @deprecated Use {@link UserManager#clearUserPack} instead!
-     */
-    @Deprecated
-    public ResourcePack clearUserPack(UUID playerid) {
-        return plugin.getUserManager().clearUserPack(playerid);
-    }
-    
-
-    /**
-     * Add a server to a resourcepack
-     * @param server The server this pack should be active on
-     * @param pack The resourcepack
-     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#setPack(ResourcePack)}
-     */
-    @Deprecated
-    public void addServer(String server, ResourcePack pack) {
-        getAssignment(server).setPack(pack);
-    }
-
-    /**
      * Get the global assignment
      * @return  The global PackAssignment
      */
@@ -600,18 +455,19 @@ public class PackManager {
                 }
             }
         }
-        if(config.get("secondary") != null) {
-            if (!(config.get("secondary") instanceof List)
-                    || !((List) config.get("secondary")).isEmpty()
-                    && !(((List) config.get("secondary")).get(0) instanceof String)){
-                plugin.log(Level.WARNING, "'secondary' option has to be a String List!");
+        Object optionalPacks = config.getOrDefault("optional-packs", config.get("secondary"));
+        if(optionalPacks != null) {
+            if (!(optionalPacks instanceof List)
+                    || !((List) optionalPacks).isEmpty()
+                    && !(((List) optionalPacks).get(0) instanceof String)) {
+                plugin.log(Level.WARNING, "'optional-packs' option has to be a String List!");
             } else {
-                plugin.logDebug("Secondary packs:");
-                List<String> secondary = (List<String>) config.get("secondary");
+                plugin.logDebug("Optional packs:");
+                List<String> secondary = (List<String>) optionalPacks;
                 for(String secondaryPack : secondary) {
                     ResourcePack pack = getByName(secondaryPack);
                     if (pack != null) {
-                        assignment.addSecondary(pack);
+                        assignment.addOptionalPack(pack);
                         plugin.logDebug("- " + pack.getName());
                     } else {
                         plugin.log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
@@ -668,65 +524,6 @@ public class PackManager {
         }
         checkDirty();
         return removed;
-    }
-
-    /**
-     * Add a secondary server Resource Pack
-     * @param server The server to add a secondary pack to
-     * @param pack The pack to add to the list of secondary ones
-     * @return False if the pack already was in the list; True if not
-     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#addSecondary(ResourcePack)}
-     */
-    @Deprecated
-    public boolean addServerSecondary(String server, ResourcePack pack) {
-        return getAssignment(server).addSecondary(pack);
-    }
-
-    /**
-     * Add a secondary server Resource Pack
-     * @param server The server to add a secondary pack to
-     * @param packname The name of the pack to add to the list of secondary ones
-     * @return False if the pack already was in the list; True if not
-     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#addSecondary(String)}
-     */
-    @Deprecated
-    public boolean addServerSecondary(String server, String packname) {
-        return getAssignment(server).addSecondary(packname);
-    }
-
-    /**
-     * Get if a pack is in the list of secondary Resource Packs for this server
-     * @param server The check the secondary pack of
-     * @param pack The pack to check
-     * @return True if it is a global secondary pack, false if not
-     * @deprecated Use the {@link PackManager#getAssignment(String)} and {@link PackAssignment#isSecondary(ResourcePack)}
-     */
-    @Deprecated
-    public boolean isServerSecondary(String server, ResourcePack pack) {
-        return getAssignment(server).isSecondary(pack);
-    }
-
-    /**
-     * Get if a pack is in the list of secondary Resource Packs for this server
-     * @param server The server to add a secondary pack to
-     * @param packname The name of the pack to check
-     * @return True if it is a global secondary pack, false if not
-     * @deprecated Use {@link PackManager#getAssignment(String)} and {@link PackAssignment#isSecondary(String)}
-     */
-    @Deprecated
-    public boolean isServerSecondary(String server, String packname) {
-        return getAssignment(server).isSecondary(packname);
-    }
-
-    /**
-     * Get the list of secondary packs of a specific server
-     * @param server The name of the server
-     * @return The list of secondary packs; empty if none found
-     * @deprecated Use {@link PackManager#getAssignment(String)} and {@link PackAssignment#getSecondaries()}
-     */
-    @Deprecated
-    public List<String> getServerSecondary(String server) {
-        return new ArrayList<>(getAssignment(server).getSecondaries());
     }
 
     /**
@@ -859,7 +656,7 @@ public class PackManager {
             }
         }
 
-        if(getGlobalAssignment().isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+        if(getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
             plugin.logDebug(player.getName() + " matched global assignment");
             return prev;
         }
@@ -868,7 +665,7 @@ public class PackManager {
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
-            if(assignment.isSecondary(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            if(assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
                 plugin.logDebug(player.getName() + " matched assignment " + assignment.getName());
                 return prev;
             }
@@ -879,7 +676,7 @@ public class PackManager {
                 pack = serverPack;
                 matchReason += "main pack";
             } else if (prev != null || serverPack != null) {
-                for(String secondaryName : assignment.getSecondaries()) {
+                for (String secondaryName : assignment.getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if (status == IResourcePackSelectEvent.Status.SUCCESS) {
@@ -899,7 +696,7 @@ public class PackManager {
                 pack = globalPack;
                 matchReason += "main pack";
             } else if (prev != null || globalPack != null){
-                for (String secondaryName : getGlobalAssignment().getSecondaries()) {
+                for (String secondaryName : getGlobalAssignment().getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if(status == IResourcePackSelectEvent.Status.SUCCESS) {

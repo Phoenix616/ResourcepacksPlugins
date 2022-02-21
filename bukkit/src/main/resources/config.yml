@@ -54,17 +54,17 @@ global:
   pack: lobbypack
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
-  # the pack if the user has a non secondary one
+  # the pack if the user has a non-optional one
   # Also this list will be used to select a pack if a user does not have the permission
   # or the right version to use that pack. (From top to bottom)
-  #secondary:
+  #optional-packs:
   #- lobbypack
   # Delay in ticks before sending the pack to a player after he logs in/switches to the world
   send-delay: 10
 worlds:
   lobby:
     pack: lobbypack
-    #secondary:
+    #optional-packs:
     #- gamepack
   minigame:
     pack: gamepack

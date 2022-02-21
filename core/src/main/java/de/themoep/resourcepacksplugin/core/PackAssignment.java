@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 06.03.2017.
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
 public class PackAssignment {
 
     private String pack = null;
-    private LinkedHashSet<String> secondaries = new LinkedHashSet<>();
+    private LinkedHashSet<String> optionalPacks = new LinkedHashSet<>();
     private long sendDelay = -1;
     private Pattern regex = null;
     private final String name;
@@ -47,7 +46,7 @@ public class PackAssignment {
     public PackAssignment(PackAssignment assignment) {
         this(assignment.getName());
         this.pack = assignment.getPack();
-        this.secondaries = assignment.getSecondaries();
+        this.optionalPacks = assignment.getOptionalPacks();
         this.sendDelay = assignment.getSendDelay();
         this.regex = assignment.getRegex();
     }
@@ -89,65 +88,141 @@ public class PackAssignment {
     }
 
     /**
+     * Get a list of optional packs
+     * @return  The (lowercase) names of optional packs
+     */
+    public LinkedHashSet<String> getOptionalPacks() {
+        return optionalPacks;
+    }
+
+    /**
+     * Check whether a certain pack is a optional pack in this assignment
+     * @param pack  The name of the pack
+     * @return      <code>true</code> if this optional pack list contains this pack; <code>false</code> if not
+     */
+    public boolean isOptionalPack(String pack) {
+        return optionalPacks.contains(pack.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Check whether certain pack is an optional pack in this assignment
+     * @param pack  The pack
+     * @return      <code>true</code> if this optional pack list contains this pack; <code>false</code> if not (or pack is null)
+     */
+    public boolean isOptionalPack(ResourcePack pack) {
+        return pack != null && isOptionalPack(pack.getName());
+    }
+
+    /**
+     * Add a new optional pack
+     * @param pack  The pack to add
+     * @return      <code>true</code> as defined in Collections.add
+     */
+    public boolean addOptionalPack(ResourcePack pack) {
+        return isOptionalPack(pack.getName());
+    }
+
+    /**
+     * Add a new optional pack
+     * @param pack  The name of the pack to add
+     * @return      <code>true</code> as defined in Collections.add
+     */
+    public boolean addOptionalPack(String pack) {
+        return optionalPacks.add(pack.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Remove a optional pack
+     * @param pack  The pack to remove
+     * @return      <code>true</code> if that pack was a optional one, <code>false</code> if not
+     */
+    public boolean removeOptionalPack(ResourcePack pack) {
+        return removeOptionalPack(pack.getName());
+    }
+
+    /**
+     * Remove a optional pack
+     * @param pack  The name of the pack to remove
+     * @return      <code>true</code> if that pack was a optional one, <code>false</code> if not
+     */
+    public boolean removeOptionalPack(String pack) {
+        return optionalPacks.remove(pack.toLowerCase(Locale.ROOT));
+    }
+
+    /**
      * Get a list of secondary packs
      * @return  The (lowercase) names of secondary packs
+     * @deprecated Use {@link #getOptionalPacks()}
      */
+    @Deprecated
     public LinkedHashSet<String> getSecondaries() {
-        return secondaries;
+        return getOptionalPacks();
     }
 
     /**
      * Check whether or not a certain pack is a secondary in this assignment
      * @param pack  The name of the pack
      * @return      <code>true</code> if this secondary list contains this pack; <code>false</code> if not
+     * @deprecated  Use {@link #isOptionalPack(String)}
      */
+    @Deprecated
     public boolean isSecondary(String pack) {
-        return secondaries.contains(pack.toLowerCase(Locale.ROOT));
+        return isOptionalPack(pack);
     }
 
     /**
      * Check whether or not a certain pack is a secondary in this assignment
      * @param pack  The the pack
      * @return      <code>true</code> if this secondary list contains this pack; <code>false</code> if not (or pack is null)
+     * @deprecated  Use {@link #isOptionalPack(ResourcePack)}
      */
+    @Deprecated
     public boolean isSecondary(ResourcePack pack) {
-        return pack != null && isSecondary(pack.getName());
+        return isOptionalPack(pack);
     }
 
     /**
      * Add a new secondary pack
      * @param pack  The pack to add
      * @return      <code>true</code> as defined in Collections.add
+     * @deprecated  Use {@link #addOptionalPack(ResourcePack)}
      */
+    @Deprecated
     public boolean addSecondary(ResourcePack pack) {
-        return addSecondary(pack.getName());
+        return addOptionalPack(pack);
     }
 
     /**
      * Add a new secondary pack
      * @param pack  The name of the pack to add
      * @return      <code>true</code> as defined in Collections.add
+     * @deprecated  Use {@link #addOptionalPack(String)}
      */
+    @Deprecated
     public boolean addSecondary(String pack) {
-        return secondaries.add(pack.toLowerCase(Locale.ROOT));
+        return addOptionalPack(pack);
     }
 
     /**
      * Remove a secondary pack
      * @param pack  The pack to remove
      * @return      <code>true</code> if that pack was a secondary one, <code>false</code> if not
+     * @deprecated  Use {@link #removeOptionalPack(ResourcePack)}
      */
+    @Deprecated
     public boolean removeSecondary(ResourcePack pack) {
-        return removeSecondary(pack.getName());
+        return removeOptionalPack(pack);
     }
 
     /**
      * Remove a secondary pack
      * @param pack  The name of the pack to remove
      * @return      <code>true</code> if that pack was a secondary one, <code>false</code> if not
+     * @deprecated  Use {@link #removeOptionalPack(String)}
      */
+    @Deprecated
     public boolean removeSecondary(String pack) {
-        return secondaries.remove(pack.toLowerCase(Locale.ROOT));
+        return removeOptionalPack(pack);
     }
 
     /**
@@ -155,7 +230,7 @@ public class PackAssignment {
      * @return  <code>true</code> if it has no packs or secondaries; <code>false</code> if it has some
      */
     public boolean isEmpty() {
-        return pack == null && secondaries.isEmpty() && sendDelay == -1;
+        return pack == null && optionalPacks.isEmpty() && sendDelay == -1;
     }
 
     /**
@@ -184,7 +259,7 @@ public class PackAssignment {
         StringBuilder s = new StringBuilder(getClass().getSimpleName()).append("{")
                 .append("name=").append(getName())
                 .append(", pack=").append(getPack())
-                .append(", secondaries=[").append(getSecondaries().stream().collect(Collectors.joining(", ")))
+                .append(", optional-packs=[").append(String.join(", ", getOptionalPacks()))
                 .append("], sendDelay=").append(getSendDelay());
         if (getRegex() != null) {
             s.append(", regex=").append(getRegex().toString());
@@ -230,7 +305,7 @@ public class PackAssignment {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pack", pack);
-        map.put("secondary", secondaries.isEmpty() ? null : new ArrayList<>(secondaries));
+        map.put("optional-packs", optionalPacks.isEmpty() ? null : new ArrayList<>(optionalPacks));
         map.put("send-delay", sendDelay > 0 ? sendDelay : null);
         map.put("regex", regex != null ? regex.toString() : null);
         return map;
@@ -244,7 +319,8 @@ public class PackAssignment {
         return new String[] {
                 "name", getName(),
                 "pack", getPack() != null ? getPack() : "none",
-                "secondaries", String.join(", ", getSecondaries()),
+                "secondaries", String.join(", ", getOptionalPacks()),
+                "optional-packs", String.join(", ", getOptionalPacks()),
                 "regex", getRegex() != null ? getRegex().toString() : "none",
                 "send-delay", String.valueOf(getSendDelay())
         };
@@ -258,8 +334,8 @@ public class PackAssignment {
         return new String[] {
                 "info",
                 "pack",
-                "addsecondary",
-                "removesecondary",
+                "addoptionalpack",
+                "removeoptionalpack",
                 "regex",
                 "senddelay"
         };
@@ -324,27 +400,31 @@ public class PackAssignment {
             command.sendMessage(sender, "updated", "assignment", getName(), "type", "send delay", "value", sendDelay > -1 ? String.valueOf(sendDelay) : "none");
         } else if (args.length < 2) {
             return false;
-        } else if ("addsecondary".equalsIgnoreCase(args[0])) {
+        } else if ("addoptionalpack".equalsIgnoreCase(args[0])
+                || "addoptional".equalsIgnoreCase(args[0])
+                || "addsecondary".equalsIgnoreCase(args[0])) {
             ResourcePack pack = command.getPlugin().getPackManager().getByName(args[1]);
             if (pack == null) {
                 command.sendMessage(sender, "unknown-pack", "input", args[1]);
                 return true;
             }
-            save = addSecondary(pack);
+            save = addOptionalPack(pack);
             if (save) {
-                command.sendMessage(sender, "secondary.added", "assignment", getName(), "pack", pack.getName());
+                command.sendMessage(sender, "optional-pack.added", "assignment", getName(), "pack", pack.getName());
             } else {
-                command.sendMessage(sender, "secondary.already-added", "assignment", getName(), "pack", pack.getName());
+                command.sendMessage(sender, "optional-pack.already-added", "assignment", getName(), "pack", pack.getName());
             }
-        } else if ("removesecondary".equalsIgnoreCase(args[0])) {
+        } else if ("removeoptionalpack".equalsIgnoreCase(args[0])
+                || "removeoptional".equalsIgnoreCase(args[0])
+                || "removesecondary".equalsIgnoreCase(args[0])) {
             if (command.getPlugin().getPackManager().getByName(args[1]) == null) {
                 command.sendMessage(sender, "unknown-pack", "input", args[1]);
             }
-            save = removeSecondary(args[1]);
+            save = removeOptionalPack(args[1]);
             if (save) {
-                command.sendMessage(sender, "secondary.removed", "assignment", getName(), "pack", args[1]);
+                command.sendMessage(sender, "optional-pack.removed", "assignment", getName(), "pack", args[1]);
             } else {
-                command.sendMessage(sender, "secondary.not-added", "assignment", getName(), "pack", args[1]);
+                command.sendMessage(sender, "optional-pack.not-added", "assignment", getName(), "pack", args[1]);
             }
         } else {
             return false;

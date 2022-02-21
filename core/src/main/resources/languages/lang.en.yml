@@ -34,15 +34,15 @@ command:
   assignment:
     new-assignment: "&cNo assignment with the name &e%input%&c found! Creating new one!"
     updated: "&eSet &f%type%&e of assignment &f%assignment%&e to &f%value%"
-    secondary:
-      added:  "&eAdded pack &f%pack%&e to the secondary list of assignment &f%assignment%&c!"
-      already-added:  "&cPack &f%pack%&c is already on the secondary list of assignment &f%assignment%&c?"
-      removed:  "&eRemoved pack &f%pack%&e from the secondary list of assignment &f%assignment%&c!"
-      not-added:  "&cPack &f%pack%&c is not on the secondary list of assignment &f%assignment%&c?"
+    optional-pack:
+      added:  "&eAdded pack &f%pack%&e to the optional pack list of assignment &f%assignment%&c!"
+      already-added:  "&cPack &f%pack%&c is already on the optional pack list of assignment &f%assignment%&c?"
+      removed:  "&eRemoved pack &f%pack%&e from the optional pack list of assignment &f%assignment%&c!"
+      not-added:  "&cPack &f%pack%&c is not on the optional pack list of assignment &f%assignment%&c?"
     info: |-
       &7----- &eAssignment &f%name%&e Info: &7-----
       &ePack: &f%pack%
-      &eSecondaries: &f%secondaries%
+      &eOptional Packs: &f%optional-packs%
       &eRegex: &f%regex%
       &eSend Delay: &f%send-delay%
   deleteassignment:
