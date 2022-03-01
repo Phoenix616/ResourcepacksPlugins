@@ -119,7 +119,7 @@ public class PackAssignment {
      * @return      <code>true</code> as defined in Collections.add
      */
     public boolean addOptionalPack(ResourcePack pack) {
-        return isOptionalPack(pack.getName());
+        return addOptionalPack(pack.getName());
     }
 
     /**
