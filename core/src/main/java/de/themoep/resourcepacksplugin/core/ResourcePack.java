@@ -129,7 +129,7 @@ public class ResourcePack {
     public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission, ClientType type) {
         this.name = name;
         this.url = url;
-        if (hash != null && !hash.isEmpty()) {
+        if (hash != null && !hash.isEmpty() && !"null".equals(hash)) {
             setHash(hash);
         }
         this.format = format;

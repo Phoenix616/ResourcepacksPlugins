@@ -172,7 +172,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
 
     public String getHash() {
-        return this.hash.orElse(null);
+        return this.hash.filter(h -> !h.isEmpty() && !"null".equals(h)).orElse(null);
     }
 
     @Override
