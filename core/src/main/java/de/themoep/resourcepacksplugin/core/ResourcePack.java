@@ -18,8 +18,6 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 
 import java.util.ArrayList;

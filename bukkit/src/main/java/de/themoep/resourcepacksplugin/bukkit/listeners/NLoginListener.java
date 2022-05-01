@@ -18,8 +18,6 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.nickuc.login.api.event.bukkit.auth.AuthenticateEvent;;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import org.bukkit.event.EventHandler;

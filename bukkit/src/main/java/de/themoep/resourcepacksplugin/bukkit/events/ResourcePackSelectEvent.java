@@ -33,7 +33,7 @@ public class ResourcePackSelectEvent extends Event implements IResourcePackSelec
 
     private final UUID playerId;
     private ResourcePack pack;
-    private Status status;;
+    private Status status;
 
     public ResourcePackSelectEvent(UUID playerId, ResourcePack pack) {
         this.playerId = playerId;
