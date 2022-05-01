@@ -84,6 +84,14 @@ public class UserManager {
         String previous = userPackMap.remove(playerid);
         return (previous == null) ? null : plugin.getPackManager().getByName(previous);
     }
+
+    /**
+     * Remove all stored user pack data
+     */
+    public void clearUserPacks() {
+        userPackMap.clear();
+        userPackTime.clear();
+    }
     
     /**
      * What should happen when a player disconnects?

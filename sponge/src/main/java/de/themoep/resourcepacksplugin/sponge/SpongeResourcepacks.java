@@ -351,7 +351,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         log(Level.INFO, "Reloaded config.");
         if (isEnabled() && resend) {
             log(Level.INFO, "Resending packs for all online players!");
-            um = new UserManager(this);
+            um.clearUserPacks();
             for (Player p : Sponge.getServer().getOnlinePlayers()) {
                 resendPack(p);
             }

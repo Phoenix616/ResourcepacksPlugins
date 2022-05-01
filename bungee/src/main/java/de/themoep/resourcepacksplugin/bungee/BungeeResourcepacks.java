@@ -556,7 +556,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         getLogger().log(Level.INFO, "Reloaded config.");
         if(isEnabled() && resend) {
             getLogger().log(Level.INFO, "Resending packs for all online players!");
-            um = new UserManager(this);
+            um.clearUserPacks();
             for (ProxiedPlayer p : getProxy().getPlayers()) {
                 resendPack(p);
             }
