@@ -339,7 +339,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         log(Level.INFO, "Reloaded config.");
         if (isEnabled() && resend) {
             log(Level.INFO, "Resending packs for all online players!");
-            um.clearUserPacks();
+            getUserManager().clearUserPacks();
             for (Player p : getProxy().getAllPlayers()) {
                 resendPack(p);
             }
