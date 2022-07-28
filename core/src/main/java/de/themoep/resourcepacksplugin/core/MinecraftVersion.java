@@ -111,11 +111,6 @@ public enum MinecraftVersion {
         if (minecraftVersion != null) {
             return minecraftVersion;
         }
-        for(MinecraftVersion version : values()) {
-            if(version.getProtocolNumber() <= protocolVersion) {
-                return version;
-            }
-        }
         return UNKNOWN;
     }
 

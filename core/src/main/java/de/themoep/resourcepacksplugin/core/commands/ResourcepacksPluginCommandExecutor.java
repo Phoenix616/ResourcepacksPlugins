@@ -162,7 +162,7 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                                 sendMessage(sender, "updated", "pack", pack.getName(), "type", "version", "value", String.valueOf(pack.getVersion()));
                             } catch (NumberFormatException e) {
                                 try {
-                                    save = pack.setVersion(MinecraftVersion.parseVersion(args[2]).getProtocolNumber());
+                                    save = pack.setVersion(args[2]);
                                     sendMessage(sender, "updated", "pack", pack.getName(), "type", "version", "value", args[2]);
                                 } catch (IllegalArgumentException e1) {
                                     sendMessage(sender, "invalid-input", "expected", "version", "input", args[2]);

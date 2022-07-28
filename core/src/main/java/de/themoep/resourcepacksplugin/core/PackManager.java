@@ -133,14 +133,15 @@ public class PackManager {
         String hash = get(config, "hash", "");
 
         int format = get(config, "format", 0);
-        int mcVersion = MinecraftVersion.parseVersion(get(config , "version", String.valueOf(get(config, "version", 0)))).getProtocolNumber();
+        String mcVersion = get(config , "version", String.valueOf(get(config, "version", 0)));
 
         boolean restricted = get(config, "restricted", false);
         String perm = get(config, "permission", plugin.getName().toLowerCase(Locale.ROOT) + ".pack." + name);
 
         ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
 
-        ResourcePack pack = new ResourcePack(name, url, hash, format, mcVersion, restricted, perm, type);
+        ResourcePack pack = new ResourcePack(name, url, hash, format, 0, restricted, perm, type);
+        pack.setVersion(mcVersion);
 
         for (int i = 0; i < variantsList.size(); i++) {
             pack.getVariants().add(loadPack(name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));

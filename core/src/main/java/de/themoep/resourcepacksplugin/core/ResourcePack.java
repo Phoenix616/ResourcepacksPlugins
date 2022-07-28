@@ -221,6 +221,25 @@ public class ResourcePack {
     }
 
     /**
+     * Utility method to set the pack Minecraft version from a string
+     * @param versionString The Minecraft version as string descriptor
+     * @throws IllegalArgumentException Thrown when the string is not valid
+     */
+    public boolean setVersion(String versionString) {
+        int mcVersion = 0;
+        try {
+            mcVersion = MinecraftVersion.parseVersion(versionString).getProtocolNumber();
+        } catch (IllegalArgumentException e) {
+            try {
+                mcVersion = Integer.parseInt(versionString);
+            } catch (NumberFormatException e1) {
+                throw new IllegalArgumentException("'" + versionString + "' is not a valid Minecraft version string nor protocol number");
+            }
+        }
+        return setVersion(mcVersion);
+    }
+
+    /**
      * Whether or not this pack is restricted and a permission should be used
      * @return <code>true</code> if one needs the permission, <code>false</code> if not
      */
