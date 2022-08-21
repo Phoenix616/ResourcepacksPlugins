@@ -23,6 +23,7 @@ import java.util.Map;
  */
 
 public enum MinecraftVersion {
+    MINECRAFT_1_19_2(760),
     MINECRAFT_1_19_1(760),
     MINECRAFT_1_19(759),
     MINECRAFT_1_18_2(758),
