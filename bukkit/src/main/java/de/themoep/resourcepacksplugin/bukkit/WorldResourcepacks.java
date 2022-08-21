@@ -69,6 +69,8 @@ import us.myles.ViaVersion.api.ViaAPI;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -155,7 +157,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             int minus = versionString.indexOf("-");
             String versionNumberString = versionString.substring(0, minus > -1 ? minus : versionString.length());
             try {
-                serverProtocolVersion = MinecraftVersion.parseVersion(versionNumberString).getProtocolNumber();
+                try {
+                    Method getProtocolVersion = getServer().getUnsafe().getClass().getMethod("getProtocolVersion");
+                    serverProtocolVersion = (int) getProtocolVersion.invoke(getServer().getUnsafe());
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                    serverProtocolVersion = MinecraftVersion.parseVersion(versionNumberString).getProtocolNumber();
+                }
                 logDebug("Detected server server protocol version " + serverProtocolVersion + "!");
             } catch(IllegalArgumentException e) {
                 logDebug("Could not get protocol number of the server! (" + versionString + "/" + versionNumberString + ")");
