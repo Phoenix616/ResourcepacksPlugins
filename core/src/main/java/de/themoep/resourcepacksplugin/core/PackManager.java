@@ -778,11 +778,12 @@ public class PackManager {
      * @param sender The player that executed the command, null if it was the console
      */
     public void generateHashes(final ResourcepacksPlayer sender) {
+        List<ResourcePack> packs = getPacks();
         plugin.runAsyncTask(() -> {
             plugin.sendMessage(sender, "generate-hashes.generating");
             int changed = 0;
 
-            for (ResourcePack pack : getPacks()) {
+            for (ResourcePack pack : packs) {
                 if (pack.getName().startsWith("backend-")) {
                     continue;
                 }
