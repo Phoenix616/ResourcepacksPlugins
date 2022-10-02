@@ -1,7 +1,7 @@
 package de.themoep.resourcepacksplugin.velocity.listeners;
 
 /*
- * ResourcepacksPlugins - bungee
+ * ResourcepacksPlugins - velocity
  * Copyright (C) 2022 Max Lee aka Phoenix616 (mail@moep.tv)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,22 +18,18 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.nickuc.login.api.event.velocity.auth.AuthenticateEvent;
-import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+public class LibrePremiumListener extends AbstractAuthListener {
 
-public class NLoginListener extends AbstractAuthListener{
-
-    public NLoginListener(VelocityResourcepacks plugin) {
+    public LibrePremiumListener(VelocityResourcepacks plugin, PluginContainer librePremium) {
         super(plugin);
-    }
-
-    @Subscribe
-    public void onAuth(AuthenticateEvent event) {
-        onAuth(event.getPlayer());
+        ((LibrePremiumProvider<Player, RegisteredServer>) librePremium.getInstance().get()).getLibrePremium().getEventProvider()
+                .subscribe(AuthenticatedEvent.class, event -> onAuth((Player) event.getPlayer()));
     }
 }

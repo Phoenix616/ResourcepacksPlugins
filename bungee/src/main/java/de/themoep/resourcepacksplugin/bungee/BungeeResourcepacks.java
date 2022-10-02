@@ -24,6 +24,8 @@ import de.themoep.bungeeplugin.FileConfiguration;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bungee.listeners.JPremiumListener;
+import de.themoep.resourcepacksplugin.bungee.listeners.LibrePremiumListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.NLoginListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.DisconnectListener;
@@ -185,6 +187,18 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if (nLoginPlugin != null) {
             getLogger().log(Level.INFO, "Detected nLogin " + nLoginPlugin.getDescription().getVersion());
             getProxy().getPluginManager().registerListener(this, new NLoginListener(this));
+        }
+
+        Plugin jPremiumPlugin = getProxy().getPluginManager().getPlugin("JPremium");
+        if (jPremiumPlugin != null) {
+            getLogger().log(Level.INFO, "Detected JPremium " + jPremiumPlugin.getDescription().getVersion());
+            getProxy().getPluginManager().registerListener(this, new JPremiumListener(this));
+        }
+
+        Plugin librePremiumPlugin = getProxy().getPluginManager().getPlugin("LibrePremium");
+        if (librePremiumPlugin != null) {
+            getLogger().log(Level.INFO, "Detected LibrePremium " + librePremiumPlugin.getDescription().getVersion());
+            new LibrePremiumListener(this, librePremiumPlugin);
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {

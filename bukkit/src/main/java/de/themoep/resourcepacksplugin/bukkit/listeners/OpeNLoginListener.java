@@ -18,8 +18,6 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.nickuc.openlogin.bukkit.api.events.AsyncAuthenticateEvent;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import org.bukkit.event.EventHandler;
@@ -28,12 +26,10 @@ import org.bukkit.event.Listener;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class OpeNLoginListener implements Listener {
-
-    private final WorldResourcepacks plugin;
+public class OpeNLoginListener extends AbstractAuthListener implements Listener {
 
     public OpeNLoginListener(WorldResourcepacks plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     /**
@@ -42,27 +38,6 @@ public class OpeNLoginListener implements Listener {
      */
     @EventHandler
     public void onOpeNLoginAuth(AsyncAuthenticateEvent event) {
-        if (plugin.isEnabled()) {
-            plugin.runTask(() -> {
-                if (plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false)))
-                {
-                    long sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getWorld().getName()).getSendDelay();
-                    if (sendDelay < 0) {
-                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                    }
-                    if (sendDelay > 0) {
-                        plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName()), sendDelay);
-                    } else {
-                        plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName());
-                    }
-                }
-
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("authMeLogin"); // yes it's not the plugin's name but it's the sub channel we used before and there is no reason to change it I guess?
-                out.writeUTF(event.getPlayer().getName());
-                out.writeUTF(event.getPlayer().getUniqueId().toString());
-                event.getPlayer().sendPluginMessage(plugin, "rp:plugin", out.toByteArray());
-            });
-        }
+        onAuth(event.getPlayer(), true);
     }
 }

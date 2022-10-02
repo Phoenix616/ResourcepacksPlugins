@@ -37,6 +37,11 @@
             <id>nickuc-repo</id>
             <url>https://repo.nickuc.com/maven2/</url>
         </repository>
+        <!-- For LibrePremium -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -86,6 +91,18 @@
             <groupId>com.nickuc.login</groupId>
             <artifactId>nlogin-api</artifactId>
             <version>10.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jakub.premium</groupId>
+            <artifactId>jpremium-api</artifactId>
+            <version>1.16.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kyngs</groupId>
+            <artifactId>LibrePremium</artifactId>
+            <version>0.11.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

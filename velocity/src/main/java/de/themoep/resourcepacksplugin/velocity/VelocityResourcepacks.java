@@ -40,6 +40,7 @@ import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.GeyserIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.ViaVersionIntegration;
+import de.themoep.resourcepacksplugin.velocity.listeners.LibrePremiumListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.NLoginListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.PluginMessageListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.DisconnectListener;
@@ -157,6 +158,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 .ifPresent(c -> {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     getProxy().getEventManager().register(this, new NLoginListener(this));
+                });
+
+        getProxy().getPluginManager().getPlugin("librepremium")
+                .ifPresent(c -> {
+                    log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
+                    new LibrePremiumListener(this, c);
                 });
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {

@@ -26,32 +26,18 @@ import org.bukkit.event.Listener;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class NLoginListener implements Listener {
-
-    private final WorldResourcepacks plugin;
+public class NLoginListener extends AbstractAuthListener implements Listener {
 
     public NLoginListener(WorldResourcepacks plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     /**
-     * Send a plugin message to the Bungee when a player logged into nLogin on subchannel authMeLogin with the name and UUID
+     * Doesn't send message to Bungee as NLogin supports it natively
      * @param event nLogin's auth event
      */
     @EventHandler
     public void onNLoginAuth(AuthenticateEvent event) {
-        if (plugin.isEnabled() && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
-            plugin.runTask(() -> {
-                long sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getWorld().getName()).getSendDelay();
-                if (sendDelay < 0) {
-                    sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                }
-                if (sendDelay > 0) {
-                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName()), sendDelay);
-                } else {
-                    plugin.getPackManager().applyPack(event.getPlayer().getUniqueId(), event.getPlayer().getWorld().getName());
-                }
-            });
-        }
+        onAuth(event.getPlayer(), false);
     }
 }

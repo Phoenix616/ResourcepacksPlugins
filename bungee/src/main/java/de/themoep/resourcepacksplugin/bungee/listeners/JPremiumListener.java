@@ -18,19 +18,19 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.nickuc.login.api.event.bungee.auth.AuthenticateEvent;
+import com.jakub.premium.api.event.UserEvent;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class NLoginListener extends AbstractAuthListener implements Listener {
+public class JPremiumListener extends AbstractAuthListener implements Listener {
 
-    public NLoginListener(BungeeResourcepacks plugin) {
+    public JPremiumListener(BungeeResourcepacks plugin) {
         super(plugin);
     }
 
     @EventHandler
-    public void onAuth(AuthenticateEvent event) {
-        onAuth(event.getPlayer());
+    public void onAuth(UserEvent.Login event) {
+        onAuth(event.getUserProfile().getProxiedPlayer());
     }
 }
