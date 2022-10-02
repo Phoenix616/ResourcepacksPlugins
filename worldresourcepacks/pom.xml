@@ -19,7 +19,6 @@
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>core</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -86,7 +85,6 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>minedown-adventure</artifactId>
-            <version>${minedown.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

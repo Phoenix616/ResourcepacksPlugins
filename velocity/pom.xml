@@ -46,20 +46,15 @@
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>core</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion-common</artifactId>
-            <version>3.0.2-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.geysermc</groupId>
             <artifactId>connector</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.geysermc.floodgate</groupId>
@@ -76,14 +71,10 @@
         <dependency>
             <groupId>com.nickuc.login</groupId>
             <artifactId>nlogin-api</artifactId>
-            <version>10.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.kyngs</groupId>
             <artifactId>LibrePremium</artifactId>
-            <version>0.11.5</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.themoep.utils</groupId>
@@ -94,7 +85,6 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>minedown-adventure</artifactId>
-            <version>${minedown.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
