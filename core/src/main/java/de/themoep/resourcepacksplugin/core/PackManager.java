@@ -843,15 +843,17 @@ public class PackManager {
                     "pack", pack.getName(),
                     "url", pack.getUrl(),
                     "hash", pack.getHash(),
-                    "error", e.getMessage()
+                    "error", e.getClass().getSimpleName() + ": " + e.getMessage()
             );
+            plugin.getPluginLogger().log(Level.WARNING, "Invalid URL while trying to generate hash of pack " + pack.getName() + " from url " + pack.getUrl(), e);
         } catch (IOException e) {
             plugin.sendMessage(sender, Level.SEVERE, "generate-hashes.failed-to-load-pack",
                     "pack", pack.getName(),
                     "url", pack.getUrl(),
                     "hash", pack.getHash(),
-                    "error", e.getMessage()
+                    "error", e.getClass().getSimpleName() + ": " + e.getMessage()
             );
+            plugin.getPluginLogger().log(Level.WARNING, "IO error while trying to generate hash of pack " + pack.getName() + " from url " + pack.getUrl(), e);
         } finally {
             if (in != null) {
                 try {
@@ -861,9 +863,9 @@ public class PackManager {
                             "pack", pack.getName(),
                             "url", pack.getUrl(),
                             "hash", pack.getHash(),
-                            "error", e.getMessage()
+                            "error", e.getClass().getSimpleName() + ": " + e.getMessage()
                     );
-                    e.printStackTrace();
+                    plugin.getPluginLogger().log(Level.WARNING, "Error while trying to close the input stream for pack " + pack.getName() + " hash generation", e);
                 }
             }
         }
