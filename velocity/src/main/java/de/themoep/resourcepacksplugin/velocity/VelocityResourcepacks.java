@@ -79,6 +79,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
@@ -741,15 +742,23 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Override
     public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
         ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
-        getProxy().getEventManager().fire(selectEvent);
-        return selectEvent;
+        try {
+            return getProxy().getEventManager().fire(selectEvent).get();
+        } catch (InterruptedException | ExecutionException e) {
+            getPluginLogger().log(Level.SEVERE, "Error while firing ResourcePackSelectEvent!", e);
+        }
+        return null;
     }
 
     @Override
     public IResourcePackSendEvent callPackSendEvent(UUID playerId, ResourcePack pack) {
         ResourcePackSendEvent sendEvent = new ResourcePackSendEvent(playerId, pack);
-        getProxy().getEventManager().fire(sendEvent);
-        return sendEvent;
+        try {
+            return getProxy().getEventManager().fire(sendEvent).get();
+        } catch (InterruptedException | ExecutionException e) {
+            getPluginLogger().log(Level.SEVERE, "Error while firing ResourcePackSendEvent!", e);
+        }
+        return null;
     }
 
     @Override
