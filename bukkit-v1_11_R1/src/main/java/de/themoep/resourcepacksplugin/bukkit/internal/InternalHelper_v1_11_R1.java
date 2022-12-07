@@ -30,6 +30,10 @@ public class InternalHelper_v1_11_R1 implements InternalHelper {
 
     private WorldResourcepacks plugin;
 
+    public InternalHelper_v1_11_R1(WorldResourcepacks plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
         ((CraftPlayer) player).getHandle().setResourcePack(plugin.getPackManager().getPackUrl(pack), pack.getHash());
