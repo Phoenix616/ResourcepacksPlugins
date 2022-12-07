@@ -879,7 +879,7 @@ public class PackManager {
      * @return The url
      */
     public String getPackUrl(ResourcePack pack) {
-        if (!shouldAppendHashToUrl()) {
+        if (!shouldAppendHashToUrl() || pack.getRawHash().length == 0) {
             return pack.getUrl();
         }
         return pack.getUrl() + PackManager.HASH_KEY + pack.getHash();
