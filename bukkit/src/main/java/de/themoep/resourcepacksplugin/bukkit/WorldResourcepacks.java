@@ -179,10 +179,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             try {
                 if(InternalHelper.class.isAssignableFrom(internalClass)) {
-                    internalHelper = (InternalHelper) internalClass.getConstructor().newInstance();
+                    internalHelper = (InternalHelper) internalClass.getConstructor(WorldResourcepacks.class).newInstance(this);
                 }
             } catch (Exception e) {
-                internalHelper = new InternalHelper_fallback();
+                internalHelper = new InternalHelper_fallback(this);
             }
 
             Plugin viaPlugin = getServer().getPluginManager().getPlugin("ViaVersion");
@@ -338,6 +338,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
+
+        getPackManager().setAppendHashToUrl(getConfig().getBoolean("append-hash-to-url"));
+        logDebug("Append hash to pack URL: " + getPackManager().shouldAppendHashToUrl());
 
         if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
             authmeApi = AuthMeApi.getInstance();
@@ -510,7 +513,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         if (pack.getRawHash().length != 0) {
             internalHelper.setResourcePack(player, pack);
         } else {
-            player.setResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash());
+            player.setResourcePack(getPackManager().getPackUrl(pack));
         }
         logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }

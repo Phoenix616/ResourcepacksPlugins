@@ -145,6 +145,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private ViaAPI viaApi;
     private GeyserConnector geyser;
     private FloodgateApi floodgate;
+    private boolean appendHashToUrl;
 
     public void onEnable() {
         instance = this;
@@ -535,6 +536,9 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
+
+        getPackManager().setAppendHashToUrl(getConfig().getBoolean("append-hash-to-url"));
+        logDebug("Append hash to pack URL: " + getPackManager().shouldAppendHashToUrl());
         return true;
     }
 
@@ -693,7 +697,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         int clientVersion = player.getPendingConnection().getVersion();
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
-                ResourcePackSendPacket packet = new ResourcePackSendPacket(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getHash());
+                ResourcePackSendPacket packet = new ResourcePackSendPacket(getPackManager().getPackUrl(pack), pack.getHash());
                 player.unsafe().sendPacket(packet);
                 sendPackInfo(player, pack);
                 logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());

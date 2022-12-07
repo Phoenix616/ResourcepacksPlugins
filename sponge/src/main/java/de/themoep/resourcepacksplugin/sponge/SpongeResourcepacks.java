@@ -317,6 +317,9 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
 
+        getPackManager().setAppendHashToUrl(getConfig().getBoolean("append-hash-to-url"));
+        logDebug("Append hash to pack URL: " + getPackManager().shouldAppendHashToUrl());
+
         return true;
     }
 
@@ -458,7 +461,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         player.sendResourcePack(new org.spongepowered.api.resourcepack.ResourcePack() {
             @Override
             public URI getUri() {
-                return URI.create(pack.getUrl());
+                return URI.create(getPackManager().getPackUrl(pack));
             }
 
             @Override

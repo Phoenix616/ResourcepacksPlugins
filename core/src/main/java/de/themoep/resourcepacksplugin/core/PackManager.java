@@ -96,6 +96,7 @@ public class PackManager {
      */
     private boolean dirty = false;
     private boolean storedPacksOverride;
+    private boolean appendHashToUrl = true;
 
 
     public PackManager(ResourcepacksPlugin plugin) {
@@ -870,6 +871,34 @@ public class PackManager {
             }
         }
         return changed;
+    }
+
+    /**
+     * Get a pack's URL. Potentially with the hash appended to work around MC-164316
+     * @param pack The pack to get the URL for
+     * @return The url
+     */
+    public String getPackUrl(ResourcePack pack) {
+        if (!shouldAppendHashToUrl()) {
+            return pack.getUrl();
+        }
+        return pack.getUrl() + PackManager.HASH_KEY + pack.getHash();
+    }
+
+    /**
+     * Whether to append the hash to the URL of a pack or not
+     * @return Whether to append the hash to the URL of a pack or not
+     */
+    public boolean shouldAppendHashToUrl() {
+        return appendHashToUrl;
+    }
+
+    /**
+     * Set whether to append the hash to the URL of a pack or not
+     * @param appendHashToUrl  Whether to append the hash to the URL of a pack or not
+     */
+    public void setAppendHashToUrl(boolean appendHashToUrl) {
+        this.appendHashToUrl = appendHashToUrl;
     }
 
     /**

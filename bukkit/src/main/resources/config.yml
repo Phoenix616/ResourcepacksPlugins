@@ -5,6 +5,10 @@ default-language: en
 disable-metrics: false
 # Whether or not resourcepack file hashes should be generated on startup:
 autogeneratehashes: true
+# Whether to append the pack hash to the end of the URL of the pack like url#hash.
+# This is necessary to work around a Vanilla bug which prevents changed packs from being downloaded
+# properly again: https://bugs.mojang.com/browse/MC-164316
+append-hash-to-url: true
 # Whether /usepack should apply packs temporary or permanent when run without any argument:
 usepack-is-temporary: true
 # Whether packs that a player has stored will override a matched assignments

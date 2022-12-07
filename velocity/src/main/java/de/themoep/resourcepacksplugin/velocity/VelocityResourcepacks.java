@@ -313,6 +313,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         getPackManager().setStoredPacksOverride(getConfig().getBoolean("stored-packs-override-assignments"));
         logDebug("Stored packs override assignments: " + getPackManager().getStoredPacksOverride());
+
+        getPackManager().setAppendHashToUrl(getConfig().getBoolean("append-hash-to-url"));
+        logDebug("Append hash to pack URL: " + getPackManager().shouldAppendHashToUrl());
         return true;
     }
 
@@ -459,7 +462,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     protected void sendPack(Player player, ResourcePack pack) {
         ProtocolVersion clientVersion = player.getProtocolVersion();
         if (clientVersion.getProtocol() >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
-            ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(pack.getUrl() + PackManager.HASH_KEY + pack.getHash());
+            ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(getPackManager().getPackUrl(pack));
             if (pack.getRawHash().length == 20) {
                 packInfoBuilder.setHash(pack.getRawHash());
             } else if (pack.getRawHash().length > 0) {

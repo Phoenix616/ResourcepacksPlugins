@@ -18,7 +18,7 @@ package de.themoep.resourcepacksplugin.bukkit.internal;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -28,8 +28,10 @@ import org.bukkit.entity.Player;
  */
 public class InternalHelper_v1_11_R1 implements InternalHelper {
 
+    private WorldResourcepacks plugin;
+
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
-        ((CraftPlayer) player).getHandle().setResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getHash());
+        ((CraftPlayer) player).getHandle().setResourcePack(plugin.getPackManager().getPackUrl(pack), pack.getHash());
     }
 }

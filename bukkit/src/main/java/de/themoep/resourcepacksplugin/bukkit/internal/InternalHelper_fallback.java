@@ -18,7 +18,7 @@ package de.themoep.resourcepacksplugin.bukkit.internal;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,13 +31,15 @@ import java.lang.reflect.Method;
  */
 public class InternalHelper_fallback implements InternalHelper {
 
+    private final WorldResourcepacks plugin;
     private Method setPackWithHashMethod = null;
 
     private Method getHandle = null;
     private Method setResourcePack = null;
     private boolean hasSetResourcePack = false;
 
-    public InternalHelper_fallback() {
+    public InternalHelper_fallback(WorldResourcepacks plugin) {
+        this.plugin = plugin;
         try {
             hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
         } catch (NoSuchMethodException e) {
@@ -63,17 +65,17 @@ public class InternalHelper_fallback implements InternalHelper {
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
         if (hasSetResourcePack) {
-            player.setResourcePack(pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
+            player.setResourcePack(plugin.getPackManager().getPackUrl(pack));
             return;
         }
 
         try {
             if (setPackWithHashMethod != null) {
-                setPackWithHashMethod.invoke(player, pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getRawHash());
+                setPackWithHashMethod.invoke(player, plugin.getPackManager().getPackUrl(pack), pack.getRawHash());
                 return;
             } else if (getHandle != null && setResourcePack != null) {
                 Object entityPlayer = getHandle.invoke(player);
-                setResourcePack.invoke(entityPlayer, pack.getUrl() + PackManager.HASH_KEY + pack.getHash(), pack.getHash());
+                setResourcePack.invoke(entityPlayer, plugin.getPackManager().getPackUrl(pack), pack.getHash());
                 return;
             }
         } catch (InvocationTargetException e) {
