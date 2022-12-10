@@ -858,7 +858,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public PluginLogger getPluginLogger() {
-        return null;
+        return pluginLogger;
     }
 
     @Override
