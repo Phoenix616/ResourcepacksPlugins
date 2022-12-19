@@ -20,6 +20,10 @@
     {
       "id": "nlogin",
       "optional": true
+    },
+    {
+      "id": "librepremium",
+      "optional": true
     }
   ]
 }
