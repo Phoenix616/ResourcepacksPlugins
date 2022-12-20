@@ -135,33 +135,33 @@ public class PluginConfig {
     public boolean isSection(String path) {
         return getRawConfig(path).hasMapChildren();
     }
-    
+
     public int getInt(String path) {
-        return getInt(path, 0);
+        return getInt(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getInt() : 0);
     }
 
     public int getInt(String path, int def) {
         return getRawConfig(path).getInt(def);
     }
-    
+
     public double getDouble(String path) {
-        return getDouble(path, 0);
+        return getDouble(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getDouble() : 0);
     }
 
     public double getDouble(String path, double def) {
         return getRawConfig(path).getDouble(def);
     }
-    
+
     public String getString(String path) {
-        return getString(path, null);
+        return getString(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getString() : null);
     }
 
     public String getString(String path, String def) {
         return getRawConfig(path).getString(def);
     }
-    
+
     public boolean getBoolean(String path) {
-        return getBoolean(path, false);
+        return getBoolean(path, defaultConfig != null && defaultConfig.getNode(splitPath(path)).getBoolean());
     }
 
     public boolean getBoolean(String path, boolean def) {

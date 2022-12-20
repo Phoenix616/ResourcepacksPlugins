@@ -137,7 +137,7 @@ public class PluginConfig {
     }
     
     public int getInt(String path) {
-        return getInt(path, 0);
+        return getInt(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getInt() : 0);
     }
 
     public int getInt(String path, int def) {
@@ -145,7 +145,7 @@ public class PluginConfig {
     }
     
     public double getDouble(String path) {
-        return getDouble(path, 0);
+        return getDouble(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getDouble() : 0);
     }
 
     public double getDouble(String path, double def) {
@@ -153,7 +153,7 @@ public class PluginConfig {
     }
     
     public String getString(String path) {
-        return getString(path, null);
+        return getString(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getString() : null);
     }
 
     public String getString(String path, String def) {
@@ -161,7 +161,7 @@ public class PluginConfig {
     }
     
     public boolean getBoolean(String path) {
-        return getBoolean(path, false);
+        return getBoolean(path, defaultConfig != null && defaultConfig.getNode(splitPath(path)).getBoolean());
     }
 
     public boolean getBoolean(String path, boolean def) {
