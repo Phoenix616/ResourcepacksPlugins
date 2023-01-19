@@ -73,6 +73,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -379,6 +380,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             if (entry.getValue() instanceof Map) {
                 isEmpty &= setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
             } else {
+                // Remove empty map lists
+                if (entry.getValue() instanceof List) {
+                    ((List<?>) entry.getValue()).removeIf(e -> {
+                        if (e instanceof Map) {
+                            ((Map<?, ?>) e).entrySet().removeIf(le -> le.getValue() == null);
+                            return ((Map<?, ?>) e).isEmpty();
+                        }
+                        return false;
+                    });
+                }
                 getConfig().set(rootKey + "." + entry.getKey(), entry.getValue());
                 if (entry.getValue() != null && (!(entry.getValue() instanceof Collection) || !((Collection) entry.getValue()).isEmpty())) {
                     isEmpty = false;

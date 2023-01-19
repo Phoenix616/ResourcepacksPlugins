@@ -606,6 +606,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             if (entry.getValue() instanceof Map) {
                 isEmpty &= setConfigFlat(rootKey + "." + entry.getKey(), (Map<String, Object>) entry.getValue());
             } else {
+                // Remove empty map lists
+                if (entry.getValue() instanceof List) {
+                    ((List<?>) entry.getValue()).removeIf(e -> {
+                        if (e instanceof Map) {
+                            ((Map<?, ?>) e).entrySet().removeIf(le -> le.getValue() == null);
+                            return ((Map<?, ?>) e).isEmpty();
+                        }
+                        return false;
+                    });
+                }
                 getConfig().set(rootKey + "." + entry.getKey(), entry.getValue());
                 if (entry.getValue() != null && (!(entry.getValue() instanceof Collection) || !((Collection) entry.getValue()).isEmpty())) {
                     isEmpty = false;
