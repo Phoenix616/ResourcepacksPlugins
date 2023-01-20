@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.bukkit;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.nickuc.login.api.nLoginAPI;
 import com.nickuc.openlogin.bukkit.OpenLoginBukkit;
 import de.themoep.minedown.MineDown;
@@ -78,6 +79,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -122,6 +126,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private nLoginAPI nLogin = null;
     private ProxyPackListener proxyPackListener;
 
+    private final ExecutorService executor = Executors.newCachedThreadPool(
+            new ThreadFactoryBuilder().setNameFormat(getName() + " Thread - %1$d").build());
+
+    @Override
     public void onEnable() {
         boolean firstStart = !getDataFolder().exists();
         storedPacks = new ConfigAccessor(this, "players.yml");
@@ -226,6 +234,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         } else {
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    @Override
+    public void onDisable() {
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            getLogger().log(Level.WARNING, "Error while trying to shut down executor service!", e);
+        }
+        executor.shutdown();
     }
 
     protected void registerCommand(PluginCommandExecutor executor) {
@@ -751,7 +769,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public int runAsyncTask(Runnable runnable) {
-        return getServer().getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
+        executor.execute(runnable);
+        return 0;
     }
 
     /**

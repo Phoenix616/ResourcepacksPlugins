@@ -18,6 +18,9 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
@@ -30,9 +33,16 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +52,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -56,6 +68,11 @@ public class PackManager {
     public static final String HASH_KEY = "#hash=";
 
     private final ResourcepacksPlugin plugin;
+
+    private WatchService watchService = null;
+
+    private Multimap<WatchKey, BiConsumer<Path, WatchEvent.Kind<Path>>> fileWatchers;
+
     /**
      * packname -> ResourcePack
      */
@@ -101,6 +118,31 @@ public class PackManager {
 
     public PackManager(ResourcepacksPlugin plugin) {
         this.plugin = plugin;
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+            plugin.runAsyncTask(() -> {
+                while (plugin.isEnabled()) {
+                    try {
+                        WatchKey key = watchService.take();
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            Collection<BiConsumer<Path, WatchEvent.Kind<Path>>> watchers = fileWatchers.get(key);
+                            plugin.logDebug("Received file change event " + event + " with " + watchers.size() + " watchers!");
+                            WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
+                            for (BiConsumer<Path, WatchEvent.Kind<Path>> watcher : watchers) {
+                                watcher.accept(watchEvent.context(), watchEvent.kind());
+                            }
+                        }
+                        key.reset();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ClosedWatchServiceException ignored) {
+                        // just end the thread
+                    }
+                }
+            });
+        } catch (IOException e) {
+            plugin.log(Level.WARNING, "Unable to create file watcher!", e);
+        }
     }
 
     /**
@@ -114,6 +156,47 @@ public class PackManager {
         global = new PackAssignment("global");
         literalAssignments = new LinkedHashMap<>();
         regexAssignments = new LinkedHashMap<>();
+        fileWatchers = MultimapBuilder.hashKeys().linkedListValues().build();
+    }
+
+    private void registerFileWatcher(Path path, Consumer<Path> consumer) {
+        if (watchService == null)
+            return;
+
+        Path dir = path;
+        if (!Files.isDirectory(dir)) {
+            dir = path.getParent();
+        }
+        try {
+            WatchKey key = dir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+            fileWatchers.put(key, (p, k) -> {
+                // Check if it's our file
+                if (path.getFileName().equals(p.getFileName())) {
+                    consumer.accept(p);
+                }
+            });
+        } catch (IOException e) {
+            watchService = null;
+            try {
+                watchService.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            plugin.log(Level.WARNING, "Unable to register file watcher. Falling back to manual calculation!", e);
+        }
+    }
+
+    private void registerPackHashWatcher(ResourcePack pack) {
+        Path path = Paths.get(pack.getLocalPath());
+        registerFileWatcher(path, p -> {
+            try {
+                byte[] bytes = Files.readAllBytes(p);
+                HashCode hash = Hashing.sha1().hashBytes(bytes);
+                setPackHash(pack, hash.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -133,6 +216,8 @@ public class PackManager {
         }
         String hash = get(config, "hash", "");
 
+        String localPath = get(config, "local-path", null);
+
         int format = get(config, "format", 0);
         String mcVersion = get(config , "version", String.valueOf(get(config, "version", 0)));
 
@@ -141,7 +226,7 @@ public class PackManager {
 
         ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
 
-        ResourcePack pack = new ResourcePack(name, url, hash, format, 0, restricted, perm, type);
+        ResourcePack pack = new ResourcePack(name, url, hash, localPath, format, 0, restricted, perm, type);
         pack.setVersion(mcVersion);
 
         for (int i = 0; i < variantsList.size(); i++) {
@@ -176,11 +261,8 @@ public class PackManager {
                 if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
                     throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
                 }
-                packUrls.put(pack.getUrl(), pack);
             }
-            if (pack.getHash().length() > 0) {
-                packHashes.put(pack.getHash(), pack);
-            }
+            cacheVariant(pack, pack);
         } else {
             for (ResourcePack variant : pack.getVariants()) {
                 cacheVariant(variant, pack);
@@ -213,8 +295,15 @@ public class PackManager {
 
     private void cacheVariant(ResourcePack variant, ResourcePack pack) {
         if (variant.getVariants().isEmpty()) {
-            packUrls.putIfAbsent(variant.getUrl(), pack);
-            packHashes.putIfAbsent(variant.getHash(), pack);
+            if (variant.getUrl() != null && !variant.getUrl().isEmpty()) {
+                packUrls.putIfAbsent(variant.getUrl(), pack);
+            }
+            if (variant.getHash().length() > 0) {
+                packHashes.put(variant.getHash(), pack);
+            }
+            if (variant.getLocalPath() != null && !variant.getLocalPath().isEmpty()) {
+                registerPackHashWatcher(variant);
+            }
         } else {
             for (ResourcePack variantVariant : variant.getVariants()) {
                 cacheVariant(variantVariant, pack);
@@ -264,6 +353,26 @@ public class PackManager {
         packUrls.remove(pack.getUrl());
         pack.setUrl(url);
         packUrls.put(pack.getUrl(), pack);
+        return true;
+    }
+
+    /**
+     * Set the url of a pack to a new value
+     * @param pack The pack to update
+     * @param path The new local path to set
+     * @return Whether or not the url changed
+     */
+    public boolean setPackPath(ResourcePack pack, String path) {
+        String oldPath = pack.getLocalPath();
+        if (path == null && oldPath != null) {
+            pack.setLocalPath(null);
+            return true;
+        }
+        if (oldPath == null || oldPath.equals(path)) {
+            return false;
+        }
+        pack.setLocalPath(path);
+        registerPackHashWatcher(pack);
         return true;
     }
 
@@ -580,14 +689,14 @@ public class PackManager {
         pack = processSendEvent(sendEvent, prev);
         if (pack != null) {
             if (pack.getVariants().isEmpty()) {
-                plugin.sendPack(playerId, pack);
+                sendPack(playerId, pack);
                 return Status.SUCCESS;
             } else {
                 Status status = Status.SUCCESS;
                 for (ResourcePack variant : pack.getVariants()) {
                     Status varStatus = checkPack(playerId, variant, Status.UNKNOWN);
                     if (varStatus == Status.SUCCESS) {
-                        plugin.sendPack(playerId, variant);
+                        sendPack(playerId, variant);
                         return IResourcePackSelectEvent.Status.SUCCESS;
                     }
                     if (varStatus.ordinal() > status.ordinal()) {
@@ -598,6 +707,33 @@ public class PackManager {
             }
         }
         return IResourcePackSelectEvent.Status.UNKNOWN;
+    }
+
+    /**
+     * Send the pack
+     * @param playerId The UUID of the player to send the pack to
+     * @param pack The pack to send
+     */
+    private void sendPack(UUID playerId, ResourcePack pack) {
+        // If there is no watch service running and a local path is set for the pack then calculate the hash
+        if (watchService == null && pack.getLocalPath() != null && !pack.getLocalPath().isEmpty()) {
+            Path path = Paths.get(pack.getLocalPath());
+            if (Files.exists(path) && Files.isRegularFile(path)) {
+                plugin.runAsyncTask(() -> {
+                    try {
+                        byte[] bytes = Files.readAllBytes(path);
+                        HashCode hash = Hashing.sha1().hashBytes(bytes);
+                        setPackHash(pack, hash.toString());
+                    } catch (IOException e) {
+                        plugin.log(Level.WARNING, "Error while trying to read resource pack " + pack.getName() + " file from local path " + path, e);
+                    }
+                    plugin.runTask(() -> plugin.sendPack(playerId, pack));
+                });
+                return;
+            }
+        }
+
+        plugin.sendPack(playerId, pack);
     }
 
     /**

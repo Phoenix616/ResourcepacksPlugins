@@ -31,8 +31,9 @@ import java.util.Map;
  * Created by Phoenix616 on 25.03.2015.
  */
 public class ResourcePack {
-    private String name;
+    private final String name;
     private String url;
+    private String localPath;
     private byte[] hash = new byte[0];
     private int format;
     private int version;
@@ -40,7 +41,7 @@ public class ResourcePack {
     private String permission;
     private ClientType type;
 
-    private List<ResourcePack> variants = new ArrayList<>();
+    private final List<ResourcePack> variants = new ArrayList<>();
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
@@ -125,11 +126,28 @@ public class ResourcePack {
      * @param type The type of the pack depending on the client which should receive it
      */
     public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(name, url, hash, null, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param type The type of the pack depending on the client which should receive it
+     */
+    public ResourcePack(String name, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
         this.name = name;
         this.url = url;
         if (hash != null && !hash.isEmpty() && !"null".equals(hash)) {
             setHash(hash);
         }
+        this.localPath = localPath;
         this.format = format;
         this.version = version;
         this.restricted = restricted;
@@ -178,6 +196,22 @@ public class ResourcePack {
             throw new IllegalArgumentException("Hash needs to be either 0 or 20 bytes long!");
         }
         this.hash = hash;
+    }
+
+    /**
+     * Get the local path where this resourcepack is located at on your file system
+     * @return The path as a string
+     */
+    public String getLocalPath() {
+        return url;
+    }
+
+    /**
+     * Get the local path where this resourcepack is located at on your file system
+     * @param localPath The path as a string. How this needs to be formatted depends on your system.
+     */
+    void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 
     /**
@@ -292,7 +326,7 @@ public class ResourcePack {
     /**
      * Set the client type that the resource pack is for
      * @param type The type
-     * @return
+     * @return Whether or not the ClientType changed
      */
     public boolean setType(ClientType type) {
         if (this.type == type) {
@@ -339,6 +373,16 @@ public class ResourcePack {
                 return false;
             }
 
+            String this$path = this.getLocalPath();
+            String other$path = other.getLocalPath();
+            if (this$path == null) {
+                if (other$path != null) {
+                    return false;
+                }
+            } else if (!this$path.equals(other$path)) {
+                return false;
+            }
+
             byte[] this$hash = this.getRawHash();
             byte[] other$hash = other.getRawHash();
             if (this$hash == null) {
@@ -351,6 +395,16 @@ public class ResourcePack {
 
             if (this.getType() != other.getType()) {
                 return false;
+            }
+
+            if (this.getVariants().size() != other.getVariants().size()) {
+                return false;
+            }
+
+            for (int i = 0; i < this.getVariants().size(); i++) {
+                if (!this.getVariants().get(i).equals(other.getVariants().get(i))) {
+                    return false;
+                }
             }
 
             return true;
@@ -376,6 +430,7 @@ public class ResourcePack {
 
         map.put("url", url.isEmpty() ? null : url);
         map.put("hash", hash.length == 0 ? null : getHash());
+        map.put("local-path", localPath == null || localPath.isEmpty() ? null : localPath);
         if (name.equalsIgnoreCase(PackManager.EMPTY_IDENTIFIER)) {
             map.put("format", null);
             map.put("version", null);
