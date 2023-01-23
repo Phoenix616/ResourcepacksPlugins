@@ -176,12 +176,12 @@ public class PackManager {
                 }
             });
         } catch (IOException e) {
-            watchService = null;
             try {
                 watchService.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+            watchService = null;
             plugin.log(Level.WARNING, "Unable to register file watcher. Falling back to manual calculation!", e);
         }
     }
