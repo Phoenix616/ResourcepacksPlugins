@@ -121,22 +121,21 @@ public class PackManager {
         try {
             watchService = FileSystems.getDefault().newWatchService();
             plugin.runAsyncTask(() -> {
-                while (plugin.isEnabled()) {
+                while (true) {
                     try {
                         WatchKey key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
                             Collection<BiConsumer<Path, WatchEvent.Kind<Path>>> watchers = fileWatchers.get(key);
-                            plugin.logDebug("Received file change event " + event + " with " + watchers.size() + " watchers!");
+                            plugin.logDebug("Received file change event " + event.kind() + " of " + event.context() + " with " + watchers.size() + " watchers!");
                             WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
                             for (BiConsumer<Path, WatchEvent.Kind<Path>> watcher : watchers) {
                                 watcher.accept(watchEvent.context(), watchEvent.kind());
                             }
                         }
                         key.reset();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ClosedWatchServiceException ignored) {
+                    } catch (InterruptedException | ClosedWatchServiceException ignored) {
                         // just end the thread
+                        return;
                     }
                 }
             });
@@ -160,19 +159,23 @@ public class PackManager {
     }
 
     private void registerFileWatcher(Path path, Consumer<Path> consumer) {
-        if (watchService == null)
+        // Execute consumer at least once on registration
+        consumer.accept(path);
+        if (watchService == null) {
+            // No watch service
             return;
+        }
 
         Path dir = path;
         if (!Files.isDirectory(dir)) {
-            dir = path.getParent();
+            dir = path.toAbsolutePath().getParent();
         }
         try {
             WatchKey key = dir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
             fileWatchers.put(key, (p, k) -> {
                 // Check if it's our file
                 if (path.getFileName().equals(p.getFileName())) {
-                    consumer.accept(p);
+                    consumer.accept(path);
                 }
             });
         } catch (IOException e) {
@@ -187,14 +190,19 @@ public class PackManager {
     }
 
     private void registerPackHashWatcher(ResourcePack pack) {
+        if (pack.getLocalPath() == null || pack.getLocalPath().isEmpty()) {
+            return;
+        }
         Path path = Paths.get(pack.getLocalPath());
         registerFileWatcher(path, p -> {
             try {
-                byte[] bytes = Files.readAllBytes(p);
-                HashCode hash = Hashing.sha1().hashBytes(bytes);
-                setPackHash(pack, hash.toString());
+                if (Files.isRegularFile(p)) {
+                    byte[] bytes = Files.readAllBytes(p);
+                    HashCode hash = Hashing.sha1().hashBytes(bytes);
+                    setPackHash(pack, hash.toString());
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getPluginLogger().log(Level.WARNING, "Unable to create hash of " + path, e);
             }
         });
     }
@@ -216,7 +224,7 @@ public class PackManager {
         }
         String hash = get(config, "hash", "");
 
-        String localPath = get(config, "local-path", null);
+        String localPath = get(config, "local-path", "");
 
         int format = get(config, "format", 0);
         String mcVersion = get(config , "version", String.valueOf(get(config, "version", 0)));
@@ -301,9 +309,7 @@ public class PackManager {
             if (variant.getHash().length() > 0) {
                 packHashes.put(variant.getHash(), pack);
             }
-            if (variant.getLocalPath() != null && !variant.getLocalPath().isEmpty()) {
-                registerPackHashWatcher(variant);
-            }
+            registerPackHashWatcher(variant);
         } else {
             for (ResourcePack variantVariant : variant.getVariants()) {
                 cacheVariant(variantVariant, pack);

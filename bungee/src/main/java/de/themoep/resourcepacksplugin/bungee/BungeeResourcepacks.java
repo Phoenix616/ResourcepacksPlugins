@@ -118,7 +118,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         @Override
         public void log(Level level, String message, Throwable e) {
-            getLogger().log(level, message);
+            getLogger().log(level, message, e);
         }
     };
 
@@ -470,7 +470,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                         }
                         logDebug(pack.serialize().toString());
                     } catch (IllegalArgumentException e) {
-                        getLogger().log(Level.SEVERE, e.getMessage());
+                        getLogger().log(Level.SEVERE, "Error while loading pack " + s, e);
                     }
                 }
             }
@@ -487,7 +487,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
             } catch (IllegalArgumentException e) {
-                getLogger().log(Level.SEVERE, e.getMessage());
+                getLogger().log(Level.SEVERE, "Error while loading empty pack", e);
             }
         } else {
             String emptypackname = getConfig().getString("empty");

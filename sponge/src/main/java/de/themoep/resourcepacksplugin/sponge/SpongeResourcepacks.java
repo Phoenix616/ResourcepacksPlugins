@@ -254,7 +254,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
                     }
                     logDebug(pack.serialize().toString());
                 } catch (IllegalArgumentException e) {
-                    log(Level.SEVERE, e.getMessage());
+                    log(Level.SEVERE, "Error while loading pack " + s, e);
                 }
             }
         } else {
@@ -270,7 +270,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
                 getPackManager().addPack(pack);
                 getPackManager().setEmptyPack(pack);
             } catch (IllegalArgumentException e) {
-                log(Level.SEVERE, e.getMessage());
+                log(Level.SEVERE, "Error while loading empty pack", e);
             }
         } else {
             String emptypackname = getConfig().getString("empty", null);

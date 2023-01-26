@@ -203,7 +203,7 @@ public class ResourcePack {
      * @return The path as a string
      */
     public String getLocalPath() {
-        return url;
+        return localPath;
     }
 
     /**
