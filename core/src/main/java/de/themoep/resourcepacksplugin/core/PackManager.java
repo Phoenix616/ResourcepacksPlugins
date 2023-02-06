@@ -587,7 +587,7 @@ public class PackManager {
                         assignment.addOptionalPack(pack);
                         plugin.logDebug("- " + pack.getName());
                     } else {
-                        plugin.log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                        plugin.log(Level.WARNING, "No pack with the name " + secondaryPack + " defined?");
                     }
                 }
             }
