@@ -73,6 +73,10 @@
             <artifactId>LibrePremium</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.kyngs</groupId>
+            <artifactId>LibreLogin</artifactId>
+        </dependency>
+        <dependency>
             <groupId>de.themoep.utils</groupId>
             <artifactId>lang-velocity</artifactId>
             <version>${lang.version}</version>

@@ -28,6 +28,7 @@ import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper_fallback;
 import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
+import de.themoep.resourcepacksplugin.bukkit.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.NLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.OpeNLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.ProxyPackListener;
@@ -53,6 +54,7 @@ import fr.xephi.authme.api.v3.AuthMeApi;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -66,6 +68,8 @@ import protocolsupport.api.ProtocolType;
 import protocolsupport.api.ProtocolVersion;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.ViaAPI;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
+import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,6 +128,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private AuthMeApi authmeApi = null;
     private OpenLoginBukkit openLogin = null;
     private nLoginAPI nLogin = null;
+    private LibreLoginPlugin<Player, World> libreLogin = null;
     private ProxyPackListener proxyPackListener;
 
     private final ExecutorService executor = Executors.newCachedThreadPool(
@@ -375,6 +380,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             nLogin = nLoginAPI.getApi();
             getLogger().log(Level.INFO, "Detected nLogin " + nLogin.getVersion());
             getServer().getPluginManager().registerEvents(new NLoginListener(this), this);
+        }
+        if (getServer().getPluginManager().getPlugin("LibreLogin") != null) {
+            libreLogin = ((LibreLoginProvider<Player, World>) getServer().getPluginManager().getPlugin("LibreLogin")).getLibreLogin();
+            getLogger().log(Level.INFO, "Detected LibreLogin " + libreLogin.getVersion());
+            new LibreLoginListener(this, libreLogin);
         }
         return true;
     }
@@ -757,6 +767,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 return player != null && openLogin.getLoginManagement().isAuthenticated(player.getName());
             } else if (nLogin != null) {
                 return player != null && nLogin.isAuthenticated(player.getName());
+            } else if (libreLogin != null) {
+                return player != null && libreLogin.getAuthorizationProvider().isAuthorized(player);
             }
         }
         return true;

@@ -24,6 +24,10 @@
     {
       "id": "librepremium",
       "optional": true
+    },
+    {
+      "id": "librelogin",
+      "optional": true
     }
   ]
 }

@@ -27,6 +27,7 @@ import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bungee.listeners.JPremiumListener;
+import de.themoep.resourcepacksplugin.bungee.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.LibrePremiumListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.NLoginListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.PluginMessageListener;
@@ -200,6 +201,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if (librePremiumPlugin != null) {
             getLogger().log(Level.INFO, "Detected LibrePremium " + librePremiumPlugin.getDescription().getVersion());
             new LibrePremiumListener(this, librePremiumPlugin);
+        }
+
+        Plugin libreLoginPlugin = getProxy().getPluginManager().getPlugin("LibreLogin");
+        if (libreLoginPlugin != null) {
+            getLogger().log(Level.INFO, "Detected LibreLogin " + libreLoginPlugin.getDescription().getVersion());
+            new LibreLoginListener(this, libreLoginPlugin);
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
