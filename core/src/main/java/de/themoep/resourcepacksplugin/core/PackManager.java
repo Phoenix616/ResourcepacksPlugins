@@ -120,25 +120,6 @@ public class PackManager {
         this.plugin = plugin;
         try {
             watchService = FileSystems.getDefault().newWatchService();
-            plugin.runAsyncTask(() -> {
-                while (true) {
-                    try {
-                        WatchKey key = watchService.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            Collection<BiConsumer<Path, WatchEvent.Kind<Path>>> watchers = fileWatchers.get(key);
-                            plugin.logDebug("Received file change event " + event.kind() + " of " + event.context() + " with " + watchers.size() + " watchers!");
-                            WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
-                            for (BiConsumer<Path, WatchEvent.Kind<Path>> watcher : watchers) {
-                                watcher.accept(watchEvent.context(), watchEvent.kind());
-                            }
-                        }
-                        key.reset();
-                    } catch (InterruptedException | ClosedWatchServiceException ignored) {
-                        // just end the thread
-                        return;
-                    }
-                }
-            });
         } catch (IOException e) {
             plugin.log(Level.WARNING, "Unable to create file watcher!", e);
         }
@@ -156,6 +137,25 @@ public class PackManager {
         literalAssignments = new LinkedHashMap<>();
         regexAssignments = new LinkedHashMap<>();
         fileWatchers = MultimapBuilder.hashKeys().linkedListValues().build();
+        plugin.runAsyncTask(() -> {
+            while (true) {
+                try {
+                    WatchKey key = watchService.take();
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        Collection<BiConsumer<Path, WatchEvent.Kind<Path>>> watchers = fileWatchers.get(key);
+                        plugin.logDebug("Received file change event " + event.kind() + " of " + event.context() + " with " + watchers.size() + " watchers!");
+                        WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
+                        for (BiConsumer<Path, WatchEvent.Kind<Path>> watcher : watchers) {
+                            watcher.accept(watchEvent.context(), watchEvent.kind());
+                        }
+                    }
+                    key.reset();
+                } catch (InterruptedException | ClosedWatchServiceException ignored) {
+                    // just end the thread
+                    return;
+                }
+            }
+        });
     }
 
     private void registerFileWatcher(Path path, Consumer<Path> consumer) {
