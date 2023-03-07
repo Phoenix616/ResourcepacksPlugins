@@ -32,6 +32,6 @@ public class FloodgateIntegration {
     }
 
     public boolean hasPlayer(UUID playerId) {
-        return FloodgateApi.getInstance().getPlayer(playerId) != null;
+        return FloodgateApi.getInstance().isFloodgatePlayer(playerId);
     }
 }

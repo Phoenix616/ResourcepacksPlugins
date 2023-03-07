@@ -22,7 +22,7 @@
         </repository>
         <repository>
             <id>viaversion-repo</id>
-            <url>https://repo.viaversion.com/</url>
+            <url>https://repo.viaversion.com/everything/</url>
         </repository>
         <repository>
             <id>sonatype-oss</id>
@@ -70,16 +70,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>us.myles</groupId>
+            <groupId>com.viaversion</groupId>
             <artifactId>viaversion-common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.geysermc</groupId>
-            <artifactId>connector</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>org.geysermc.geyser</groupId>
+            <artifactId>api</artifactId>
         </dependency>
     </dependencies>
 

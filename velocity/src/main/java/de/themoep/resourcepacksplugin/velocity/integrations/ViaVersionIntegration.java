@@ -19,9 +19,9 @@ package de.themoep.resourcepacksplugin.velocity.integrations;
  */
 
 import com.velocitypowered.api.plugin.PluginContainer;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.ViaAPI;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.ViaAPI;
 
 import java.util.UUID;
 import java.util.logging.Level;

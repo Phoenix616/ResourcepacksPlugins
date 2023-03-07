@@ -20,6 +20,8 @@ package de.themoep.resourcepacksplugin.bungee;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.ViaAPI;
 import de.themoep.bungeeplugin.FileConfiguration;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
@@ -60,10 +62,8 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import org.bstats.MetricsLite;
-import org.geysermc.connector.GeyserConnector;
 import org.geysermc.floodgate.api.FloodgateApi;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.ViaAPI;
+import org.geysermc.geyser.api.GeyserApi;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,7 +143,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private int bungeeVersion;
 
     private ViaAPI viaApi;
-    private GeyserConnector geyser;
+    private GeyserApi geyser;
     private FloodgateApi floodgate;
     private boolean appendHashToUrl;
 
@@ -174,7 +174,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         Plugin geyserPlugin = getProxy().getPluginManager().getPlugin("Geyser-BungeeCord");
         if (geyserPlugin != null) {
-            geyser = GeyserConnector.getInstance();
+            geyser = GeyserApi.api();
             getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
         }
 
@@ -971,11 +971,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public ClientType getPlayerClientType(UUID playerId) {
-        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+        if (geyser != null && geyser.isBedrockPlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 
-        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+        if (floodgate != null && floodgate.isFloodgatePlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 

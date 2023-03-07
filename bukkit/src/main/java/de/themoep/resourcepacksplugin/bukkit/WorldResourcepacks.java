@@ -59,8 +59,8 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.geysermc.connector.GeyserConnector;
 import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.geyser.api.GeyserApi;
 import protocolsupport.api.ProtocolSupportAPI;
 import protocolsupport.api.ProtocolType;
 import protocolsupport.api.ProtocolVersion;
@@ -119,7 +119,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     private ViaAPI viaApi;
     private boolean protocolSupportApi = false;
-    private GeyserConnector geyser;
+    private GeyserApi geyser;
     private FloodgateApi floodgate;
     private AuthMeApi authmeApi = null;
     private OpenLoginBukkit openLogin = null;
@@ -208,7 +208,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
             Plugin geyserPlugin = getServer().getPluginManager().getPlugin("Geyser-Spigot");
             if (geyserPlugin != null) {
-                geyser = GeyserConnector.getInstance();
+                geyser = GeyserApi.api();
                 getLogger().log(Level.INFO, "Detected " + geyserPlugin.getName() + " " + geyserPlugin.getDescription().getVersion());
             }
 
@@ -722,11 +722,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public ClientType getPlayerClientType(UUID playerId) {
-        if (geyser != null && geyser.getPlayerByUuid(playerId) != null) {
+        if (geyser != null && geyser.isBedrockPlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 
-        if (floodgate != null && floodgate.getPlayer(playerId) != null) {
+        if (floodgate != null && floodgate.isFloodgatePlayer(playerId)) {
             return ClientType.BEDROCK;
         }
 

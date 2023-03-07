@@ -20,7 +20,7 @@ package de.themoep.resourcepacksplugin.velocity.integrations;
 
 import com.velocitypowered.api.plugin.PluginContainer;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
-import org.geysermc.connector.GeyserConnector;
+import org.geysermc.geyser.api.GeyserApi;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -32,6 +32,6 @@ public class GeyserIntegration {
     }
 
     public boolean hasPlayer(UUID playerId) {
-        return GeyserConnector.getInstance().getPlayerByUuid(playerId) != null;
+        return GeyserApi.api().isBedrockPlayer(playerId);
     }
 }

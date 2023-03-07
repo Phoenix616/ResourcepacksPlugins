@@ -25,7 +25,7 @@
         </repository>
         <repository>
             <id>viaversion-repo</id>
-            <url>https://repo.viaversion.com/</url>
+            <url>https://repo.viaversion.com/everything/</url>
         </repository>
         <repository>
             <id>geyser-repo</id>
@@ -68,7 +68,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>us.myles</groupId>
+            <groupId>com.viaversion</groupId>
             <artifactId>viaversion-common</artifactId>
         </dependency>
         <dependency>
@@ -78,20 +78,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.geysermc</groupId>
-            <artifactId>connector</artifactId>
+            <groupId>org.geysermc.geyser</groupId>
+            <artifactId>api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geysermc.floodgate</groupId>
-            <artifactId>spigot</artifactId>
-            <version>2.0-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>cloud.commandframework</groupId>
-                    <artifactId>cloud-bukkit</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>api</artifactId>
         </dependency>
         <dependency>
             <groupId>fr.xephi</groupId>
@@ -106,6 +98,10 @@
         <dependency>
             <groupId>com.nickuc.login</groupId>
             <artifactId>nlogin-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kyngs</groupId>
+            <artifactId>LibreLogin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
