@@ -27,7 +27,7 @@
         </repository>
         <repository>
             <id>bstats-repo</id>
-            <url>http://repo.bstats.org/content/repositories/releases/</url>
+            <url>https://repo.bstats.org/content/repositories/releases/</url>
         </repository>
         <repository>
             <id>geyser-repo</id>
