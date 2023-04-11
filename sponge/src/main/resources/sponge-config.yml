@@ -14,8 +14,9 @@ stored-packs-override-assignments: false
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
 # 0 or anything below will disable this functionality
 permanent-pack-remove-time: 30
+# Different packs can be defined in this section
 packs:
-  lobbypack: 
+  examplepack: 
    # The url the client should download the resourcepack from.
    # Has to be a direct download link! No mediafire/mega/other oneclick-hoster!
     url: http://example.com/lobbyresourcepack.zip
@@ -33,8 +34,11 @@ packs:
     restricted: false
    # If you want you can define a specific permission for this pack if you don't want
    # the default worldresourcepacks.pack.<packname> permission!
-    permission: worldresourcepacks.pack.lobbypack
-  gamepack:
+    permission: worldresourcepacks.pack.examplepack
+  globalpack:
+    url: http://example.com/globalpack.zip
+    hash: abcdef012345678abcdef012345678abcdef0123
+  examplepack2:
     # Set different variants e.g. for different versions or permissions
     # This list supports all normal pack settings and is checked top to bottom.
     # The first one that matches the player will be used.
@@ -45,12 +49,16 @@ packs:
     - url: http://example.com/minigameresourcepack_1_12.zip
       hash: 012345678abcdef01234567dddcdef012345678a
       version: '1.12'
+  # Define as many packs as you want
+  another_example_pack:
+    url: http://example.com/another.zip
+    hash: abcdef012345678abcdef012345678abcdef0123
 # Empty pack to reset the pack to the default one
 empty:
   url: http://cdn.moep.tv/files/Empty.zip
   hash: 01517226212d27586ea0c5d6aff1aa5492dd2484
 global:
-  pack: lobbypack
+  pack: globalpack
   # List of packs to not replace if the user already has them
   # If no main pack is set the first one also gets used to reset 
   # the pack if the user has a non-optional one
@@ -60,12 +68,18 @@ global:
   #- lobbypack
   # Delay in ticks before sending the pack to a player after he logs in/switches to the world
   send-delay: 10
+# Different worlds with different packs can be defined here
 worlds:
-  lobby:
-    pack: lobbypack
-    #secondary:
-    #- gamepack
-  minigame:
-    pack: gamepack
+  # Config for a world named "your_example_world"
+  your_example_world:
+    pack: examplepack
+    #optional-packs:
+    #- examplepack2
+  your_example_nether:
+    pack: examplepack2
     # Use a regex to target all worlds with a certain name
-    regex: 'minigame_.*'
+    regex: 'example_nether_.*'
+  # Define as many worlds as you want.
+  # The name of the section is the world name unless a regex is specified.
+  another_example_world:
+    pack: another_example_pack

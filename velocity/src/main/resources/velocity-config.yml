@@ -19,6 +19,7 @@ permanent-pack-remove-time: 30
 # Whether to only send packs if authenticated on the Minecraft server
 # Requires WorldResourcepacks to be installed on the Minecraft server too
 use-auth-plugin: false
+# Different packs can be defined in this section
 packs:
   lobbypack: 
    # The url the client should download the resourcepack from.
@@ -54,6 +55,10 @@ packs:
     - url: http://example.com/minigameresourcepack_1_12.zip
       hash: 012345678abcdef01234567dddcdef012345678a
       version: '1.12'
+  # Define as many packs as you want
+  another_example_pack:
+    url: http://example.com/another.zip
+    hash: abcdef012345678abcdef012345678abcdef0123
 # Empty pack to reset the pack to the default one
 empty:
   url: http://cdn.moep.tv/files/Empty.zip
@@ -70,7 +75,9 @@ global:
   - lobbypack
   # Delay in ticks before sending the pack to a player after he logs in/switches to the server
   send-delay: 20
+# Different servers with different packs can be defined here
 servers:
+  # Config for a server named "lobby"
   lobby:
     pack: lobbypack
     optional-packs:
@@ -79,3 +86,7 @@ servers:
     pack: gamepack
     # Use a regex to target all servers with a certain name
     regex: 'minigame_.*'
+  # Define as many servers as you want.
+  # The name of the section is the server name unless a regex is specified.
+  another_example_server:
+    pack: another_example_pack
