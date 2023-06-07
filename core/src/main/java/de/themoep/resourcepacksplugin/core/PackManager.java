@@ -1049,7 +1049,9 @@ public class PackManager {
      * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version >= MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber()) {
+        if (version >= MinecraftVersion.MINECRAFT_1_20.getProtocolNumber()) {
+            return 15;
+        } else if (version >= MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber()) {
             return 13;
         } else if (version >= MinecraftVersion.MINECRAFT_1_19_3.getProtocolNumber()) {
             return 12;
