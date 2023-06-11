@@ -22,14 +22,14 @@ import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
-import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
 public class LibreLoginListener extends AbstractAuthListener {
 
-    public LibreLoginListener(VelocityResourcepacks plugin, PluginContainer librePremium) {
+    public LibreLoginListener(VelocityResourcepacks plugin, PluginContainer libreLogin) {
         super(plugin);
-        ((LibreLoginProvider<Player, RegisteredServer>) librePremium.getInstance().get()).getLibreLogin().getEventProvider()
-                .subscribe(AuthenticatedEvent.class, event -> onAuth((Player) event.getPlayer()));
+        EventProvider<Player, RegisteredServer> eventProvider = ((LibreLoginProvider<Player, RegisteredServer>) libreLogin).getLibreLogin().getEventProvider();
+        eventProvider.subscribe(eventProvider.getTypes().authenticated, event -> onAuth(event.getPlayer()));
     }
 }

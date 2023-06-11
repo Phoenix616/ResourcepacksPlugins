@@ -23,7 +23,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
-import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 
 /**
  * Created by Phoenix616 on 24.04.2016.
@@ -33,6 +32,6 @@ public class LibreLoginListener extends AbstractAuthListener implements Listener
     public LibreLoginListener(WorldResourcepacks plugin, LibreLoginPlugin<Player, World> libreLogin) {
         super(plugin);
         libreLogin.getEventProvider()
-                .subscribe(AuthenticatedEvent.class, event -> onAuth((Player) event.getPlayer(), false));
+                .subscribe(libreLogin.getEventProvider().getTypes().authenticated, event -> onAuth(event.getPlayer(), false));
     }
 }

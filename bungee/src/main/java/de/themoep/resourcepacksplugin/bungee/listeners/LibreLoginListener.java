@@ -22,14 +22,14 @@ import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
 public class LibreLoginListener extends AbstractAuthListener {
 
     public LibreLoginListener(BungeeResourcepacks plugin, Plugin libreLogin) {
         super(plugin);
-        ((LibreLoginProvider<ProxiedPlayer, ServerInfo>) libreLogin).getLibreLogin().getEventProvider()
-                .subscribe(AuthenticatedEvent.class, event -> onAuth((ProxiedPlayer) event.getPlayer()));
+        EventProvider<ProxiedPlayer, ServerInfo> eventProvider = ((LibreLoginProvider<ProxiedPlayer, ServerInfo>) libreLogin).getLibreLogin().getEventProvider();
+        eventProvider.subscribe(eventProvider.getTypes().authenticated, event -> onAuth(event.getPlayer()));
     }
 }

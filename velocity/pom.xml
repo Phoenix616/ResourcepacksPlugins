@@ -33,10 +33,9 @@
             <id>nickuc-repo</id>
             <url>https://repo.nickuc.com/maven2/</url>
         </repository>
-        <!-- For LibrePremium -->
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>kyngs-repo</id>
+            <url>https://repo.kyngs.xyz/public</url>
         </repository>
     </repositories>
 
@@ -73,8 +72,8 @@
             <artifactId>LibrePremium</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.kyngs</groupId>
-            <artifactId>LibreLogin</artifactId>
+            <groupId>xyz.kyngs.librelogin</groupId>
+            <artifactId>API</artifactId>
         </dependency>
         <dependency>
             <groupId>de.themoep.utils</groupId>

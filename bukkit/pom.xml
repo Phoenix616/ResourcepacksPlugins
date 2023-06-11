@@ -39,6 +39,10 @@
             <id>jitpack.io</id><!-- Protocol Support -->
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>kyngs-repo</id>
+            <url>https://repo.kyngs.xyz/public</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -96,8 +100,8 @@
             <artifactId>nlogin-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.kyngs</groupId>
-            <artifactId>LibreLogin</artifactId>
+            <groupId>xyz.kyngs.librelogin</groupId>
+            <artifactId>API</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
