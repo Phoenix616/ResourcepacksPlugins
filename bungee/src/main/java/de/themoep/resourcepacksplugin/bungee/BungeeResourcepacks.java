@@ -169,44 +169,72 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         registerCommand(new ResetPackCommandExecutor(this));
 
         if (getProxy().getPluginManager().getPlugin("ViaVersion") != null) {
-            viaApi = Via.getAPI();
-            getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+            try {
+                viaApi = Via.getAPI();
+                getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create ViaVersion hook!", e);
+            }
         }
 
         Plugin geyserPlugin = getProxy().getPluginManager().getPlugin("Geyser-BungeeCord");
         if (geyserPlugin != null) {
-            geyser = GeyserApi.api();
-            getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
+            try {
+                geyser = GeyserApi.api();
+                getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create Geyser hook!", e);
+            }
         }
 
         Plugin floodgatePlugin = getProxy().getPluginManager().getPlugin("floodgate");
         if (floodgatePlugin != null) {
-            floodgate = FloodgateApi.getInstance();
-            getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName() + " " + floodgatePlugin.getDescription().getVersion());
+            try {
+                floodgate = FloodgateApi.getInstance();
+                getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName() + " " + floodgatePlugin.getDescription().getVersion());
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create floodgate hook!", e);
+            }
         }
 
         Plugin nLoginPlugin = getProxy().getPluginManager().getPlugin("nLogin");
         if (nLoginPlugin != null) {
             getLogger().log(Level.INFO, "Detected nLogin " + nLoginPlugin.getDescription().getVersion());
-            getProxy().getPluginManager().registerListener(this, new NLoginListener(this));
+            try {
+                getProxy().getPluginManager().registerListener(this, new NLoginListener(this));
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create nLogin hook!", e);
+            }
         }
 
         Plugin jPremiumPlugin = getProxy().getPluginManager().getPlugin("JPremium");
         if (jPremiumPlugin != null) {
             getLogger().log(Level.INFO, "Detected JPremium " + jPremiumPlugin.getDescription().getVersion());
-            getProxy().getPluginManager().registerListener(this, new JPremiumListener(this));
+            try {
+                getProxy().getPluginManager().registerListener(this, new JPremiumListener(this));
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create JPremium hook!", e);
+            }
         }
 
         Plugin librePremiumPlugin = getProxy().getPluginManager().getPlugin("LibrePremium");
         if (librePremiumPlugin != null) {
             getLogger().log(Level.INFO, "Detected LibrePremium " + librePremiumPlugin.getDescription().getVersion());
-            new LibrePremiumListener(this, librePremiumPlugin);
+            try {
+                new LibrePremiumListener(this, librePremiumPlugin);
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create LibrePremium hook!", e);
+            }
         }
 
         Plugin libreLoginPlugin = getProxy().getPluginManager().getPlugin("LibreLogin");
         if (libreLoginPlugin != null) {
             getLogger().log(Level.INFO, "Detected LibreLogin " + libreLoginPlugin.getDescription().getVersion());
-            new LibreLoginListener(this, libreLoginPlugin);
+            try {
+                new LibreLoginListener(this, libreLoginPlugin);
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Could not create LibreLogin hook!", e);
+            }
         }
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {

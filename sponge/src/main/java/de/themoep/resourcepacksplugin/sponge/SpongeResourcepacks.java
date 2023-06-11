@@ -166,14 +166,22 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
 
             Optional<PluginContainer> viaContainer = Sponge.getPluginManager().getPlugin("viaversion");
             if (viaContainer.isPresent()) {
-                viaApi = Via.getAPI();
                 log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
+                try {
+                    viaApi = Via.getAPI();
+                } catch (Exception e) {
+                    log(Level.SEVERE, "Could not create ViaVersion hook!", e);
+                }
             }
 
             Optional<PluginContainer> geyserPlugin = Sponge.getPluginManager().getPlugin("geyser");
             if (geyserPlugin.isPresent()) {
-                geyser = GeyserApi.api();
                 log(Level.INFO, "Detected Geyser " + geyserPlugin.get().getVersion());
+                try {
+                    geyser = GeyserApi.api();
+                } catch (Exception e) {
+                    log(Level.SEVERE, "Could not create Geyser hook!", e);
+                }
             }
 
             if (getConfig().getBoolean("autogeneratehashes", true)) {

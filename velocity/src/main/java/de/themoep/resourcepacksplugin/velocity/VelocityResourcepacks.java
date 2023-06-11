@@ -149,30 +149,61 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         registerCommand(new ResetPackCommandExecutor(this));
 
         getProxy().getPluginManager().getPlugin("ViaVersion")
-                .ifPresent(c -> viaApi = new ViaVersionIntegration(this, c));
+                .ifPresent(c -> {
+                    try {
+                        viaApi = new ViaVersionIntegration(this, c);
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
+                });
 
         getProxy().getPluginManager().getPlugin("geyser")
-                .ifPresent(c -> geyser = new GeyserIntegration(this, c));
+                .ifPresent(c -> {
+                    try {
+                        geyser = new GeyserIntegration(this, c);
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
+                });
 
         getProxy().getPluginManager().getPlugin("floodgate")
-                .ifPresent(c -> floodgate = new FloodgateIntegration(this, c));
+                .ifPresent(c -> {
+                    log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
+                    try {
+                        floodgate = new FloodgateIntegration(this, c);
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
+                });
 
         getProxy().getPluginManager().getPlugin("nlogin")
                 .ifPresent(c -> {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
-                    getProxy().getEventManager().register(this, new NLoginListener(this));
+                    try {
+                        getProxy().getEventManager().register(this, new NLoginListener(this));
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""), e);
+                    }
                 });
 
         getProxy().getPluginManager().getPlugin("librepremium")
                 .ifPresent(c -> {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
-                    new LibrePremiumListener(this, c);
+                    try {
+                        new LibrePremiumListener(this, c);
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
                 });
 
         getProxy().getPluginManager().getPlugin("librelogin")
                 .ifPresent(c -> {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
-                    new LibreLoginListener(this, c);
+                    try {
+                        new LibreLoginListener(this, c);
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
                 });
 
         if (isEnabled() && getConfig().getBoolean("autogeneratehashes", true)) {
