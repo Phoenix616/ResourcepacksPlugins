@@ -24,7 +24,7 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractAuthListener {
-    private final VelocityResourcepacks plugin;
+    protected final VelocityResourcepacks plugin;
 
     public AbstractAuthListener(VelocityResourcepacks plugin) {
         this.plugin = plugin;
@@ -44,13 +44,16 @@ public abstract class AbstractAuthListener {
             if (sendDelay < 0) {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
             }
+            plugin.logDebug(player.getUsername() + " authenticated on the backend server " + serverName + "! Sending pack in " + sendDelay + " ticks...");
             if (sendDelay > 0) {
                 String finalServerName = serverName;
-                plugin.getProxy().getScheduler().buildTask(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), finalServerName)).delay(sendDelay * 20, TimeUnit.MILLISECONDS);
+                plugin.getProxy().getScheduler()
+                        .buildTask(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), finalServerName))
+                        .delay(sendDelay * 20, TimeUnit.MILLISECONDS)
+                        .schedule();
             } else {
                 plugin.getPackManager().applyPack(player.getUniqueId(), serverName);
             }
-            plugin.getPackManager().applyPack(player.getUniqueId(), serverName);
         }
     }
 

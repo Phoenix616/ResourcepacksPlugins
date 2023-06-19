@@ -39,6 +39,7 @@ public abstract class AbstractAuthListener {
             if (sendDelay < 0) {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
             }
+            plugin.logDebug(player.getName() + " authenticated! Sending pack in " + sendDelay + " ticks...");
             if (sendDelay > 0) {
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), player.getWorld().getName()), sendDelay);
             } else {

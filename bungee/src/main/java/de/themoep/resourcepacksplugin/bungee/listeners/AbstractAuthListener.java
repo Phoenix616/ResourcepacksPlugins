@@ -24,7 +24,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractAuthListener {
-    private final BungeeResourcepacks plugin;
+    protected final BungeeResourcepacks plugin;
 
     public AbstractAuthListener(BungeeResourcepacks plugin) {
         this.plugin = plugin;
@@ -44,13 +44,13 @@ public abstract class AbstractAuthListener {
             if (sendDelay < 0) {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
             }
+            plugin.logDebug(player.getName() + " authenticated on the backend server " + serverName + "! Sending pack in " + sendDelay + " ticks...");
             if (sendDelay > 0) {
                 String finalServerName = serverName;
                 plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), finalServerName), sendDelay * 20, TimeUnit.MILLISECONDS);
             } else {
                 plugin.getPackManager().applyPack(player.getUniqueId(), serverName);
             }
-            plugin.getPackManager().applyPack(player.getUniqueId(), serverName);
         }
     }
 

@@ -20,6 +20,7 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
 
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import fr.xephi.authme.events.LoginEvent;
+import fr.xephi.authme.events.RegisterEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -33,11 +34,22 @@ public class AuthmeLoginListener extends AbstractAuthListener implements Listene
     }
 
     /**
-     * Send a plugin message to the Bungee when a player logged into AuthMe on subchannel authMeLogin with the name and UUID
+     * Send a plugin message to the Bungee when a player logged into AuthMe
      * @param event AuthMe's LoginEvent
      */
     @EventHandler
     public void onAuthMeLogin(LoginEvent event) {
+        onAuth(event.getPlayer(), true);
+    }
+
+    /**
+     * Send a plugin message to the Bungee when a player registered with AuthMe.
+     * This just auto-logins the player so treat it the same way.
+     * For some reason that doesn't call the login event...
+     * @param event AuthMe's RegisterEvent
+     */
+    @EventHandler
+    public void onAuthMeLogin(RegisterEvent event) {
         onAuth(event.getPlayer(), true);
     }
 }

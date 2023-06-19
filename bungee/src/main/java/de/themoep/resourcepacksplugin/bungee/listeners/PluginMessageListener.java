@@ -28,14 +28,11 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-public class PluginMessageListener implements Listener {
-
-    private final BungeeResourcepacks plugin;
+public class PluginMessageListener extends AbstractAuthListener implements Listener {
 
     public PluginMessageListener(BungeeResourcepacks plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @EventHandler
@@ -48,26 +45,9 @@ public class PluginMessageListener implements Listener {
         if ("authMeLogin".equals(subchannel)) {
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
-
-            plugin.setAuthenticated(playerId, true);
-            if (!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
-                ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-                if (player != null) {
-                    String serverName = "";
-                    if (player.getServer() != null) {
-                        serverName = player.getServer().getInfo().getName();
-                    }
-                    long sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
-                    if (sendDelay < 0) {
-                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                    }
-                    if (sendDelay > 0) {
-                        String finalServerName = serverName;
-                        plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.getPackManager().applyPack(playerId, finalServerName), sendDelay * 20, TimeUnit.MILLISECONDS);
-                    } else {
-                        plugin.getPackManager().applyPack(playerId, serverName);
-                    }
-                }
+            ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
+            if (player != null) {
+                onAuth(player);
             }
         }
     }

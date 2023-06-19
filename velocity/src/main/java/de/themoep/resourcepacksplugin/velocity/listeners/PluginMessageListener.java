@@ -22,20 +22,15 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-public class PluginMessageListener {
-
-    private final VelocityResourcepacks plugin;
+public class PluginMessageListener extends AbstractAuthListener {
 
     public PluginMessageListener(VelocityResourcepacks plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @Subscribe
@@ -48,28 +43,7 @@ public class PluginMessageListener {
         if ("authMeLogin".equals(subchannel)) {
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
-
-            plugin.setAuthenticated(playerId, true);
-            if (!plugin.hasBackend(playerId) && plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {
-                Optional<Player> player = plugin.getProxy().getPlayer(playerId);
-                if (player.isPresent()) {
-                    String serverName = "";
-                    Optional<ServerConnection> server = player.get().getCurrentServer();
-                    if (server.isPresent()) {
-                        serverName = server.get().getServerInfo().getName();
-                    }
-                    long sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
-                    if (sendDelay < 0) {
-                        sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                    }
-                    if (sendDelay > 0) {
-                        String finalServerName = serverName;
-                        plugin.getProxy().getScheduler().buildTask(plugin, () -> plugin.getPackManager().applyPack(playerId, finalServerName)).delay(sendDelay * 20, TimeUnit.MILLISECONDS);
-                    } else {
-                        plugin.getPackManager().applyPack(playerId, serverName);
-                    }
-                }
-            }
+            plugin.getProxy().getPlayer(playerId).ifPresent(this::onAuth);
         }
     }
 }
