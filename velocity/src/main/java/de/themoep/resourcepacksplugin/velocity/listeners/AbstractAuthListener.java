@@ -31,7 +31,7 @@ public abstract class AbstractAuthListener {
     }
 
     protected void onAuth(Player player) {
-        if (!plugin.isEnabled() || player == null)
+        if (!plugin.isEnabled() || player == null || plugin.isAuthenticated(player.getUniqueId()))
             return;
 
         plugin.setAuthenticated(player.getUniqueId(), true);
