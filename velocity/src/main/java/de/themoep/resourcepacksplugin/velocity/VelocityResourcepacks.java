@@ -40,6 +40,7 @@ import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.GeyserIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.ViaVersionIntegration;
+import de.themoep.resourcepacksplugin.velocity.listeners.AuthMeVelocityListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.LibrePremiumListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.NLoginListener;
@@ -173,6 +174,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                         floodgate = new FloodgateIntegration(this, c);
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
+                    }
+                });
+
+        getProxy().getPluginManager().getPlugin("authmevelocity")
+                .ifPresent(c -> {
+                    log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
+                    try {
+                        getProxy().getEventManager().register(this, new AuthMeVelocityListener(this));
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""), e);
                     }
                 });
 

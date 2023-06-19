@@ -18,6 +18,10 @@
       "optional": true
     },
     {
+      "id": "authmevelocity",
+      "optional": true
+    },
+    {
       "id": "nlogin",
       "optional": true
     },

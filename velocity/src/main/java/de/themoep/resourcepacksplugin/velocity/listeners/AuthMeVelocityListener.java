@@ -1,7 +1,7 @@
 package de.themoep.resourcepacksplugin.velocity.listeners;
 
 /*
- * ResourcepacksPlugins - bungee
+ * ResourcepacksPlugins - velocity
  * Copyright (C) 2022 Max Lee aka Phoenix616 (mail@moep.tv)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,18 +18,24 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.nickuc.login.api.event.velocity.auth.AuthenticateEvent;
 import com.velocitypowered.api.event.Subscribe;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
+import io.github._4drian3d.authmevelocity.api.velocity.event.ProxyLoginEvent;
+import io.github._4drian3d.authmevelocity.api.velocity.event.ProxyRegisterEvent;
 
-public class NLoginListener extends AbstractAuthListener {
+public class AuthMeVelocityListener extends AbstractAuthListener {
 
-    public NLoginListener(VelocityResourcepacks plugin) {
+    public AuthMeVelocityListener(VelocityResourcepacks plugin) {
         super(plugin);
     }
 
     @Subscribe
-    public void onAuth(AuthenticateEvent event) {
-        onAuth(event.getPlayer());
+    public void onAuth(ProxyLoginEvent event) {
+        onAuth(event.player());
+    }
+
+    @Subscribe
+    public void onAuth(ProxyRegisterEvent event) {
+        onAuth(event.player());
     }
 }
