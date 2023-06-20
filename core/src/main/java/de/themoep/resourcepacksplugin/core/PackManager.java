@@ -800,18 +800,27 @@ public class PackManager {
             }
         }
 
-        if(getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-            plugin.logDebug(player.getName() + " matched global assignment");
+        if (getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, Status.SUCCESS) == Status.SUCCESS) {
+            plugin.logDebug(player.getName() + " has already a pack which matches the optional packs in the global assignment");
             return prev;
+        }
+
+        if (stored != null && getGlobalAssignment().isOptionalPack(stored) && checkPack(playerId, stored, Status.SUCCESS) == Status.SUCCESS) {
+            plugin.logDebug(player.getName() + " has stored pack which matches the optional packs in the global assignment");
+            return stored;
         }
 
         String matchReason = " due to ";
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
         if(serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
-            if(assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                plugin.logDebug(player.getName() + " matched assignment " + assignment.getName());
+            if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as their current pack is an optional packs");
                 return prev;
+            }
+            if (stored != null && assignment.isOptionalPack(stored) && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as their stored pack is an optional packs");
+                return stored;
             }
             ResourcePack serverPack = getByName(assignment.getPack());
             status = checkPack(playerId, serverPack, status);
