@@ -243,12 +243,12 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public void onDisable() {
+        executor.shutdown();
         try {
             executor.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             getLogger().log(Level.WARNING, "Error while trying to shut down executor service!", e);
         }
-        executor.shutdown();
     }
 
     protected void registerCommand(PluginCommandExecutor executor) {
