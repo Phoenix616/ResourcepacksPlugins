@@ -29,7 +29,7 @@ public class LibreLoginListener extends AbstractAuthListener {
 
     public LibreLoginListener(VelocityResourcepacks plugin, PluginContainer libreLogin) {
         super(plugin);
-        EventProvider<Player, RegisteredServer> eventProvider = ((LibreLoginProvider<Player, RegisteredServer>) libreLogin).getLibreLogin().getEventProvider();
+        EventProvider<Player, RegisteredServer> eventProvider = ((LibreLoginProvider<Player, RegisteredServer>) libreLogin.getInstance().get()).getLibreLogin().getEventProvider();
         eventProvider.subscribe(eventProvider.getTypes().authenticated, event -> onAuth(event.getPlayer()));
     }
 }
