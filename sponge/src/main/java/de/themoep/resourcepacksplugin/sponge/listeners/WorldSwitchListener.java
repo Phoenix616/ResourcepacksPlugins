@@ -66,7 +66,11 @@ public class WorldSwitchListener {
     }
 
     private void calculatePack(UUID playerId) {
-        if (plugin.isEnabled() && plugin.isAuthenticated(playerId)) {
+        if (plugin.isEnabled()) {
+            if (!plugin.isAuthenticated(playerId)) {
+                plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
+                return;
+            }
             Sponge.getServer().getPlayer(playerId)
                     .ifPresent(p -> plugin.getPackManager().applyPack(p.getUniqueId(), p.getWorld().getName()));
         }

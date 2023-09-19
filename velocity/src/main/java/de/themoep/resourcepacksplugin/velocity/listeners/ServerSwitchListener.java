@@ -68,16 +68,22 @@ public class ServerSwitchListener {
     }
 
     private void calculatePack(UUID playerId) {
-        if(!plugin.hasBackend(playerId) && plugin.isAuthenticated(playerId)) {
-            Optional<Player> player = plugin.getProxy().getPlayer(playerId);
-            if (player.isPresent()) {
-                String serverName = "";
-                Optional<ServerConnection> server = player.get().getCurrentServer();
-                if (server.isPresent()) {
-                    serverName = server.get().getServerInfo().getName();
-                }
-                plugin.getPackManager().applyPack(playerId, serverName);
+        if (plugin.hasBackend(playerId)) {
+            plugin.logDebug("Player " + playerId + " has backend pack, not attempting to send a new one.");
+            return;
+        }
+        if (!plugin.isAuthenticated(playerId)) {
+            plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
+            return;
+        }
+        Optional<Player> player = plugin.getProxy().getPlayer(playerId);
+        if (player.isPresent()) {
+            String serverName = "";
+            Optional<ServerConnection> server = player.get().getCurrentServer();
+            if (server.isPresent()) {
+                serverName = server.get().getServerInfo().getName();
             }
+            plugin.getPackManager().applyPack(playerId, serverName);
         }
     }
 }

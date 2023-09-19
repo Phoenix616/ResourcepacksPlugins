@@ -68,7 +68,11 @@ public class WorldSwitchListener implements Listener {
     }
 
     private void calculatePack(UUID playerId) {
-        if(plugin.isEnabled() && plugin.isAuthenticated(playerId)) {
+        if (plugin.isEnabled()) {
+            if (!plugin.isAuthenticated(playerId)) {
+                plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
+                return;
+            }
             Player player = plugin.getServer().getPlayer(playerId);
             if(player != null) {
                 String worldName = "";
