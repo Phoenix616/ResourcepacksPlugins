@@ -46,7 +46,7 @@ public class PluginMessageListener extends AbstractAuthListener implements Liste
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
             ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-            if (player != null) {
+            if (player != null && !plugin.isAuthenticated(playerId)) {
                 onAuth(player);
             }
         }

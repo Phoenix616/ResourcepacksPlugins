@@ -31,7 +31,7 @@ public abstract class AbstractAuthListener {
     }
 
     protected void onAuth(ProxiedPlayer player) {
-        if (!plugin.isEnabled() || player == null || plugin.isAuthenticated(player.getUniqueId()))
+        if (!plugin.isEnabled() || player == null)
             return;
 
         plugin.setAuthenticated(player.getUniqueId(), true);

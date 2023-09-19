@@ -31,7 +31,7 @@ public abstract class AbstractAuthListener {
     }
 
     protected void onAuth(Player player, boolean sendToProxy) {
-        if (!plugin.isEnabled() || player == null || plugin.isAuthenticated(player.getUniqueId()))
+        if (!plugin.isEnabled() || player == null)
             return;
 
         if (plugin.getConfig().getBoolean("use-auth-plugin", plugin.getConfig().getBoolean("useauth", false))) {

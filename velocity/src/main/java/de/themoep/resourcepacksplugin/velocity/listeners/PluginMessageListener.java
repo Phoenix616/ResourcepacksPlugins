@@ -43,7 +43,9 @@ public class PluginMessageListener extends AbstractAuthListener {
         if ("authMeLogin".equals(subchannel)) {
             String playerName = in.readUTF();
             UUID playerId = UUID.fromString(in.readUTF());
-            plugin.getProxy().getPlayer(playerId).ifPresent(this::onAuth);
+            if (!plugin.isAuthenticated(playerId)) {
+                plugin.getProxy().getPlayer(playerId).ifPresent(this::onAuth);
+            }
         }
     }
 }
