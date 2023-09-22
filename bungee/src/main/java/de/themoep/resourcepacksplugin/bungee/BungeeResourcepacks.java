@@ -162,6 +162,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return;
         }
 
+        if (bungeeVersion >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
+            try {
+                registerPacket(Protocol.valueOf("CONFIGURATION"), "TO_CLIENT", ResourcePackSendPacket.class, ResourcePackSendPacket::new);
+            } catch (IllegalArgumentException e) {
+                getLogger().log(Level.WARNING, "Unable to register ResourcePackSendPacket in config phase?");
+            }
+        }
+
         setEnabled(true);
 
         registerCommand(pluginCommand = new ResourcepacksPluginCommandExecutor(this));
@@ -279,13 +287,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 supportedVersions = (List<Integer>) svIdField.get(null);
             }
 
-            List<IdMapping> idMappings = getIdMappings(packetClass);
+            List<IdMapping> idMappings = getIdMappings(protocol, packetClass);
             if (idMappings.isEmpty()) {
-                getLogger().log(Level.SEVERE, "No mappings set in packetmap.yml for " + packetClass.getSimpleName() + "!");
+                getLogger().log(Level.SEVERE, "No mappings set in packetmap.yml for " + protocol + " " + packetClass.getSimpleName() + "!");
                 return false;
             }
 
-            logDebug("Registering " + packetClass.getSimpleName() + "...");
+            logDebug("Registering " + packetClass.getSimpleName() + " in " + protocol + " phase...");
             bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
             if (bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 logDebug("BungeeCord 1.8 (" + bungeeVersion + ") detected!");
@@ -356,7 +364,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 for (Iterator<Map.Entry<String, Object>> it = mappings.entrySet().iterator(); it.hasNext() ; i++) {
                     Map.Entry<String, Object> entry = it.next();
                     Array.set(mappingsObject, i, entry.getValue());
-                    logDebug("Found mapping for " + entry.getKey() + "+ " + entry.getValue());
+                    logDebug("Found mapping for " + entry.getKey() + "+ " + protocol + " " + entry.getValue());
                 }
                 Object[] mappingsArray = (Object[]) mappingsObject;
                 try {
@@ -394,10 +402,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return false;
     }
 
-    private List<IdMapping> getIdMappings(Class<? extends DefinedPacket> packetClass) {
-        Configuration packetConfig = packetMap.getSection(packetClass.getSimpleName());
+    private List<IdMapping> getIdMappings(Protocol protocol, Class<? extends DefinedPacket> packetClass) {
+        Configuration directionConfig = packetMap.getConfiguration();
+        if (protocol != null) {
+            directionConfig = packetMap.getSection(protocol.name());
+        }
+        Configuration packetConfig = directionConfig.getSection(packetClass.getSimpleName());
         if (packetConfig.getKeys().isEmpty()) {
-            packetConfig = packetMap.getSection(packetClass.getSimpleName().toLowerCase(Locale.ROOT));
+            packetConfig = directionConfig.getSection(packetClass.getSimpleName().toLowerCase(Locale.ROOT));
         }
         Map<Integer, IdMapping> protocolVersionMap = new TreeMap<>();
 
@@ -437,6 +449,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     protocolVersionMap.put(protocolId, new IdMapping(key.replace('_', '.'), protocolId, packetId));
                 }
             }
+        }
+
+        // legacy config support
+        if (protocol != null && protocolVersionMap.isEmpty()) {
+            return getIdMappings(null, packetClass);
         }
 
         return new ArrayList<>(protocolVersionMap.values());

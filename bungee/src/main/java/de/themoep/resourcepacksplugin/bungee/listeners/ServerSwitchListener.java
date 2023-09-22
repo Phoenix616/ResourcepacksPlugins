@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
  */
 
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -46,20 +47,29 @@ public class ServerSwitchListener implements Listener {
             plugin.unsetBackend(playerId);
 
             ResourcePack pack = plugin.getUserManager().getUserPack(playerId);
-            plugin.sendPackInfo(event.getPlayer(), pack);
 
-            long sendDelay = -1;
-            if (event.getPlayer().getServer() != null) {
-                sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getServer().getInfo().getName()).getSendDelay();
-            }
-            if (sendDelay < 0) {
-                sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-            }
+            Runnable sendPack = () -> {
+                plugin.sendPackInfo(event.getPlayer(), pack);
 
-            if (sendDelay > 0) {
-                plugin.getProxy().getScheduler().schedule(plugin, () -> calculatePack(playerId), sendDelay * 50, TimeUnit.MILLISECONDS);
+                long sendDelay = -1;
+                if (event.getPlayer().getServer() != null) {
+                    sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getServer().getInfo().getName()).getSendDelay();
+                }
+                if (sendDelay < 0) {
+                    sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+                }
+
+                if (sendDelay > 0) {
+                    plugin.getProxy().getScheduler().schedule(plugin, () -> calculatePack(playerId), sendDelay * 50, TimeUnit.MILLISECONDS);
+                } else {
+                    calculatePack(playerId);
+                }
+            };
+            if (event.getFrom() != null && plugin.getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
+                // delay by 2 "ticks" to hope the login phase was done
+                plugin.getProxy().getScheduler().schedule(plugin, sendPack, 40, TimeUnit.MILLISECONDS);
             } else {
-                calculatePack(playerId);
+                sendPack.run();
             }
         }
     }
