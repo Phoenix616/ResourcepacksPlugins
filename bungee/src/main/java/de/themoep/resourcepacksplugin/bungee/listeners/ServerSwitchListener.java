@@ -48,28 +48,25 @@ public class ServerSwitchListener implements Listener {
 
             ResourcePack pack = plugin.getUserManager().getUserPack(playerId);
 
-            Runnable sendPack = () -> {
-                plugin.sendPackInfo(event.getPlayer(), pack);
+            plugin.sendPackInfo(event.getPlayer(), pack);
 
-                long sendDelay = -1;
-                if (event.getPlayer().getServer() != null) {
-                    sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getServer().getInfo().getName()).getSendDelay();
-                }
-                if (sendDelay < 0) {
-                    sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-                }
+            if (plugin.getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
+                // Starting with 1.20.2 the pack needs to be resent on server switch -> we remove the user pack which forces a resend
+                plugin.getUserManager().clearUserPack(playerId);
+            }
 
-                if (sendDelay > 0) {
-                    plugin.getProxy().getScheduler().schedule(plugin, () -> calculatePack(playerId), sendDelay * 50, TimeUnit.MILLISECONDS);
-                } else {
-                    calculatePack(playerId);
-                }
-            };
-            if (event.getFrom() != null && plugin.getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
-                // delay by 2 "ticks" to hope the login phase was done
-                plugin.getProxy().getScheduler().schedule(plugin, sendPack, 40, TimeUnit.MILLISECONDS);
+            long sendDelay = -1;
+            if (event.getPlayer().getServer() != null) {
+                sendDelay = plugin.getPackManager().getAssignment(event.getPlayer().getServer().getInfo().getName()).getSendDelay();
+            }
+            if (sendDelay < 0) {
+                sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+            }
+
+            if (sendDelay > 0) {
+                plugin.getProxy().getScheduler().schedule(plugin, () -> calculatePack(playerId), sendDelay * 50, TimeUnit.MILLISECONDS);
             } else {
-                sendPack.run();
+                calculatePack(playerId);
             }
         }
     }
