@@ -31,6 +31,7 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.beans.ConstructorProperties;
@@ -83,13 +84,13 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
-        PacketWrapper packetWrapper = new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())));
         if (handler instanceof DownstreamBridge) {
             if (conField != null) {
                 DownstreamBridge bridge = (DownstreamBridge) handler;
                 try {
                     UserConnection userConnection = (UserConnection) conField.get(bridge);
                     updatePlayer(userConnection);
+                    PacketWrapper packetWrapper = new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())), userConnection.getCh().getEncodeProtocol());
                     userConnection.getPendingConnection().handle(packetWrapper);
                 } catch (IllegalAccessException e) {
                     BungeeResourcepacks.getInstance().getLogger().log(Level.WARNING, "Sorry but you are not allowed to do this.", e);
@@ -98,7 +99,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
         } else {
             BungeeResourcepacks.getInstance().logDebug("Sending ResourcePackSend packets to " + handler.getClass().getName() + " is not properly supported by this plugin! (Only players) Trying to handle anyways...");
             if (handler instanceof PacketHandler) {
-                ((PacketHandler) handler).handle(packetWrapper);
+                ((PacketHandler) handler).handle(new PacketWrapper(this, Unpooled.copiedBuffer(ByteBuffer.allocate(Integer.toString(this.getUrl().length()).length())), Protocol.GAME));
             } else if (BungeeResourcepacks.getInstance().getLogLevel().intValue() >= Level.INFO.intValue()) {
                 new UnsupportedOperationException("Unsupported handler type " + handler.getClass().getName()).fillInStackTrace().printStackTrace();
             }

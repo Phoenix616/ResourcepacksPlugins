@@ -52,6 +52,7 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.bungee.LanguageManager;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -760,7 +761,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(clientVersion >= ProtocolConstants.MINECRAFT_1_8) {
             try {
                 ResourcePackSendPacket packet = new ResourcePackSendPacket(getPackManager().getPackUrl(pack), pack.getHash());
-                player.unsafe().sendPacket(packet);
+                try {
+                    ((UserConnection) player).sendPacketQueued(packet);
+                } catch (Throwable t) {
+                    player.unsafe().sendPacket(packet);
+                }
                 sendPackInfo(player, pack);
                 logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
             } catch(BadPacketException e) {
