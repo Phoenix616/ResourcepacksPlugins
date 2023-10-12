@@ -235,7 +235,11 @@ public class PackManager {
         ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
 
         ResourcePack pack = new ResourcePack(name, url, hash, localPath, format, 0, restricted, perm, type);
-        pack.setVersion(mcVersion);
+        try {
+            pack.setVersion(mcVersion);
+        } catch (IllegalArgumentException e) {
+            plugin.log(Level.WARNING, "Unable to set version of pack " + name + ". " + e.getMessage());
+        }
 
         for (int i = 0; i < variantsList.size(); i++) {
             pack.getVariants().add(loadPack(name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));
