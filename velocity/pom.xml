@@ -68,6 +68,10 @@
             <artifactId>nlogin-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jakub.premium</groupId>
+            <artifactId>jpremium-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.kyngs</groupId>
             <artifactId>LibrePremium</artifactId>
         </dependency>
