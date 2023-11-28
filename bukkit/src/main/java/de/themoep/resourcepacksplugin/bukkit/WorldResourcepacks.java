@@ -511,7 +511,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public String getStoredPack(UUID playerId) {
-        return storedPacks.getConfig().getString("players." + playerId);
+        return storedPacks.getConfig().getString("players." + playerId, null);
     }
 
     public ConfigurationSection getStoredPacks() {

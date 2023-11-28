@@ -472,7 +472,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public String getStoredPack(UUID playerId) {
-        return storedPacks != null ? storedPacks.getString("players." + playerId.toString()) : null;
+        return storedPacks != null ? storedPacks.getString("players." + playerId.toString(), null) : null;
     }
 
     public ConfigurationNode getStoredPacks() {
