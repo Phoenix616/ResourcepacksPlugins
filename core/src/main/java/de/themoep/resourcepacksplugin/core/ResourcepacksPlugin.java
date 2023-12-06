@@ -23,11 +23,10 @@ import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by Phoenix616 on 03.02.2016.
@@ -91,6 +90,13 @@ public interface ResourcepacksPlugin {
      * @param pack The resourcepack to send to a player
      */
     void sendPack(UUID playerId, ResourcePack pack);
+
+    /**
+     * Remove a specific pack from a player. Only works on 1.20.3+
+     * @param playerId The UUID of the player to remove the pack from
+     * @param pack The pack to remove
+     */
+    void removePack(UUID playerId, ResourcePack pack);
 
     void clearPack(UUID playerId);
 
@@ -279,11 +285,11 @@ public interface ResourcepacksPlugin {
     /**
      * Call the ResourcePackSelectEvent on the corresponding server
      * @param playerId The UUID of the player
-     * @param pack The ResourcePack that was selected or null if none was selected
-     * @param status The status of the selection
+     * @param packs    The ResourcePacks that were selected or an empty list if none were selected
+     * @param status   The status of the selection
      * @return The ResourcePackSelectEvent interface which might have been modified (especially the pack)
      */
-    IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status);
+    IResourcePackSelectEvent callPackSelectEvent(UUID playerId, List<ResourcePack> packs, IResourcePackSelectEvent.Status status);
 
     /**
      * Call the ResourcePackSendEvent on the corresponding server
@@ -345,4 +351,14 @@ public interface ResourcepacksPlugin {
      * @return The time in seconds; 0 or below should disable that
      */
     int getPermanentPackRemoveTime();
+
+    /**
+     * Check whether a player uses a version that supports multiple packs (starting with Java 1.20.3)
+     *
+     * @param playerId The UUID of the player
+     * @return true or false
+     */
+    default boolean supportsMultiplePacks(UUID playerId) {
+        return getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber();
+    }
 }

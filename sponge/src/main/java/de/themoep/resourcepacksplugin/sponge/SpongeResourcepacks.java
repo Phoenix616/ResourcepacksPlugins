@@ -470,6 +470,11 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         Sponge.getServer().getPlayer(playerId).ifPresent(p -> sendPack(p, pack));
     }
 
+    @Override
+    public void removePack(UUID playerId, ResourcePack pack) {
+        logDebug("Sponge does not support removing resourcepacks yet!");
+    }
+
     /**
      * Set the resourcepack of a connected player
      * @param player The ProxiedPlayer to set the pack for
@@ -501,11 +506,11 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     public void clearPack(UUID playerId) {
-        getUserManager().clearUserPack(playerId);
+        getUserManager().clearUserPacks(playerId);
     }
 
     public void clearPack(Player player) {
-        getUserManager().clearUserPack(player.getUniqueId());
+        clearPack(player.getUniqueId());
     }
 
     public PackManager getPackManager() {
@@ -689,10 +694,10 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     @Override
-    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
+    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, List<ResourcePack> packs, IResourcePackSelectEvent.Status status) {
         EventContext eventContext = EventContext.builder().add(EventContextKeys.PLUGIN, pluginContainer).build();
         Optional<Player> player = Sponge.getServer().getPlayer(playerId);
-        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(player.orElse(null), pack, status, Cause.of(eventContext, pluginContainer));
+        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(player.orElse(null), packs, status, Cause.of(eventContext, pluginContainer));
         Sponge.getEventManager().post(selectEvent);
         return selectEvent;
     }

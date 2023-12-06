@@ -33,7 +33,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PackAssignment {
 
-    private String pack = null;
+    private LinkedHashSet<String> packs = new LinkedHashSet<>();
     private LinkedHashSet<String> optionalPacks = new LinkedHashSet<>();
     private long sendDelay = -1;
     private Pattern regex = null;
@@ -45,8 +45,8 @@ public class PackAssignment {
 
     public PackAssignment(PackAssignment assignment) {
         this(assignment.getName());
-        this.pack = assignment.getPack();
-        this.optionalPacks = assignment.getOptionalPacks();
+        this.packs.addAll(assignment.getPacks());
+        this.optionalPacks.addAll(assignment.getOptionalPacks());
         this.sendDelay = assignment.getSendDelay();
         this.regex = assignment.getRegex();
     }
@@ -55,7 +55,9 @@ public class PackAssignment {
      * Set the main pack of this assignment
      * @param pack  The main pack
      * @return      Whether or not the value changed
+     * @deprecated Use {@link #addPack(ResourcePack)} or {@link #removePack(ResourcePack)}
      */
+    @Deprecated
     public boolean setPack(ResourcePack pack) {
         if (pack == null) {
             return setPack((String) null);
@@ -67,24 +69,95 @@ public class PackAssignment {
      * Set the main pack of this assignment
      * @param pack  The name of the main pack
      * @return      Whether or not the value changed
+     * @deprecated Use {@link #addPack(String)} or {@link #removePack(String)}
      */
+    @Deprecated
     public boolean setPack(String pack) {
-        if (this.pack == null && pack != null) {
-            this.pack = pack.toLowerCase(Locale.ROOT);
-            return true;
-        } else if (this.pack != null && !this.pack.equalsIgnoreCase(pack)) {
-            this.pack = pack != null ? pack.toLowerCase(Locale.ROOT) : null;
+        if (pack == null) {
+            if (packs.isEmpty()) {
+                return false;
+            }
+            packs.clear();
             return true;
         }
-        return false;
+        if (packs.size() == 1 && packs.contains(pack.toLowerCase(Locale.ROOT))) {
+            return false;
+        }
+        packs.clear();
+        addPack(pack);
+        return true;
     }
 
     /**
      * Get the name of the main pack of this assignment
-     * @return  The (lowercase) name of the apck
+     * @return  The (lowercase) name of the pack
+     * @deprecated Use {@link #getPacks()}
      */
+    @Deprecated
     public String getPack() {
-        return pack;
+        return packs.stream().findFirst().orElse(null);
+    }
+
+    /**
+     * Get the list of packs
+     * @return The (lowercase) names of main packs
+     */
+    public LinkedHashSet<String> getPacks() {
+        return packs;
+    }
+
+    /**
+     * Check whether a certain pack is a pack in this assignment
+     * @param pack  The name of the pack
+     * @return      <code>true</code> if this pack list contains this pack; <code>false</code> if not
+     */
+    public boolean isPack(String pack) {
+        return packs.contains(pack.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Check whether certain pack is a pack in this assignment
+     * @param pack  The pack
+     * @return      <code>true</code> if this pack list contains this pack; <code>false</code> if not (or pack is null)
+     */
+    public boolean isPack(ResourcePack pack) {
+        return pack != null && isPack(pack.getName());
+    }
+
+    /**
+     * Add a new pack
+     * @param pack  The pack to add
+     * @return      <code>true</code> as defined in Collections.add
+     */
+    public boolean addPack(ResourcePack pack) {
+        return addPack(pack.getName());
+    }
+
+    /**
+     * Add a new pack
+     * @param pack  The name of the pack to add
+     * @return      <code>true</code> as defined in Collections.add
+     */
+    public boolean addPack(String pack) {
+        return packs.add(pack.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Remove a pack
+     * @param pack  The pack to remove
+     * @return      <code>true</code> if that pack was a main pack, <code>false</code> if not
+     */
+    public boolean removePack(ResourcePack pack) {
+        return removePack(pack.getName());
+    }
+
+    /**
+     * Remove a pack
+     * @param pack  The name of the pack to remove
+     * @return      <code>true</code> if that pack was a main pack, <code>false</code> if not
+     */
+    public boolean removePack(String pack) {
+        return packs.remove(pack.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -96,7 +169,7 @@ public class PackAssignment {
     }
 
     /**
-     * Check whether a certain pack is a optional pack in this assignment
+     * Check whether a certain pack is an optional pack in this assignment
      * @param pack  The name of the pack
      * @return      <code>true</code> if this optional pack list contains this pack; <code>false</code> if not
      */
@@ -132,7 +205,7 @@ public class PackAssignment {
     }
 
     /**
-     * Remove a optional pack
+     * Remove an optional pack
      * @param pack  The pack to remove
      * @return      <code>true</code> if that pack was a optional one, <code>false</code> if not
      */
@@ -141,7 +214,7 @@ public class PackAssignment {
     }
 
     /**
-     * Remove a optional pack
+     * Remove an optional pack
      * @param pack  The name of the pack to remove
      * @return      <code>true</code> if that pack was a optional one, <code>false</code> if not
      */
@@ -230,7 +303,7 @@ public class PackAssignment {
      * @return  <code>true</code> if it has no packs or secondaries; <code>false</code> if it has some
      */
     public boolean isEmpty() {
-        return pack == null && optionalPacks.isEmpty() && sendDelay == -1;
+        return packs.isEmpty() && optionalPacks.isEmpty() && sendDelay == -1;
     }
 
     /**
@@ -258,8 +331,8 @@ public class PackAssignment {
     public String toString() {
         StringBuilder s = new StringBuilder(getClass().getSimpleName()).append("{")
                 .append("name=").append(getName())
-                .append(", pack=").append(getPack())
-                .append(", optional-packs=[").append(String.join(", ", getOptionalPacks()))
+                .append(", packs=[").append(String.join(", ", getPacks()))
+                .append("], optional-packs=[").append(String.join(", ", getOptionalPacks()))
                 .append("], sendDelay=").append(getSendDelay());
         if (getRegex() != null) {
             s.append(", regex=").append(getRegex().toString());
@@ -304,7 +377,16 @@ public class PackAssignment {
      */
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("pack", pack);
+        if (packs.size() > 1) {
+            map.put("packs", packs);
+            map.put("pack", null);
+        } else if (packs.isEmpty()) {
+            map.put("packs", null);
+            map.put("pack", null);
+        } else {
+            map.put("packs", null);
+            map.put("pack", packs.iterator().next());
+        }
         map.put("optional-packs", optionalPacks.isEmpty() ? null : new ArrayList<>(optionalPacks));
         map.put("send-delay", sendDelay > 0 ? sendDelay : null);
         map.put("regex", regex != null ? regex.toString() : null);
@@ -319,6 +401,7 @@ public class PackAssignment {
         return new String[] {
                 "name", getName(),
                 "pack", getPack() != null ? getPack() : "none",
+                "packs", getPacks().isEmpty() ? "none" : String.join(", ", getPacks()),
                 "secondaries", String.join(", ", getOptionalPacks()),
                 "optional-packs", String.join(", ", getOptionalPacks()),
                 "regex", getRegex() != null ? getRegex().toString() : "none",
@@ -333,7 +416,8 @@ public class PackAssignment {
     protected String[] getUpdateActions() {
         return new String[] {
                 "info",
-                "pack",
+                "addpack",
+                "removepack",
                 "addoptionalpack",
                 "removeoptionalpack",
                 "regex",
@@ -363,7 +447,7 @@ public class PackAssignment {
         } else if ("info".equalsIgnoreCase(args[0])) {
             command.sendMessage(sender, "info", getReplacements());
             return true;
-        } else if ("pack".equalsIgnoreCase(args[0])) {
+        } else if ("addpack".equalsIgnoreCase(args[0])) {
             ResourcePack pack = null;
             if (args.length > 1) {
                 pack = command.getPlugin().getPackManager().getByName(args[1]);
@@ -372,8 +456,19 @@ public class PackAssignment {
                     return true;
                 }
             }
-            save = setPack(pack);
-            command.sendMessage(sender, "updated", "assignment", getName(), "type", "pack", "value", pack != null ? pack.getName() : "none");
+            save = addPack(pack);
+            command.sendMessage(sender, "updated", "assignment", getName(), "type", "added pack", "value", pack.getName());
+        } else if ("removepack".equalsIgnoreCase(args[0])) {
+            ResourcePack pack = null;
+            if (args.length > 1) {
+                pack = command.getPlugin().getPackManager().getByName(args[1]);
+                if (pack == null) {
+                    command.sendMessage(sender, "unknown-pack", "input", args[1]);
+                    return true;
+                }
+            }
+            save = removePack(pack);
+            command.sendMessage(sender, "updated", "assignment", getName(), "type", "removed pack", "value", pack.getName());
         } else if ("regex".equalsIgnoreCase(args[0])) {
             Pattern regex = null;
             if (args.length > 1) {

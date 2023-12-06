@@ -22,6 +22,8 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import net.md_5.bungee.api.plugin.Event;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,7 +31,7 @@ import java.util.UUID;
  */
 public class ResourcePackSelectEvent extends Event implements IResourcePackSelectEvent {
     private final UUID playerId;
-    private ResourcePack pack;
+    private List<ResourcePack> packs;
     private Status status;
 
     public ResourcePackSelectEvent(UUID playerId, ResourcePack pack) {
@@ -37,27 +39,20 @@ public class ResourcePackSelectEvent extends Event implements IResourcePackSelec
         setPack(pack);
     }
 
-    public ResourcePackSelectEvent(UUID playerId, ResourcePack pack, Status status) {
+    public ResourcePackSelectEvent(UUID playerId, List<ResourcePack> packs, Status status) {
         this.playerId = playerId;
-        this.pack = pack;
+        this.packs = new ArrayList<>(packs);
         this.status = status;
     }
 
+    @Override
     public UUID getPlayerId() {
         return playerId;
     }
 
-    public ResourcePack getPack() {
-        return pack;
-    }
-
-    public void setPack(ResourcePack pack) {
-        this.pack = pack;
-        if(pack != null) {
-            status = Status.SUCCESS;
-        } else {
-            status = Status.UNKNOWN;
-        }
+    @Override
+    public List<ResourcePack> getPacks() {
+        return packs;
     }
 
     @Override
@@ -68,8 +63,8 @@ public class ResourcePackSelectEvent extends Event implements IResourcePackSelec
     @Override
     public void setStatus(Status status) {
         this.status = status;
-        if(status != Status.SUCCESS) {
-            pack = null;
+        if (status != Status.SUCCESS) {
+            packs.clear();
         }
     }
 }

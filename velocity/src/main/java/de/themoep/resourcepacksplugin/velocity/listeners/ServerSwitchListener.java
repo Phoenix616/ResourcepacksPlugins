@@ -26,6 +26,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -47,8 +48,8 @@ public class ServerSwitchListener {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            ResourcePack pack = plugin.getUserManager().getUserPack(playerId);
-            plugin.sendPackInfo(event.getPlayer(), pack);
+            List<ResourcePack> packs = plugin.getUserManager().getUserPacks(playerId);
+            plugin.sendPackInfo(event.getPlayer(), packs);
 
             long sendDelay = -1;
             Optional<ServerConnection> server = event.getPlayer().getCurrentServer();

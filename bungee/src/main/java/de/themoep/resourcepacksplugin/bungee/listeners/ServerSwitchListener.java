@@ -26,6 +26,7 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -42,17 +43,17 @@ public class ServerSwitchListener implements Listener {
 
     @EventHandler
     public void onServerSwitch(ServerSwitchEvent event) {
-        if(plugin.isEnabled()) {
+        if (plugin.isEnabled()) {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            ResourcePack pack = plugin.getUserManager().getUserPack(playerId);
+            List<ResourcePack> packs = plugin.getUserManager().getUserPacks(playerId);
 
-            plugin.sendPackInfo(event.getPlayer(), pack);
+            plugin.sendPackInfo(event.getPlayer(), packs);
 
-            if (plugin.getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
-                // Starting with 1.20.2 the pack needs to be resent on server switch -> we remove the user pack which forces a resend
-                plugin.getUserManager().clearUserPack(playerId);
+            if (plugin.getPlayerProtocol(playerId) == MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
+                // In 1.20.2 the pack needs to be resent on server switch -> we remove the user pack which forces a resend
+                plugin.getUserManager().clearUserPacks(playerId);
             }
 
             long sendDelay = -1;

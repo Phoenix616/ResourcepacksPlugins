@@ -25,6 +25,8 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 import org.spongepowered.api.event.impl.AbstractEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -33,37 +35,28 @@ import java.util.UUID;
 public class ResourcePackSelectEvent extends AbstractEvent implements IResourcePackSelectEvent, TargetPlayerEvent {
     private final Player player;
     private final Cause cause;
-    private ResourcePack pack;
+    private List<ResourcePack> packs;
     private Status status;
 
-    public ResourcePackSelectEvent(Player player, ResourcePack pack, Cause cause) {
-        this.player = player;
-        this.cause = cause;
-        setPack(pack);
+    public ResourcePackSelectEvent(Player player, List<ResourcePack> packs, Cause cause) {
+        this(player, packs, packs.isEmpty() ? Status.UNKNOWN : Status.SUCCESS, cause);
     }
 
-    public ResourcePackSelectEvent(Player player, ResourcePack pack, Status status, Cause cause) {
+    public ResourcePackSelectEvent(Player player, List<ResourcePack> packs, Status status, Cause cause) {
         this.player = player;
-        this.pack = pack;
+        this.packs = new ArrayList<>(packs);
         this.status = status;
         this.cause = cause;
     }
 
+    @Override
     public UUID getPlayerId() {
         return player.getUniqueId();
     }
 
-    public ResourcePack getPack() {
-        return pack;
-    }
-
-    public void setPack(ResourcePack pack) {
-        this.pack = pack;
-        if(pack != null) {
-            status = Status.SUCCESS;
-        } else {
-            status = Status.UNKNOWN;
-        }
+    @Override
+    public List<ResourcePack> getPacks() {
+        return null;
     }
 
     @Override
@@ -74,8 +67,8 @@ public class ResourcePackSelectEvent extends AbstractEvent implements IResourceP
     @Override
     public void setStatus(Status status) {
         this.status = status;
-        if(status != Status.SUCCESS) {
-            pack = null;
+        if (status != Status.SUCCESS) {
+            packs.clear();
         }
     }
 

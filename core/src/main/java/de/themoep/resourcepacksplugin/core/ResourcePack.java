@@ -20,18 +20,21 @@ package de.themoep.resourcepacksplugin.core;
 
 import com.google.common.io.BaseEncoding;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Phoenix616 on 25.03.2015.
  */
 public class ResourcePack {
     private final String name;
+    private UUID uuid;
     private String url;
     private String localPath;
     private byte[] hash = new byte[0];
@@ -45,7 +48,7 @@ public class ResourcePack {
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      */
@@ -55,7 +58,19 @@ public class ResourcePack {
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param uuid The uuid of the resourcepack as set in the config.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     */
+    public ResourcePack(String name, UUID uuid, String url, String hash) {
+        this(name, url, hash, 0);
+        this.uuid = uuid;
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta
@@ -66,7 +81,7 @@ public class ResourcePack {
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
@@ -77,7 +92,7 @@ public class ResourcePack {
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
@@ -131,7 +146,7 @@ public class ResourcePack {
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
@@ -142,7 +157,25 @@ public class ResourcePack {
      * @param type The type of the pack depending on the client which should receive it
      */
     public ResourcePack(String name, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(name, UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)), url, hash, localPath, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param uuid The uuid of the resourcepack as set in the config.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param type The type of the pack depending on the client which should receive it
+     */
+    public ResourcePack(String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
         this.name = name;
+        this.uuid = uuid;
         this.url = url;
         if (hash != null && !hash.isEmpty() && !"null".equals(hash)) {
             setHash(hash);
@@ -162,7 +195,23 @@ public class ResourcePack {
     public String getName() {
         return name;
     }
-    
+
+    /**
+     * Get the universally unique identifier (UUID) associated with the resource pack.
+     * @return The UUID as an instance of the UUID class.
+     */
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set the universally unique identifier (UUID) associated with the resource pack.
+     * @param uuid The UUID of the resource pack.
+     */
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     /**
      * Get the url where this resourcepack is located at and where the client will download it from
      * @return The url as a string
@@ -362,6 +411,16 @@ public class ResourcePack {
             } else if (!this$name.equals(other$name)) {
                 return false;
             }
+
+            UUID this$uuid = this.getUuid();
+            UUID other$uuid = other.getUuid();
+            if (this$uuid == null) {
+                if (other$uuid != null) {
+                    return false;
+                }
+            } else if (!this$uuid.equals(other$uuid)) {
+                return false;
+            }
             
             String this$url = this.getUrl();
             String other$url = other.getUrl();
@@ -414,6 +473,7 @@ public class ResourcePack {
     public String[] getReplacements() {
         return new String[] {
                 "name", getName(),
+                "uuid", getUuid().toString(),
                 "url", getUrl(),
                 "hash", getHash(),
                 "format", String.valueOf(getFormat()),
@@ -429,6 +489,7 @@ public class ResourcePack {
         Map<String, Object> map = new LinkedHashMap<>();
 
         map.put("url", url.isEmpty() ? null : url);
+        map.put("uuid", uuid != null ? uuid.toString() : null);
         map.put("hash", hash.length == 0 ? null : getHash());
         map.put("local-path", localPath == null || localPath.isEmpty() ? null : localPath);
         if (name.equalsIgnoreCase(PackManager.EMPTY_IDENTIFIER)) {

@@ -29,6 +29,12 @@
         </dependency>
         <dependency>
             <groupId>de.themoep.resourcepacksplugin</groupId>
+            <artifactId>bukkit-v1_20_R3</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.themoep.resourcepacksplugin</groupId>
             <artifactId>bukkit-v1_11_R1</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

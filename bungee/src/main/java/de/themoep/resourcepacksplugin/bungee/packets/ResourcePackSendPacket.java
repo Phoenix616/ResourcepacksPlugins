@@ -37,9 +37,11 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -47,6 +49,7 @@ import java.util.logging.Level;
  */
 public class ResourcePackSendPacket extends DefinedPacket {
 
+    private Optional<UUID> uuid = Optional.empty();
     private String url;
     private Optional<String> hash = Optional.empty();
     private Optional<Boolean> required = Optional.empty();
@@ -82,6 +85,12 @@ public class ResourcePackSendPacket extends DefinedPacket {
         this.promptMessage = Optional.ofNullable(promptMessage);
     }
 
+    @ConstructorProperties({"uuid", "url", "hash", "force", "promptMessage"})
+    public ResourcePackSendPacket(UUID uuid, String url, String hash, boolean required, String promptMessage) {
+        this(url, hash, required, promptMessage);
+        this.uuid = Optional.of(uuid);
+    }
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception {
         if (handler instanceof DownstreamBridge) {
@@ -108,7 +117,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
 
     private void updatePlayer(UserConnection usercon) {
         BungeeResourcepacks plugin = BungeeResourcepacks.getInstance();
-        if(plugin.isEnabled()) {
+        if (plugin.isEnabled()) {
             ResourcePack pack = plugin.getPackManager().getByHash(getHash());
             String url = getUrl();
             if (url.endsWith("#" + getHash())) {
@@ -128,7 +137,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
             }
             plugin.setBackend(usercon.getUniqueId());
             plugin.logDebug("Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
-            plugin.getUserManager().setUserPack(usercon.getUniqueId(), pack);
+            plugin.getUserManager().addUserPack(usercon.getUniqueId(), pack);
         }
     }
 
@@ -156,6 +165,13 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
 
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        if (protocolVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()) {
+            if (this.uuid.isPresent()) {
+                writeUUID(this.uuid.get(), buf);
+            } else {
+                writeUUID(UUID.nameUUIDFromBytes(this.url.getBytes(StandardCharsets.UTF_8)), buf);
+            }
+        }
         write(buf);
         if (protocolVersion >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
             buf.writeBoolean(this.required.orElse(false));
@@ -180,6 +196,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
     public String toString() {
         return "ResourcePackSendPacket{" +
                 "url='" + url + '\'' +
+                ", uuid=" + uuid +
                 ", hash=" + hash +
                 ", required=" + required +
                 ", promptMessage=" + promptMessage +
@@ -193,12 +210,13 @@ public class ResourcePackSendPacket extends DefinedPacket {
         ResourcePackSendPacket that = (ResourcePackSendPacket) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(hash, that.hash) &&
+                Objects.equals(uuid, that.uuid) &&
                 Objects.equals(required, that.required) &&
                 Objects.equals(promptMessage, that.promptMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, hash, required, promptMessage);
+        return Objects.hash(url, uuid, hash, required, promptMessage);
     }
 }

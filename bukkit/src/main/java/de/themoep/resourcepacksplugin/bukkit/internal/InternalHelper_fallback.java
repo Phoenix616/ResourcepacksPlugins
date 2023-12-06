@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 /**
  * Created by Phoenix616 on 22.07.2016.
@@ -36,36 +37,44 @@ public class InternalHelper_fallback implements InternalHelper {
 
     private Method getHandle = null;
     private Method setResourcePack = null;
+    private boolean hasSetIdResourcePack = false;
     private boolean hasSetResourcePack = false;
 
     public InternalHelper_fallback(WorldResourcepacks plugin) {
         this.plugin = plugin;
         try {
-            hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
-        } catch (NoSuchMethodException e) {
-            // Old version, method still not there
-            String packageName = Bukkit.getServer().getClass().getPackage().getName();
-            String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
-
+            hasSetIdResourcePack = Player.class.getMethod("setResourcePack", UUID.class, String.class, byte[].class) != null;
+        } catch (NoSuchMethodException e2) {
             try {
-                Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
-                getHandle = craftPlayer.getDeclaredMethod("getHandle");
+                hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
+            } catch (NoSuchMethodException e) {
+                // Old version, method still not there
+                String packageName = Bukkit.getServer().getClass().getPackage().getName();
+                String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-                Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
-                setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+                try {
+                    Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
+                    getHandle = craftPlayer.getDeclaredMethod("getHandle");
 
-            } catch (ClassNotFoundException e1) {
-                e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                e1.printStackTrace();
+                    Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
+                    setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+
+                } catch (ClassNotFoundException | NoSuchMethodException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
     }
 
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
+        if (hasSetIdResourcePack) {
+            player.setResourcePack(pack.getUuid(), plugin.getPackManager().getPackUrl(pack), pack.getRawHash(), null, false);
+            return;
+        }
+
         if (hasSetResourcePack) {
-            player.setResourcePack(plugin.getPackManager().getPackUrl(pack));
+            player.setResourcePack(plugin.getPackManager().getPackUrl(pack), pack.getRawHash());
             return;
         }
 

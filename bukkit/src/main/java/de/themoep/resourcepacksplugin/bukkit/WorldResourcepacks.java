@@ -565,20 +565,34 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
      * @param pack The resourcepack to set for the player
      */
     public void sendPack(Player player, ResourcePack pack) {
-        if (pack.getRawHash().length != 0) {
-            internalHelper.setResourcePack(player, pack);
-        } else {
-            player.setResourcePack(getPackManager().getPackUrl(pack));
+        int clientVersion = getPlayerProtocol(player.getUniqueId());
+        if (clientVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()
+                && (pack == null || pack == getPackManager().getEmptyPack())) {
+            internalHelper.removeResourcePacks(player);
+            return;
         }
+        internalHelper.setResourcePack(player, pack);
         logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
     }
 
+    @Override
+    public void removePack(UUID playerId, ResourcePack pack) {
+        Player player = getServer().getPlayer(playerId);
+        if (player != null) {
+            removePack(player, pack);
+        }
+    }
+
+    public void removePack(Player player, ResourcePack pack) {
+        internalHelper.removeResourcePack(player, pack);
+    }
+
     public void clearPack(UUID playerId) {
-        getUserManager().clearUserPack(playerId);
+        getUserManager().clearUserPacks(playerId);
     }
 
     public void clearPack(Player player) {
-        getUserManager().clearUserPack(player.getUniqueId());
+        clearPack(player.getUniqueId());
     }
 
     public PackManager getPackManager() {
@@ -760,8 +774,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
-    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
-        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, pack, status);
+    public IResourcePackSelectEvent callPackSelectEvent(UUID playerId, List<ResourcePack> packs, IResourcePackSelectEvent.Status status) {
+        ResourcePackSelectEvent selectEvent = new ResourcePackSelectEvent(playerId, packs, status);
         getServer().getPluginManager().callEvent(selectEvent);
         return selectEvent;
     }

@@ -23,6 +23,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -109,7 +110,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             sendMessage(sender, "pack-list.head");
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if (packs.size() > 0) {
-                ResourcePack userPack = sender != null ? plugin.getUserManager().getUserPack(sender.getUniqueId()) : null;
+                List<ResourcePack> userPacks = sender != null ? plugin.getUserManager().getUserPacks(sender.getUniqueId()) : Collections.emptyList();
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
                         .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
                                 && pack.getVersion() <= plugin.getPlayerProtocol(sender.getUniqueId())
@@ -119,13 +120,13 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
 
                 if (applicablePacks.size() > 0) {
                     for (ResourcePack pack : applicablePacks) {
-                        sendMessage(sender, "pack-list.entry" + (userPack != null && userPack.equals(pack) ? "-selected" : ""),
+                        sendMessage(sender, "pack-list.entry" + (userPacks != null && userPacks.equals(pack) ? "-selected" : ""),
                                 "pack", pack.getName(),
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
                                 "format", String.valueOf(pack.getFormat()),
                                 "version", String.valueOf(pack.getVersion()),
-                                "selected", userPack != null && userPack.equals(pack) ? ">" : " ",
+                                "selected", userPacks.contains(pack) ? ">" : " ",
                                 "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : "",
                                 "optional-version", pack.getVersion() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-version", "version", String.valueOf(pack.getVersion())) : ""
                         );

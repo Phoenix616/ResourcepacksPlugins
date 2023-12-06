@@ -77,7 +77,11 @@ global:
 worlds:
   # Config for a world named "your_example_world"
   your_example_world:
-    pack: examplepack
+    # You can define multiple packs starting with 1.20.3
+    # On versions prior to it only the first pack will be used
+    packs:
+    - examplepack
+    - globalpack
     #optional-packs:
     #- examplepack2
   your_example_nether:

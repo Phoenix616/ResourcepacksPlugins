@@ -20,6 +20,7 @@ package de.themoep.resourcepacksplugin.core.events;
 
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -32,14 +33,31 @@ public interface IResourcePackSelectEvent {
     /**
      * Get the pack that was selected
      * @return The selected pack; null if the selection failed
+     * @deprecated Use {@link #getPacks()}
      */
-    ResourcePack getPack();
+    @Deprecated
+    default ResourcePack getPack() {
+        return !getPacks().isEmpty() ? getPacks().get(0) : null;
+    }
+
+    /**
+     * Get the packs that were selected
+     * @return The selected packs; null if the selection failed
+     */
+    List<ResourcePack> getPacks();
 
     /**
      * Set the pack. If it isn't null the status will be set to success. Otherwise you have to set the status yourself
      * @param pack The pack that was selected
+     * @deprecated Directly add to or remove from {@link #getPacks()}
      */
-    void setPack(ResourcePack pack);
+    @Deprecated
+    default void setPack(ResourcePack pack) {
+        getPacks().clear();
+        if (pack != null) {
+            getPacks().add(pack);
+        }
+    }
 
     /**
      * The status of the select event<br>

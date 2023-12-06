@@ -51,33 +51,28 @@ public class ProxyPackListener implements PluginMessageListener {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subchannel = in.readUTF();
 
-        if(subchannel.equals("packChange")) {
+        if (subchannel.equals("packsChange")) {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
-            String packName = in.readUTF();
-            String packUrl = in.readUTF();
-            String packHash = in.readUTF();
+            int packCount = in.readInt();
 
             Player player = plugin.getServer().getPlayer(playerUuid);
-            if(player == null || !player.isOnline()) {
-                plugin.logDebug("Proxy send pack " + packName + " (" + packUrl + ") to player " + playerName + " but they aren't online?");
+            if (player == null || !player.isOnline()) {
+                plugin.logDebug("Proxy send pack " + packCount + " packs to player " + playerName + " but they aren't online?");
             }
 
-            ResourcePack pack = plugin.getPackManager().getByName(packName);
-            if(pack == null) {
-                try {
-                    pack = new ResourcePack(packName, packUrl, packHash);
-                    plugin.getPackManager().addPack(pack);
-                } catch (IllegalArgumentException e) {
-                    pack = plugin.getPackManager().getByHash(packHash);
-                    if(pack == null) {
-                        pack = plugin.getPackManager().getByUrl(packUrl);
-                    }
+            plugin.getUserManager().clearUserPacks(playerUuid);
+
+            for (int i = 0; i < packCount; i++) {
+                ResourcePack pack = readPack(in);
+                if (pack != null) {
+                    plugin.logDebug("Proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
+                    plugin.getUserManager().addUserPack(playerUuid, pack);
+                } else {
+                    plugin.logDebug("Proxy send command to add an unknown pack to " + playerName + "?");
                 }
             }
 
-            plugin.logDebug("Proxy send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
-            plugin.getUserManager().setUserPack(playerUuid, pack);
         } else if(subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
@@ -88,11 +83,49 @@ public class ProxyPackListener implements PluginMessageListener {
 
             plugin.logDebug("Proxy send command to clear the pack of player " + playerName);
             plugin.clearPack(playerUuid);
+        } else if (subchannel.equals("removePack")) {
+            String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+
+            ResourcePack pack = readPack(in);
+
+            if (pack != null) {
+                Player player = plugin.getServer().getPlayer(playerUuid);
+                if (player == null || !player.isOnline()) {
+                    plugin.logDebug("Proxy send command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
+                }
+                plugin.logDebug("Proxy send command to remove the pack " + pack.getName() + " from player " + playerName);
+                plugin.getUserManager().removeUserPack(playerUuid, pack);
+            } else {
+                plugin.logDebug("Proxy send command to remove an unknown pack from " + playerName + "?");
+            }
+
         } else if (subChannels.containsKey(subchannel)) {
             subChannels.get(subchannel).execute(p, in);
         } else {
             plugin.getLogger().log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your Proxy!");
         }
+    }
+
+    private ResourcePack readPack(ByteArrayDataInput in) {
+        String packName = in.readUTF();
+        String packUrl = in.readUTF();
+        String packHash = in.readUTF();
+        UUID packUuid = new UUID(in.readLong(), in.readLong());
+
+        ResourcePack pack = plugin.getPackManager().getByName(packName);
+        if (pack == null) {
+            try {
+                pack = new ResourcePack(packName, packUuid, packUrl, packHash);
+                plugin.getPackManager().addPack(pack);
+            } catch (IllegalArgumentException e) {
+                pack = plugin.getPackManager().getByHash(packHash);
+                if (pack == null) {
+                    pack = plugin.getPackManager().getByUrl(packUrl);
+                }
+            }
+        }
+        return pack;
     }
 
     /**

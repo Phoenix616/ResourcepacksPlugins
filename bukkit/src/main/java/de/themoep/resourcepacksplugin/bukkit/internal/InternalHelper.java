@@ -28,4 +28,12 @@ public interface InternalHelper {
 
     void setResourcePack(Player player, ResourcePack pack);
 
+    default void removeResourcePack(Player player, ResourcePack pack) {
+        throw new UnsupportedOperationException("This version does not support removing resourcepacks!");
+    }
+
+    default void removeResourcePacks(Player player) {
+        throw new UnsupportedOperationException("This version does not support removing resourcepacks!");
+    }
+
 }

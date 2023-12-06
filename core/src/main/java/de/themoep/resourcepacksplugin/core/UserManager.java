@@ -18,9 +18,15 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 04.11.2016.
@@ -31,7 +37,7 @@ public class UserManager {
     /**
      * playerid -> packname
      */
-    private final Map<UUID, String> userPackMap = new ConcurrentHashMap<>();
+    private final Multimap<UUID, String> userPacksMap = MultimapBuilder.hashKeys().linkedHashSetValues().build();
     
     /**
      * playerid -> logintime
@@ -50,46 +56,102 @@ public class UserManager {
      * Get the resourcepack of a user
      * @param playerid The UUID of this player
      * @return The resourcepack the player has selected, null if he has none/isn't known
+     * @deprecated Use {@link #getUserPacks(UUID)}
      */
+    @Deprecated
     public ResourcePack getUserPack(UUID playerid) {
-        String name = userPackMap.get(playerid);
-        return (name == null) ? null : plugin.getPackManager().getByName(name);
+        return getUserPacks(playerid).stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Get the resourcepacks of a user
+     * @param playerid The UUID of this player
+     * @return The resourcepack sthe player has selected, an empty list if there is none
+     */
+    public List<ResourcePack> getUserPacks(UUID playerid) {
+        return userPacksMap.get(playerid).stream()
+                .map(plugin.getPackManager()::getByName)
+                .collect(Collectors.toList());
     }
 
     /**
      * Set the resourcepack of a user
      * @param playerid The UUID of this player
      * @param pack The resourcepack of the user
-     * @return The resourcepack the player had selected previous, null if he had none before
+     * @return null for legacy reasons
+     * @deprecated Use {@link #addUserPack(UUID, ResourcePack)}
      */
+    @Deprecated
     public ResourcePack setUserPack(UUID playerid, ResourcePack pack) {
-        String previous = userPackMap.put(playerid, pack.getName());
-        return (previous == null) ? null : plugin.getPackManager().getByName(previous);
+        clearUserPacks(playerid);
+        addUserPack(playerid, pack);
+        return null;
+    }
+
+    /**
+     * Set the resourcepack of a user
+     * @param playerId The UUID of this player
+     * @param pack     The resourcepack of the user
+     * @return Whether the user already had that pack before
+     */
+    public boolean addUserPack(UUID playerId, ResourcePack pack) {
+        return userPacksMap.put(playerId, pack.getName());
     }
 
     /**
      * Get the map of user IDs to pack names
      * @return The pack map
      */
-    public Map<UUID, String> getUserPacks() {
-        return userPackMap;
+    public Multimap<UUID, String> getUserPacks() {
+        return userPacksMap;
     }
 
     /**
      * Clear the resourcepack of a user
      * @param playerid The UUID of this player
-     * @return The resourcepack the player had selected previous, null if he had none before
+     * @return Always null for legacy reasons
+     * @deprecated Use {@link #clearUserPacks(UUID)}
      */
+    @Deprecated
     public ResourcePack clearUserPack(UUID playerid) {
-        String previous = userPackMap.remove(playerid);
-        return (previous == null) ? null : plugin.getPackManager().getByName(previous);
+        clearUserPacks(playerid);
+        return null;
+    }
+
+    /**
+     * Clear the resourcepacks of a user
+     * @param playerId The UUID of this player
+     * @return The list of resourcepacks the player had selected previous, an empty list if he had none before
+     */
+    public Collection<String> clearUserPacks(UUID playerId) {
+        return userPacksMap.removeAll(playerId);
+    }
+
+    /**
+     * Remove a specific pack from a user
+     * @param playerId The UUID of the player
+     * @param pack The pack to remove
+     */
+    public void removeUserPack(UUID playerId, ResourcePack pack) {
+        removeUserPack(playerId, pack.getName());
+    }
+
+    /**
+     * Remove a specific pack from a user
+     * @param playerId The UUID of the player
+     * @param packName The name of the pack
+     */
+    public void removeUserPack(UUID playerId, String packName) {
+        userPacksMap.remove(playerId, packName);
     }
 
     /**
      * Remove all stored user pack data
      */
     public void clearUserPacks() {
-        userPackMap.clear();
+        userPacksMap.clear();
         userPackTime.clear();
     }
     
@@ -138,8 +200,8 @@ public class UserManager {
             return false;
         }
         
-        String currentPack = userPackMap.get(playerId);
-        if (!storedPackName.equalsIgnoreCase(currentPack)) {
+        List<ResourcePack> currentPack = getUserPacks(playerId);
+        if (currentPack.stream().noneMatch(p -> p.getName().equalsIgnoreCase(storedPackName))) {
             return false;
         }
         

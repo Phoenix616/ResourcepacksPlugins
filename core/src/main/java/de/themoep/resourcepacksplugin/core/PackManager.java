@@ -26,6 +26,7 @@ import com.google.common.io.BaseEncoding;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSendEvent;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,17 +47,22 @@ import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 25.03.2015.
@@ -79,7 +85,12 @@ public class PackManager {
     private Map<String, ResourcePack> packNames;
 
     /**
-     * packhash -> packname 
+     * packuuid -> packname
+     */
+    private Map<UUID, ResourcePack> packUuids;
+
+    /**
+     * packhash -> packname
      */
     private Map<String, ResourcePack> packHashes;
     
@@ -130,6 +141,7 @@ public class PackManager {
      */
     public void init() {
         packNames = new LinkedHashMap<>();
+        packUuids = new HashMap<>();
         packHashes = new HashMap<>();
         packUrls = new HashMap<>();
         empty = null;
@@ -222,6 +234,13 @@ public class PackManager {
         if (url.isEmpty() && variantsList.isEmpty()) {
             throw new IllegalArgumentException("Pack " + name + " does not have an url defined!");
         }
+        UUID uuid;
+        String uuidStr = get(config, "uuid", "");
+        if (uuidStr.isEmpty()) {
+            uuid = UUID.nameUUIDFromBytes(url.getBytes());
+        } else {
+            uuid = UUID.fromString(uuidStr);
+        }
         String hash = get(config, "hash", "");
 
         String localPath = get(config, "local-path", "");
@@ -234,7 +253,7 @@ public class PackManager {
 
         ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
 
-        ResourcePack pack = new ResourcePack(name, url, hash, localPath, format, 0, restricted, perm, type);
+        ResourcePack pack = new ResourcePack(name, uuid, url, hash, localPath, format, 0, restricted, perm, type);
         try {
             pack.setVersion(mcVersion);
         } catch (IllegalArgumentException e) {
@@ -294,6 +313,9 @@ public class PackManager {
             if (pack.getUrl() != null && pack.getUrl().isEmpty()) {
                 known |= packUrls.remove(pack.getUrl(), pack);
             }
+            if (pack.getUuid() != null) {
+                known |= packUuids.remove(pack.getUuid(), pack);
+            }
             if (pack.getHash().length() > 0) {
                 known |= packHashes.remove(pack.getHash(), pack);
             }
@@ -313,6 +335,9 @@ public class PackManager {
             if (variant.getHash().length() > 0) {
                 packHashes.put(variant.getHash(), pack);
             }
+            if (variant.getUuid() != null) {
+                packUuids.put(variant.getUuid(), pack);
+            }
             registerPackHashWatcher(variant);
         } else {
             for (ResourcePack variantVariant : variant.getVariants()) {
@@ -326,12 +351,29 @@ public class PackManager {
         if (variant.getVariants().isEmpty()) {
             known |= packUrls.remove(variant.getUrl(), pack);
             known |= packHashes.remove(variant.getHash(), pack);
+            known |= packUuids.remove(variant.getUuid(), pack);
         } else {
             for (ResourcePack variantVariant : variant.getVariants()) {
                 known |= uncacheVariant(variantVariant, pack);
             }
         }
         return known;
+    }
+
+    /**
+     * Set the uuid of a pack to a new value
+     * @param pack The pack to update
+     * @param uuid The uuid to set
+     * @return Whether or not the hash changed
+     */
+    public boolean setPackUuid(ResourcePack pack, UUID uuid) {
+        if (pack.getUuid().equals(uuid)) {
+            return false;
+        }
+        packUuids.remove(pack.getUuid());
+        pack.setUuid(uuid);
+        packUuids.put(pack.getUuid(), pack);
+        return true;
     }
 
     /**
@@ -394,7 +436,16 @@ public class PackManager {
     public ResourcePack getByName(String name) {
         return name != null ? packNames.get(name.toLowerCase(Locale.ROOT)) : null;
     }
-    
+
+    /**
+     * Get the resourcepack by its uuid
+     * @param uuid The uuid of the pack to get
+     * @return The resourcepack with that uuid, null if there is none
+     */
+    public ResourcePack getByUuid(UUID uuid) {
+        return packUuids.get(uuid);
+    }
+
     /**
      * Get the resourcepack by its hash
      * @param hash The hash of the pack to get
@@ -507,7 +558,7 @@ public class PackManager {
      * @param server    The name of the server/world
      * @return          The PackAssignment; an empty one if there is none
      */
-    public PackAssignment getAssignment(String server) {
+    public @NonNull PackAssignment getAssignment(String server) {
         PackAssignment assignment = literalAssignments.get(server.toLowerCase(Locale.ROOT));
         if (assignment != null) {
             return assignment;
@@ -569,10 +620,30 @@ public class PackManager {
             } else if (!((String) config.get("pack")).isEmpty()) {
                 ResourcePack pack = getByName((String) config.get("pack"));
                 if (pack != null) {
-                    assignment.setPack(pack);
+                    assignment.addPack(pack);
                     plugin.logDebug("Pack: " + pack.getName());
                 } else {
                     plugin.log(Level.WARNING, "No pack with the name " + config.get("pack") + " defined?");
+                }
+            }
+        }
+        Object packs = config.getOrDefault("packs", new ArrayList<>());
+        if (packs != null) {
+            if (!(packs instanceof List)
+                    || !((List) packs).isEmpty()
+                    && !(((List) packs).get(0) instanceof String)) {
+                plugin.log(Level.WARNING, "'packs' option has to be a String List!");
+            } else {
+                plugin.logDebug("Packs:");
+                List<String> secondary = (List<String>) packs;
+                for (String secondaryPack : secondary) {
+                    ResourcePack pack = getByName(secondaryPack);
+                    if (pack != null) {
+                        assignment.addPack(pack);
+                        plugin.logDebug("- " + pack.getName());
+                    } else {
+                        plugin.log(Level.WARNING, "No pack with the name " + secondaryPack + " defined?");
+                    }
                 }
             }
         }
@@ -648,6 +719,19 @@ public class PackManager {
     }
 
     /**
+     * Remove a specific pack from the player
+     * @param playerId The UUID of the player to remove the pack from
+     * @param pack The pack to remove
+     */
+    private void removePack(UUID playerId, ResourcePack pack) {
+        if (!plugin.supportsMultiplePacks(playerId))
+            throw new UnsupportedOperationException("The client version of " + playerId + " does not support pack removal!");
+
+        plugin.getUserManager().removeUserPack(playerId, pack);
+        plugin.removePack(playerId, pack);
+    }
+
+    /**
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
@@ -665,7 +749,7 @@ public class PackManager {
      * @return the status, SUCCESS if the pack was set
      */
     public Status setPack(UUID playerId, ResourcePack pack, boolean temporary) {
-        ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
+        List<ResourcePack> prev = plugin.getUserManager().getUserPacks(playerId);
         if (!temporary) {
             if (pack == null) {
                 plugin.setStoredPack(playerId, null);
@@ -681,10 +765,10 @@ public class PackManager {
                 plugin.logDebug(playerId + " has the pack " + stored.getName() + " stored!");
             }
         }
-        if (pack != null && pack.equals(prev)) {
+        if (pack != null && prev.contains(pack)) {
             return Status.UNKNOWN;
         }
-        if (prev == null && (pack == null || pack.equals(getEmptyPack()))) {
+        if (prev.isEmpty() && (pack == null || pack.equals(getEmptyPack()))) {
             return Status.UNKNOWN;
         }
         if (pack != null && pack.getType() == ClientType.BEDROCK) {
@@ -752,16 +836,19 @@ public class PackManager {
      * from the previous one then it will return null).
      * Will also set the pack of the player in the UserManager
      * @param event The event
-     * @param prev The previous pack
+     * @param prev The previous packs
      * @return The pack that should be sent to the player or null if no pack should be sent
      */
-    public ResourcePack processSendEvent(IResourcePackSendEvent event, ResourcePack prev) {
+    public ResourcePack processSendEvent(IResourcePackSendEvent event, List<ResourcePack> prev) {
         ResourcePack pack = event.getPack();
-        if (pack == null && prev != null) {
+        if (pack == null && !prev.isEmpty()) {
             pack = getEmptyPack();
         }
-        if (pack != null && !pack.equals(prev)) {
-            plugin.getUserManager().setUserPack(event.getPlayerId(), pack);
+        if (pack != null && !prev.contains(pack)) {
+            if (!plugin.supportsMultiplePacks(event.getPlayerId())) {
+                plugin.getUserManager().clearUserPacks(event.getPlayerId());
+            }
+            plugin.getUserManager().addUserPack(event.getPlayerId(), pack);
             return pack;
         }
         return null;
@@ -773,19 +860,33 @@ public class PackManager {
      * @param serverName    The name of the server/world
      */
     public void applyPack(UUID playerId, String serverName) {
-        ResourcePack pack = getApplicablePack(playerId, serverName);
-        setPack(playerId, pack);
+        LinkedHashSet<ResourcePack> packs = getApplicablePacks(playerId, serverName);
+        if (plugin.supportsMultiplePacks(playerId)) {
+            PackAssignment assignment = getAssignment(serverName);
+            List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
+            for (ResourcePack pack : userPacks) {
+                if (!packs.contains(pack) && !getGlobalAssignment().isOptionalPack(pack) && !assignment.isOptionalPack(pack)) {
+                    removePack(playerId, pack);
+                }
+            }
+
+            for (ResourcePack pack : packs) {
+                setPack(playerId, pack);
+            }
+        } else if (!packs.isEmpty()) {
+            setPack(playerId, packs.iterator().next());
+        }
     }
 
     /**
      * Get the pack the player should have on that server
      * @param playerId The UUID of the player
      * @param serverName The name of the server
-     * @return The pack for that server; <code>null</code> if he should have none
+     * @return The packs for that server; an empty list if they should have none
      */
-    public ResourcePack getApplicablePack(UUID playerId, String serverName) {
-        ResourcePack prev = plugin.getUserManager().getUserPack(playerId);
-        ResourcePack pack = null;
+    public LinkedHashSet<ResourcePack> getApplicablePacks(UUID playerId, String serverName) {
+        List<ResourcePack> previousPacks = plugin.getUserManager().getUserPacks(playerId);
+        LinkedHashSet<ResourcePack> packs = new LinkedHashSet<>();
         ResourcePack stored = getByName(plugin.getStoredPack(playerId));
 
         ResourcepacksPlayer player = plugin.getPlayer(playerId);
@@ -795,49 +896,76 @@ public class PackManager {
 
         if (getStoredPacksOverride() && stored != null) {
             if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                if (stored.equals(prev)) {
+                if (stored.equals(previousPacks)) {
                     plugin.logDebug(player.getName() + " already uses the stored pack " + stored.getName());
                 } else {
                     plugin.logDebug(player.getName() + " had the pack " + stored.getName() + " stored, using that");
                 }
-                return stored;
+                packs.add(stored);
+
+                if (!plugin.supportsMultiplePacks(playerId))
+                    return packs;
             }
         }
 
-        if (getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, Status.SUCCESS) == Status.SUCCESS) {
-            plugin.logDebug(player.getName() + " has already a pack which matches the optional packs in the global assignment");
-            return prev;
+        for (ResourcePack prev : previousPacks) {
+            if (getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                plugin.logDebug(player.getName() + " matched global as they already have the pack " + prev.getName());
+                packs.add(prev);
+
+                if (!plugin.supportsMultiplePacks(playerId)) {
+                    return packs;
+                }
+            }
         }
 
         if (stored != null && getGlobalAssignment().isOptionalPack(stored) && checkPack(playerId, stored, Status.SUCCESS) == Status.SUCCESS) {
             plugin.logDebug(player.getName() + " has stored pack which matches the optional packs in the global assignment");
-            return stored;
+            packs.add(stored);
+
+            if (!plugin.supportsMultiplePacks(playerId))
+                return packs;
         }
 
         String matchReason = " due to ";
         IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
-        if(serverName != null && !serverName.isEmpty()) {
+        if (serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
-            if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as their current pack is an optional packs");
-                return prev;
+            for (ResourcePack prev : previousPacks) {
+                if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                    plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as they already have the pack " + prev.getName());
+                    packs.add(prev);
+
+                    if (!plugin.supportsMultiplePacks(playerId)) {
+                        return packs;
+                    }
+                }
             }
+
             if (stored != null && assignment.isOptionalPack(stored) && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
                 plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as their stored pack is an optional packs");
-                return stored;
+                packs.add(stored);
+
+                if (!plugin.supportsMultiplePacks(playerId)) {
+                    return packs;
+                }
             }
-            ResourcePack serverPack = getByName(assignment.getPack());
-            status = checkPack(playerId, serverPack, status);
+
+
+            List<ResourcePack> serverPacks = assignment.getPacks().stream()
+                    .map(this::getByName)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            status = checkPacks(playerId, serverPacks, status);
             matchReason = assignment.getName() + matchReason;
             if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                pack = serverPack;
-                matchReason += "main pack";
-            } else if (prev != null || serverPack != null) {
+                packs.addAll(serverPacks);
+                matchReason += "main packs";
+            } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !serverPacks.isEmpty())) {
                 for (String secondaryName : assignment.getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                        pack = secondaryPack;
+                        packs.add(secondaryPack);
                         matchReason += "secondary pack";
                         break;
                     }
@@ -845,19 +973,21 @@ public class PackManager {
             }
         }
 
-        if (pack == null) {
-            ResourcePack globalPack = getByName(getGlobalAssignment().getPack());
-            status = checkPack(playerId, globalPack, status);
+        if (packs.isEmpty()) {
+            List<ResourcePack> globalPacks = getGlobalAssignment().getPacks().stream()
+                    .map(this::getByName)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            status = checkPacks(playerId, globalPacks, status);
             matchReason = "global due to ";
             if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                pack = globalPack;
-                matchReason += "main pack";
-            } else if (prev != null || globalPack != null){
+                packs.addAll(globalPacks);
+                matchReason += "main packs";
+            } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !globalPacks.isEmpty())) {
                 for (String secondaryName : getGlobalAssignment().getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
                     if(status == IResourcePackSelectEvent.Status.SUCCESS) {
-                        pack = secondaryPack;
+                        packs.add(secondaryPack);
                         matchReason += "secondary pack";
                         break;
                     }
@@ -866,13 +996,17 @@ public class PackManager {
         }
 
         if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-            if (pack != null && !pack.getVariants().isEmpty()) {
-                status = IResourcePackSelectEvent.Status.UNKNOWN;
-                for (ResourcePack variant : pack.getVariants()) {
-                    status = checkPack(playerId, variant, status);
-                    if (status == IResourcePackSelectEvent.Status.SUCCESS) {
-                        matchReason += " variant";
-                        break;
+            if (!packs.isEmpty()) {
+                for (ResourcePack pack : packs) {
+                    if (!pack.getVariants().isEmpty()) {
+                        status = IResourcePackSelectEvent.Status.UNKNOWN;
+                        for (ResourcePack variant : pack.getVariants()) {
+                            status = checkPack(playerId, variant, status);
+                            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                                matchReason += " variant";
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -881,12 +1015,41 @@ public class PackManager {
             }
         }
 
-        if (pack != null && !pack.getUrl().isEmpty() && pack.getRawHash().length > 0) {
-            status = IResourcePackSelectEvent.Status.SUCCESS;
+        if (!packs.isEmpty()) {
+            Set<Status> packStatuses = EnumSet.of(status);
+            for (ResourcePack pack : packs) {
+                if (!pack.getUrl().isEmpty() && pack.getRawHash().length > 0) {
+                    packStatuses.add(IResourcePackSelectEvent.Status.SUCCESS);
+                }
+            }
+            status = packStatuses.stream()
+                    .reduce((a, b) -> a.ordinal() > b.ordinal() ? a : b)
+                    .orElse(Status.UNKNOWN);
         }
 
-        IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, pack, status);
-        return selectEvent.getPack();
+        IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, new ArrayList<>(packs), status);
+        return new LinkedHashSet<>(selectEvent.getPacks());
+    }
+
+    protected IResourcePackSelectEvent.Status checkPacks(UUID playerId, List<ResourcePack> packs, IResourcePackSelectEvent.Status status) {
+        Set<Status> packStatuses = EnumSet.noneOf(IResourcePackSelectEvent.Status.class);
+        for (Iterator<ResourcePack> it = packs.iterator(); it.hasNext(); ) {
+            ResourcePack pack = it.next();
+            IResourcePackSelectEvent.Status packStatus = checkPack(playerId, pack, status);
+            packStatuses.add(packStatus);
+            if (packStatus != IResourcePackSelectEvent.Status.SUCCESS) {
+                it.remove();
+            }
+        }
+        if (packStatuses.contains(IResourcePackSelectEvent.Status.SUCCESS)) {
+            if (packStatuses.size() == 1) {
+                return Status.SUCCESS;
+            }
+            return status;
+        }
+        return packStatuses.stream()
+                .reduce((a, b) -> a.ordinal() > b.ordinal() ? a : b)
+                .orElse(Status.UNKNOWN);
     }
 
     protected IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
@@ -1062,7 +1225,9 @@ public class PackManager {
      * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
+        if (version >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()) {
+            return 22;
+        } else if (version >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
             return 18;
         } else if (version >= MinecraftVersion.MINECRAFT_1_20.getProtocolNumber()) {
             return 15;
