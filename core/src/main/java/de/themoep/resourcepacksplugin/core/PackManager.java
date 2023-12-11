@@ -283,20 +283,6 @@ public class PackManager {
      */
     public ResourcePack addPack(ResourcePack pack) throws IllegalArgumentException {
         if (pack.getVariants().isEmpty()) {
-            ResourcePack byHash = getByHash(pack.getHash());
-            if (byHash != null && !byHash.getName().equalsIgnoreCase(pack.getName())) {
-                throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
-            }
-            ResourcePack byUuid = getByUuid(pack.getUuid());
-            if (byUuid != null && !byUuid.getName().equalsIgnoreCase(pack.getName())) {
-                throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the uuid '" + pack.getUrl() + "' but a different name defined! (" + byUuid.getName() + ")");
-            }
-            if (pack.getUrl() != null && !pack.getUrl().isEmpty()) {
-                ResourcePack byUrl = getByUrl(pack.getUrl());
-                if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
-                    throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
-                }
-            }
             cacheVariant(pack, pack);
         } else {
             for (ResourcePack variant : pack.getVariants()) {
@@ -331,8 +317,9 @@ public class PackManager {
         return packNames.remove(pack.getName().toLowerCase(Locale.ROOT), pack) || known;
     }
 
-    private void cacheVariant(ResourcePack variant, ResourcePack pack) {
+    private void cacheVariant(ResourcePack variant, ResourcePack pack) throws IllegalArgumentException {
         if (variant.getVariants().isEmpty()) {
+            ensureUniqueData(variant, pack.getName());
             if (variant.getUrl() != null && !variant.getUrl().isEmpty()) {
                 packUrls.putIfAbsent(variant.getUrl(), pack);
             }
@@ -346,6 +333,28 @@ public class PackManager {
         } else {
             for (ResourcePack variantVariant : variant.getVariants()) {
                 cacheVariant(variantVariant, pack);
+            }
+        }
+    }
+
+    /**
+     * Ensures that the pack has unique hash, uuid and url specifications
+     * @param pack      The pack to check
+     * @param packName  The pack name to check for if it's a different pack
+     */
+    private void ensureUniqueData(ResourcePack pack, String packName) {
+        ResourcePack byHash = getByHash(pack.getHash());
+        if (byHash != null && !byHash.getName().equalsIgnoreCase(packName)) {
+            throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
+        }
+        ResourcePack byUuid = getByUuid(pack.getUuid());
+        if (byUuid != null && !byUuid.getName().equalsIgnoreCase(packName)) {
+            throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the uuid '" + pack.getUrl() + "' but a different name defined! (" + byUuid.getName() + ")");
+        }
+        if (pack.getUrl() != null && !pack.getUrl().isEmpty()) {
+            ResourcePack byUrl = getByUrl(pack.getUrl());
+            if (byUrl != null && !byUrl.getName().equalsIgnoreCase(packName)) {
+                throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
             }
         }
     }
