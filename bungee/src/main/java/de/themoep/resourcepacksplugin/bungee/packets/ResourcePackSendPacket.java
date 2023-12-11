@@ -159,7 +159,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
             if (hasPromptMessage) {
                 try {
                     this.promptMessage = Optional.of(new BaseComponent[]{readBaseComponent(buf, protocolVersion)});
-                } catch (NoSuchMethodError e) {
+                } catch (Throwable t) {
                     this.promptMessage = Optional.of(ComponentSerializer.parse(readString(buf)));
                 }
             }
