@@ -157,10 +157,17 @@ public class ResourcePackSendPacket extends DefinedPacket {
             this.required = Optional.of(buf.readBoolean());
             boolean hasPromptMessage = buf.readBoolean();
             if (hasPromptMessage) {
+                ByteBuf copy = buf.copy();
                 try {
                     this.promptMessage = Optional.of(new BaseComponent[]{readBaseComponent(buf, protocolVersion)});
                 } catch (Throwable t) {
-                    this.promptMessage = Optional.of(ComponentSerializer.parse(readString(buf)));
+                    String string = readString(copy);
+                    try {
+                        this.promptMessage = Optional.of(ComponentSerializer.parse(string));
+                    } catch (Throwable t2) {
+                        this.promptMessage = Optional.of(new BaseComponent[]{TextComponent.fromLegacy(string)});
+                        BungeeResourcepacks.getInstance().logDebug("Unable to parse backend resource pack prompt message '" + string + "' as tag or json!");
+                    }
                 }
             }
         }
