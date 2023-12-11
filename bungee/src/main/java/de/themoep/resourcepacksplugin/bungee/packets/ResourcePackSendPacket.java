@@ -26,6 +26,9 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
@@ -53,7 +56,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
     private String url;
     private Optional<String> hash = Optional.empty();
     private Optional<Boolean> required = Optional.empty();
-    private Optional<String> promptMessage = Optional.empty();
+    private Optional<BaseComponent[]> promptMessage = Optional.empty();
 
     public ResourcePackSendPacket() {};
 
@@ -79,14 +82,14 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
 
     @ConstructorProperties({"url", "hash", "force", "promptMessage"})
-    public ResourcePackSendPacket(String url, String hash, boolean required, String promptMessage) {
+    public ResourcePackSendPacket(String url, String hash, boolean required, BaseComponent[] promptMessage) {
         this(url, hash);
         this.required = Optional.of(required);
         this.promptMessage = Optional.ofNullable(promptMessage);
     }
 
     @ConstructorProperties({"uuid", "url", "hash", "force", "promptMessage"})
-    public ResourcePackSendPacket(UUID uuid, String url, String hash, boolean required, String promptMessage) {
+    public ResourcePackSendPacket(UUID uuid, String url, String hash, boolean required, BaseComponent[] promptMessage) {
         this(url, hash, required, promptMessage);
         this.uuid = Optional.of(uuid);
     }
@@ -154,7 +157,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
             this.required = Optional.of(buf.readBoolean());
             boolean hasPromptMessage = buf.readBoolean();
             if (hasPromptMessage) {
-                this.promptMessage = Optional.of(readString(buf));
+                try {
+                    this.promptMessage = Optional.of(new BaseComponent[]{readBaseComponent(buf, protocolVersion)});
+                } catch (NoSuchMethodError e) {
+                    this.promptMessage = Optional.of(ComponentSerializer.parse(readString(buf)));
+                }
             }
         }
     }
@@ -177,7 +184,11 @@ public class ResourcePackSendPacket extends DefinedPacket {
             buf.writeBoolean(this.required.orElse(false));
             if (this.promptMessage.isPresent()) {
                 buf.writeBoolean(true);
-                writeString(this.promptMessage.get(), buf);
+                try {
+                    writeBaseComponent(TextComponent.fromArray(this.promptMessage.get()), buf, protocolVersion);
+                } catch (NoSuchMethodError e) {
+                    writeString(ComponentSerializer.toString(this.promptMessage.get()), buf);
+                }
             } else {
                 buf.writeBoolean(false);
             }
