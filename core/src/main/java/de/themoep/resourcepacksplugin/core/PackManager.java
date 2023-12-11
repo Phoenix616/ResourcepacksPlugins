@@ -742,6 +742,9 @@ public class PackManager {
 
         plugin.getUserManager().removeUserPack(playerId, pack);
         plugin.removePack(playerId, pack);
+        for (ResourcePack variant : pack.getVariants()) {
+            plugin.removePack(playerId, variant);
+        }
     }
 
     /**

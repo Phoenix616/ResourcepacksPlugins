@@ -472,7 +472,14 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public void removePack(UUID playerId, ResourcePack pack) {
-        logDebug("Sponge does not support removing resourcepacks yet!");
+        Sponge.getServer().getPlayer(playerId).ifPresent(p -> removePack(p, pack));
+    }
+
+    private void removePack(Player player, ResourcePack pack) {
+        if (pack.getUuid() != null) {
+            logDebug("Sponge does not support removing resourcepacks yet!");
+            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
+        }
     }
 
     /**

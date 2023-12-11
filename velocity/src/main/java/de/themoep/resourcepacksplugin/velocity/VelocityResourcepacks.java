@@ -632,8 +632,15 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public void removePack(UUID playerId, ResourcePack pack) {
-        logDebug("Velocity does not support removing packs yet!");
-        getProxy().getPlayer(playerId).ifPresent(p -> sendPackRemoveInfo(p, pack));
+        getProxy().getPlayer(playerId).ifPresent(p -> removePack(p, pack));
+    }
+
+    private void removePack(Player player, ResourcePack pack) {
+        if (pack.getUuid() != null) {
+            logDebug("Velocity does not support removing packs yet!");
+            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
+        }
+        sendPackRemoveInfo(player, pack);
     }
 
     private void sendPackRemoveInfo(Player player, ResourcePack pack) {
@@ -649,8 +656,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         out.writeUTF(pack.getName());
         out.writeUTF(pack.getUrl());
         out.writeUTF(pack.getHash());
-        out.writeLong(pack.getUuid().getMostSignificantBits());
-        out.writeLong(pack.getUuid().getLeastSignificantBits());
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
         player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
     }
 

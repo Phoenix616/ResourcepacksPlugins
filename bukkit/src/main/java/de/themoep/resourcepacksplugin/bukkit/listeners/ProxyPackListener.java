@@ -73,7 +73,7 @@ public class ProxyPackListener implements PluginMessageListener {
                 }
             }
 
-        } else if(subchannel.equals("clearPack")) {
+        } else if (subchannel.equals("clearPack")) {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
             Player player = plugin.getServer().getPlayer(playerUuid);
@@ -112,6 +112,9 @@ public class ProxyPackListener implements PluginMessageListener {
         String packUrl = in.readUTF();
         String packHash = in.readUTF();
         UUID packUuid = new UUID(in.readLong(), in.readLong());
+        if (packUuid.getLeastSignificantBits() == 0 && packUuid.getMostSignificantBits() == 0) {
+            packUuid = null;
+        }
 
         ResourcePack pack = plugin.getPackManager().getByName(packName);
         if (pack == null) {

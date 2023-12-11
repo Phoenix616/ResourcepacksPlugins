@@ -584,7 +584,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void removePack(Player player, ResourcePack pack) {
-        internalHelper.removeResourcePack(player, pack);
+        if (pack.getUuid() != null) {
+            internalHelper.removeResourcePack(player, pack);
+            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
+        }
     }
 
     public void clearPack(UUID playerId) {

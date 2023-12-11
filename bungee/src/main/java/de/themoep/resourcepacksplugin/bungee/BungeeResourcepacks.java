@@ -855,7 +855,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     private void removePack(ProxiedPlayer player, ResourcePack pack) {
-        player.unsafe().sendPacket(new ResourcePackRemovePacket(pack.getUuid()));
+        if (pack.getUuid() != null) {
+            player.unsafe().sendPacket(new ResourcePackRemovePacket(pack.getUuid()));
+            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
+        }
         sendPackRemoveInfo(player, pack);
     }
 
@@ -872,8 +875,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         out.writeUTF(pack.getName());
         out.writeUTF(pack.getUrl());
         out.writeUTF(pack.getHash());
-        out.writeLong(pack.getUuid().getMostSignificantBits());
-        out.writeLong(pack.getUuid().getLeastSignificantBits());
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
         player.getServer().sendData("rp:plugin", out.toByteArray());
     }
 
