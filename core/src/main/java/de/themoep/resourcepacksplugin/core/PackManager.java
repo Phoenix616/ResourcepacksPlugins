@@ -646,10 +646,10 @@ public class PackManager {
                     || !((List) packs).isEmpty()
                     && !(((List) packs).get(0) instanceof String)) {
                 plugin.log(Level.WARNING, "'packs' option has to be a String List!");
-            } else {
+            } else if (!((List) packs).isEmpty()) {
                 plugin.logDebug("Packs:");
-                List<String> secondary = (List<String>) packs;
-                for (String secondaryPack : secondary) {
+                List<String> packName = (List<String>) packs;
+                for (String secondaryPack : packName) {
                     ResourcePack pack = getByName(secondaryPack);
                     if (pack != null) {
                         assignment.addPack(pack);
@@ -668,8 +668,8 @@ public class PackManager {
                 plugin.log(Level.WARNING, "'optional-packs' option has to be a String List!");
             } else {
                 plugin.logDebug("Optional packs:");
-                List<String> secondary = (List<String>) optionalPacks;
-                for(String secondaryPack : secondary) {
+                List<String> optionalName = (List<String>) optionalPacks;
+                for(String secondaryPack : optionalName) {
                     ResourcePack pack = getByName(secondaryPack);
                     if (pack != null) {
                         assignment.addOptionalPack(pack);
