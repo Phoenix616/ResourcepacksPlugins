@@ -287,6 +287,10 @@ public class PackManager {
             if (byHash != null && !byHash.getName().equalsIgnoreCase(pack.getName())) {
                 throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
             }
+            ResourcePack byUuid = getByUuid(pack.getUuid());
+            if (byUuid != null && !byUuid.getName().equalsIgnoreCase(pack.getName())) {
+                throw new IllegalArgumentException("Could not add pack '" + pack.getName() + "'. There is already a pack with the uuid '" + pack.getUrl() + "' but a different name defined! (" + byUuid.getName() + ")");
+            }
             if (pack.getUrl() != null && !pack.getUrl().isEmpty()) {
                 ResourcePack byUrl = getByUrl(pack.getUrl());
                 if (byUrl != null && !byUrl.getName().equalsIgnoreCase(pack.getName())) {
