@@ -473,9 +473,9 @@ public class ResourcePack {
     public String[] getReplacements() {
         return new String[] {
                 "name", getName(),
-                "uuid", getUuid().toString(),
-                "url", getUrl(),
-                "hash", getHash(),
+                "uuid", getUuid() != null ? getUuid().toString() : "-",
+                "url", getUrl() != null ? getUrl() : "-",
+                "hash", getRawHash() != null ? getHash() : "-",
                 "format", String.valueOf(getFormat()),
                 "version", String.valueOf(getVersion()),
                 "restricted", String.valueOf(isRestricted()),
@@ -488,10 +488,10 @@ public class ResourcePack {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
 
-        map.put("url", url.isEmpty() ? null : url);
-        map.put("uuid", uuid != null ? uuid.toString() : null);
-        map.put("hash", hash.length == 0 ? null : getHash());
-        map.put("local-path", localPath == null || localPath.isEmpty() ? null : localPath);
+        map.put("url", url == null || url.isEmpty() || !variants.isEmpty()  ? null : url);
+        map.put("uuid", uuid == null || !variants.isEmpty() ? null : uuid.toString());
+        map.put("hash", hash == null || hash.length == 0 || !variants.isEmpty()  ? null : getHash());
+        map.put("local-path", localPath == null || localPath.isEmpty() || !variants.isEmpty() ? null : localPath);
         if (name.equalsIgnoreCase(PackManager.EMPTY_IDENTIFIER)) {
             map.put("format", null);
             map.put("version", null);
