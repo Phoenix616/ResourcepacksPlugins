@@ -185,6 +185,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             String packageName = getServer().getClass().getPackage().getName();
             String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
+            logDebug("Detected internal server version " + serverVersion);
+
             Class<?> internalClass;
             try {
                 internalClass = Class.forName(getClass().getPackage().getName() + ".internal.InternalHelper_" + serverVersion);
@@ -192,12 +194,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 internalClass = InternalHelper_fallback.class;
             }
             try {
-                if(InternalHelper.class.isAssignableFrom(internalClass)) {
+                if (InternalHelper.class.isAssignableFrom(internalClass)) {
                     internalHelper = (InternalHelper) internalClass.getConstructor(WorldResourcepacks.class).newInstance(this);
+                } else {
+                    internalHelper = new InternalHelper_fallback(this);
                 }
             } catch (Exception e) {
+                getLogger().log(Level.WARNING, "Error while trying to create " + internalClass.getSimpleName(), e);
                 internalHelper = new InternalHelper_fallback(this);
             }
+            getLogger().log(Level.INFO, "Using " + internalHelper.getClass().getSimpleName());
 
             Plugin viaPlugin = getServer().getPluginManager().getPlugin("ViaVersion");
             if (viaPlugin != null && viaPlugin.isEnabled()) {
