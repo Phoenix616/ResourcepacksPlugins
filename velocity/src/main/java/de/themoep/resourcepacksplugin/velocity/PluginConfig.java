@@ -17,9 +17,10 @@ package de.themoep.resourcepacksplugin.velocity;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
-import org.yaml.snakeyaml.DumperOptions;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.yaml.NodeStyle;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,7 +38,7 @@ public class PluginConfig {
     private final VelocityResourcepacks plugin;
     private final File configFile;
     private final String defaultFile;
-    private final YAMLConfigurationLoader configLoader;
+    private final YamlConfigurationLoader configLoader;
     private ConfigurationNode config;
     private ConfigurationNode defaultConfig;
 
@@ -49,10 +50,10 @@ public class PluginConfig {
         this.plugin = plugin;
         this.configFile = configFile;
         this.defaultFile = defaultFile;
-        configLoader = YAMLConfigurationLoader.builder()
-                .setIndent(2)
-                .setPath(configFile.toPath())
-                .setFlowStyle(DumperOptions.FlowStyle.BLOCK)
+        configLoader = YamlConfigurationLoader.builder()
+                .indent(2)
+                .path(configFile.toPath())
+                .nodeStyle(NodeStyle.BLOCK)
                 .build();
     }
 
@@ -60,11 +61,11 @@ public class PluginConfig {
         try {
             config = configLoader.load();
             if (defaultFile != null) {
-                defaultConfig = YAMLConfigurationLoader.builder()
-                        .setIndent(2)
-                        .setSource(() -> new BufferedReader(new InputStreamReader(plugin.getResourceAsStream(defaultFile))))
+                defaultConfig = YamlConfigurationLoader.builder()
+                        .indent(2)
+                        .source(() -> new BufferedReader(new InputStreamReader(plugin.getResourceAsStream(defaultFile))))
                         .build().load();
-                if (config.isEmpty()) {
+                if (config.empty()) {
                     config = defaultConfig.copy();
                 }
             }
@@ -109,15 +110,23 @@ public class PluginConfig {
     }
 
     public Object set(String path, Object value) {
-        ConfigurationNode node = config.getNode(splitPath(path));
-        Object prev = node.getValue();
-        node.setValue(value);
+        ConfigurationNode node = config.node(splitPath(path));
+        Object prev = node.raw();
+        try {
+            node.set(value);
+        } catch (SerializationException e) {
+            throw new RuntimeException(e);
+        }
         return prev;
     }
 
     public ConfigurationNode remove(String path) {
-        ConfigurationNode node = config.getNode(splitPath(path));
-        return node.isVirtual() ? node : node.setValue(null);
+        ConfigurationNode node = config.node(splitPath(path));
+        try {
+            return node.virtual() ? node : node.set(null);
+        } catch (SerializationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ConfigurationNode getRawConfig() {
@@ -125,19 +134,19 @@ public class PluginConfig {
     }
 
     public ConfigurationNode getRawConfig(String path) {
-        return getRawConfig().getNode(splitPath(path));
+        return getRawConfig().node(splitPath(path));
     }
 
     public boolean has(String path) {
-        return !getRawConfig(path).isVirtual();
+        return !getRawConfig(path).virtual();
     }
 
     public boolean isSection(String path) {
-        return getRawConfig(path).hasMapChildren();
+        return !getRawConfig(path).childrenMap().isEmpty();
     }
     
     public int getInt(String path) {
-        return getInt(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getInt() : 0);
+        return getInt(path, defaultConfig != null ? defaultConfig.node(splitPath(path)).getInt() : 0);
     }
 
     public int getInt(String path, int def) {
@@ -145,7 +154,7 @@ public class PluginConfig {
     }
     
     public double getDouble(String path) {
-        return getDouble(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getDouble() : 0);
+        return getDouble(path, defaultConfig != null ? defaultConfig.node(splitPath(path)).getDouble() : 0);
     }
 
     public double getDouble(String path, double def) {
@@ -153,7 +162,7 @@ public class PluginConfig {
     }
     
     public String getString(String path) {
-        return getString(path, defaultConfig != null ? defaultConfig.getNode(splitPath(path)).getString() : null);
+        return getString(path, defaultConfig != null ? defaultConfig.node(splitPath(path)).getString() : null);
     }
 
     public String getString(String path, String def) {
@@ -161,7 +170,7 @@ public class PluginConfig {
     }
     
     public boolean getBoolean(String path) {
-        return getBoolean(path, defaultConfig != null && defaultConfig.getNode(splitPath(path)).getBoolean());
+        return getBoolean(path, defaultConfig != null && defaultConfig.node(splitPath(path)).getBoolean());
     }
 
     public boolean getBoolean(String path, boolean def) {

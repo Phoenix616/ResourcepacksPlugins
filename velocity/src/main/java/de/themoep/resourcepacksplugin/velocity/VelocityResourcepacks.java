@@ -67,8 +67,8 @@ import de.themoep.utils.lang.velocity.Languaged;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import ninja.leaping.configurate.ConfigurationNode;
 import org.slf4j.Logger;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -300,7 +300,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if (getConfig().isSection("packs")) {
             log(Level.INFO, "Loading packs:");
             ConfigurationNode packs = getConfig().getRawConfig("packs");
-            for (Map.Entry<Object, ? extends ConfigurationNode> s : packs.getChildrenMap().entrySet()) {
+            for (Map.Entry<Object, ? extends ConfigurationNode> s : packs.childrenMap().entrySet()) {
                 ConfigurationNode packSection = s.getValue();
                 try {
                     ResourcePack pack = getPackManager().loadPack((String) s.getKey(), getConfigMap(packSection));
@@ -358,7 +358,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if (getConfig().isSection("servers")) {
             log(Level.INFO, "Loading server assignments...");
             ConfigurationNode servers = getConfig().getRawConfig("servers");
-            for (Map.Entry<Object, ? extends ConfigurationNode> server : servers.getChildrenMap().entrySet()) {
+            for (Map.Entry<Object, ? extends ConfigurationNode> server : servers.childrenMap().entrySet()) {
                 ConfigurationNode serverSection = server.getValue();
                 if (serverSection.isMap()) {
                     log(Level.INFO, "Loading assignment for server " + server.getKey() + "...");
@@ -393,11 +393,11 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     private Map<String, Object> getValues(ConfigurationNode config) {
         Map<String, Object> map = new LinkedHashMap<>();
-        for (Map.Entry<Object, ? extends ConfigurationNode> entry : config.getChildrenMap().entrySet()) {
+        for (Map.Entry<Object, ? extends ConfigurationNode> entry : config.childrenMap().entrySet()) {
             if (entry.getKey() instanceof String) {
-                map.put((String) entry.getKey(), entry.getValue().getValue());
+                map.put((String) entry.getKey(), entry.getValue().raw());
             } else {
-                map.put(String.valueOf(entry.getKey()), entry.getValue().getValue());
+                map.put(String.valueOf(entry.getKey()), entry.getValue().raw());
             }
         }
         return map;
