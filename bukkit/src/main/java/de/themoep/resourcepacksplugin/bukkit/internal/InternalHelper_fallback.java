@@ -39,6 +39,7 @@ public class InternalHelper_fallback implements InternalHelper {
     private Method setResourcePack = null;
     private boolean hasSetIdResourcePack = false;
     private boolean hasSetResourcePack = false;
+    private boolean hasRemoveResourcepacks = false;
 
     public InternalHelper_fallback(WorldResourcepacks plugin) {
         this.plugin = plugin;
@@ -64,6 +65,9 @@ public class InternalHelper_fallback implements InternalHelper {
                 }
             }
         }
+        try {
+            hasRemoveResourcepacks = Player.class.getMethod("removeResourcePack", String.class) != null;
+        } catch (NoSuchMethodException ignored) {}
     }
 
     @Override
@@ -93,5 +97,31 @@ public class InternalHelper_fallback implements InternalHelper {
             // not allowed to access it?
         }
         player.setResourcePack(pack.getUrl());
+    }
+
+    @Override
+    public void removeResourcePack(Player player, ResourcePack pack) {
+        try {
+            if (hasRemoveResourcepacks) {
+                player.removeResourcePack(pack.getUuid());
+            }
+        } catch (NoSuchMethodError e) {
+            // Method not found, fallback to old method
+            hasRemoveResourcepacks = false;
+            throw new UnsupportedOperationException("This version does not support removing resourcepacks!");
+        }
+    }
+
+    @Override
+    public void removeResourcePacks(Player player) {
+        try {
+            if (hasRemoveResourcepacks) {
+                player.removeResourcePacks();
+            }
+        } catch (NoSuchMethodError e) {
+            // Method not found, fallback to old method
+            hasRemoveResourcepacks = false;
+            throw new UnsupportedOperationException("This version does not support removing resourcepacks!");
+        }
     }
 }
