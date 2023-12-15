@@ -166,7 +166,11 @@ public class PluginConfig {
     }
 
     public String getString(String path, String def) {
-        return getRawConfig(path).getString(def);
+        ConfigurationNode node = getRawConfig(path);
+		if (def != null) {
+			return node.getString(def);
+		}
+		return node.getString();
     }
     
     public boolean getBoolean(String path) {
