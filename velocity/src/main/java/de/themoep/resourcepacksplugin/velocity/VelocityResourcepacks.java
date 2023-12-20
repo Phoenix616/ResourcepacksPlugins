@@ -151,7 +151,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         registerCommand(new UsePackCommandExecutor(this));
         registerCommand(new ResetPackCommandExecutor(this));
 
-        getProxy().getPluginManager().getPlugin("ViaVersion")
+        getProxy().getPluginManager().getPlugin("viaversion")
                 .ifPresent(c -> {
                     try {
                         viaApi = new ViaVersionIntegration(this, c);
