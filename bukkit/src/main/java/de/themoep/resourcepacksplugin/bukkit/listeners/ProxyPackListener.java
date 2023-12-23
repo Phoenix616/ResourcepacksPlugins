@@ -99,6 +99,23 @@ public class ProxyPackListener implements PluginMessageListener {
             } else {
                 plugin.logDebug("Proxy send command to remove an unknown pack from " + playerName + "?");
             }
+        } else if (subchannel.equals("removePackRequest")) {
+            String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+
+            ResourcePack pack = readPack(in);
+
+            Player player = plugin.getServer().getPlayer(playerUuid);
+            if (player == null || !player.isOnline()) {
+                plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " of player " + playerName + " but they aren't online?");
+                return;
+            }
+            plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " for player " + playerName);
+            try {
+                plugin.removePack(player, pack);
+            } catch (UnsupportedOperationException unsupported) {
+                plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " for player " + playerName + " but the server doesn't support it?");
+            }
 
         } else if (subChannels.containsKey(subchannel)) {
             subChannels.get(subchannel).execute(p, in);

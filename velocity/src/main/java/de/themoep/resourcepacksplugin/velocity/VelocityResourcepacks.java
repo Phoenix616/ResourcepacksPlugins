@@ -34,6 +34,7 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
+import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
@@ -64,9 +65,10 @@ import de.themoep.utils.lang.LangLogger;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.velocity.LanguageManager;
 import de.themoep.utils.lang.velocity.Languaged;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.ConfigurationNode;
 
@@ -532,8 +534,13 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      * @param pack The resourcepack to send the pack to
      */
     protected void sendPack(Player player, ResourcePack pack) {
-        ProtocolVersion clientVersion = player.getProtocolVersion();
-        if (clientVersion.getProtocol() >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
+        int clientVersion = player.getProtocolVersion().getProtocol();
+        if (clientVersion >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
+            if (clientVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()
+                    && (pack == null || pack == getPackManager().getEmptyPack())) {
+                sendPackRemovalRequest(player, pack);
+                return;
+            }
             ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(getPackManager().getPackUrl(pack));
             if (pack.getRawHash().length == 20) {
                 packInfoBuilder.setHash(pack.getRawHash());
@@ -569,11 +576,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            out.writeUTF(pack.getName());
-            out.writeUTF(pack.getUrl());
-            out.writeUTF(pack.getHash());
-            out.writeLong(pack.getUuid().getMostSignificantBits());
-            out.writeLong(pack.getUuid().getLeastSignificantBits());
+            writePack(out, pack);
         } else {
             out.writeUTF("clearPack");
             out.writeUTF(player.getUsername());
@@ -607,11 +610,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
             out.writeInt(packs.size());
             for (ResourcePack pack : packs) {
-                out.writeUTF(pack.getName());
-                out.writeUTF(pack.getUrl());
-                out.writeUTF(pack.getHash());
-                out.writeLong(pack.getUuid().getMostSignificantBits());
-                out.writeLong(pack.getUuid().getLeastSignificantBits());
+                writePack(out, pack);
             }
         } else {
             out.writeUTF("clearPack");
@@ -637,11 +636,26 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     private void removePack(Player player, ResourcePack pack) {
         if (pack.getUuid() != null) {
-            logDebug("Velocity does not support removing packs yet!");
-            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
+            sendPackRemovalRequest(player, pack);
         }
         sendPackRemoveInfo(player, pack);
     }
+
+    private void sendPackRemovalRequest(Player player, ResourcePack pack) {
+        if (!player.getCurrentServer().isPresent()) {
+            logDebug("Tried to send pack removal request of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
+            return;
+        }
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("removePackRequest");
+        out.writeUTF(player.getUsername());
+        out.writeLong(player.getUniqueId().getMostSignificantBits());
+        out.writeLong(player.getUniqueId().getLeastSignificantBits());
+        writePack(out, pack);
+        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
+        logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
+    }
+
 
     private void sendPackRemoveInfo(Player player, ResourcePack pack) {
         if (!player.getCurrentServer().isPresent()) {
@@ -653,12 +667,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         out.writeUTF(player.getUsername());
         out.writeLong(player.getUniqueId().getMostSignificantBits());
         out.writeLong(player.getUniqueId().getLeastSignificantBits());
+        writePack(out, pack);
+        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
+    }
+
+    private void writePack(ByteArrayDataOutput out, ResourcePack pack) {
         out.writeUTF(pack.getName());
         out.writeUTF(pack.getUrl());
         out.writeUTF(pack.getHash());
         out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
         out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
-        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
     }
 
     public void clearPack(Player player) {
@@ -825,7 +843,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Override
     public boolean sendMessage(ResourcepacksPlayer player, Level level, String key, String... replacements) {
         Component message = getComponents(player, key, replacements);
-        if (PlainComponentSerializer.plain().serialize(message).length() == 0) {
+        if (PlainTextComponentSerializer.plainText().serialize(message).isEmpty()) {
             return false;
         }
         if (player != null) {
@@ -835,7 +853,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 return true;
             }
         } else {
-            log(level, PlainComponentSerializer.plain().serialize(message));
+            log(level, PlainTextComponentSerializer.plainText().serialize(message));
         }
         return false;
     }
