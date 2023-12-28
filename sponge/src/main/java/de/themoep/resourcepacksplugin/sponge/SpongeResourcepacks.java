@@ -697,6 +697,10 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
             return ClientType.BEDROCK;
         }
 
+        if (geyser != null) {
+            return ClientType.ORIGINAL;
+        }
+
         return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 

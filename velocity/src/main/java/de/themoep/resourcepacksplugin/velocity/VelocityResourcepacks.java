@@ -902,6 +902,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             return ClientType.BEDROCK;
         }
 
+        if (geyser != null || floodgate != null) {
+            return ClientType.ORIGINAL;
+        }
+
         return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 

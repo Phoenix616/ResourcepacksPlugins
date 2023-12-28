@@ -1092,6 +1092,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             return ClientType.BEDROCK;
         }
 
+        if (geyser != null || floodgate != null) {
+            return ClientType.ORIGINAL;
+        }
+
         return ResourcepacksPlugin.super.getPlayerClientType(playerId);
     }
 
