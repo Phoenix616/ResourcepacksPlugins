@@ -135,7 +135,11 @@ public class UserManager {
      * @param pack The pack to remove
      */
     public void removeUserPack(UUID playerId, ResourcePack pack) {
-        removeUserPack(playerId, pack.getName());
+        if (pack == null) {
+            clearUserPacks(playerId);
+        } else {
+            removeUserPack(playerId, pack.getName());
+        }
     }
 
     /**
