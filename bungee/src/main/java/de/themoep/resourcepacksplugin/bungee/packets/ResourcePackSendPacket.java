@@ -152,6 +152,9 @@ public class ResourcePackSendPacket extends DefinedPacket {
     }
 
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        if (protocolVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()) {
+            this.uuid = Optional.of(readUUID(buf));
+        }
         read(buf);
         if (protocolVersion >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
             this.required = Optional.of(buf.readBoolean());
