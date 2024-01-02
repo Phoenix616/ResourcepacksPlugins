@@ -33,6 +33,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
+import com.velocitypowered.api.util.ProxyVersion;
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
@@ -71,7 +72,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -143,6 +142,15 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        try {
+            Class.forName("org.spongepowered.configurate.ConfigurationNode");
+        } catch (ClassNotFoundException e) {
+            ProxyVersion version = getProxy().getVersion();
+            log(Level.SEVERE, "\nYou are running an outdated version of Velocity! Update to at least Velocity 3.3.0!\n");
+            log(Level.SEVERE, getName() + " " + getVersion() + " is not compatible with " + version.getName() + " " + version.getVersion() + "!\n");
+            log(Level.SEVERE, "Disabling plugin!");
+            return;
+        }
         boolean firstStart = !getDataFolder().exists();
 
         if (!loadConfig()) {
@@ -304,11 +312,11 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         getPackManager().init();
         if (getConfig().isSection("packs")) {
             log(Level.INFO, "Loading packs:");
-            ConfigurationNode packs = getConfig().getRawConfig("packs");
-            for (Map.Entry<Object, ? extends ConfigurationNode> s : packs.childrenMap().entrySet()) {
-                ConfigurationNode packSection = s.getValue();
+            Map<String, Object> packs = getConfig().getSection("packs");
+            for (Map.Entry<String, Object> s : packs.entrySet()) {
+                Object packSection = s.getValue();
                 try {
-                    ResourcePack pack = getPackManager().loadPack((String) s.getKey(), getConfigMap(packSection));
+                    ResourcePack pack = getPackManager().loadPack(s.getKey(), getConfigMap(packSection));
                     log(Level.INFO, pack.getName() + " - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
 
                     ResourcePack previous = getPackManager().addPack(pack);
@@ -325,7 +333,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         }
 
         if (getConfig().isSection("empty")) {
-            ConfigurationNode packSection = getConfig().getRawConfig("empty");
+            Map<String, Object> packSection = getConfig().getSection("empty");
             try {
                 ResourcePack pack = getPackManager().loadPack(PackManager.EMPTY_IDENTIFIER, getConfigMap(packSection));
                 log(Level.INFO, "Empty pack - " + (pack.getVariants().isEmpty() ? (pack.getUrl() + " - " + pack.getHash()) : pack.getVariants().size() + " variants"));
@@ -352,8 +360,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         if (getConfig().isSection("global")) {
             log(Level.INFO, "Loading global assignment...");
-            ConfigurationNode globalSection = getConfig().getRawConfig("global");
-            PackAssignment globalAssignment = getPackManager().loadAssignment("global", getValues(globalSection));
+            Map<String, Object> globalSection = getConfig().getSection("global");
+            PackAssignment globalAssignment = getPackManager().loadAssignment("global", globalSection);
             getPackManager().setGlobalAssignment(globalAssignment);
             logDebug("Loaded " + globalAssignment.toString());
         } else {
@@ -362,12 +370,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         if (getConfig().isSection("servers")) {
             log(Level.INFO, "Loading server assignments...");
-            ConfigurationNode servers = getConfig().getRawConfig("servers");
-            for (Map.Entry<Object, ? extends ConfigurationNode> server : servers.childrenMap().entrySet()) {
-                ConfigurationNode serverSection = server.getValue();
-                if (serverSection.isMap()) {
+            Map<String, Object> servers = getConfig().getSection("servers");
+            for (Map.Entry<String, Object> server : servers.entrySet()) {
+                Object serverSection = server.getValue();
+                if (serverSection instanceof Map) {
                     log(Level.INFO, "Loading assignment for server " + server.getKey() + "...");
-                    PackAssignment serverAssignment = getPackManager().loadAssignment((String) server.getKey(), getValues(serverSection));
+                    PackAssignment serverAssignment = getPackManager().loadAssignment(server.getKey(), (Map<String, Object>) serverSection);
                     getPackManager().addAssignment(serverAssignment);
                     logDebug("Loaded server assignment " + serverAssignment.toString());
                 } else {
@@ -388,24 +396,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public Map<String, Object> getConfigMap(Object configuration) {
-        if (configuration instanceof Map) {
-            return (Map<String, Object>) configuration;
-        } else if (configuration instanceof ConfigurationNode) {
-            return getValues((ConfigurationNode) configuration);
-        }
-        return null;
-    }
-
-    private Map<String, Object> getValues(ConfigurationNode config) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        for (Map.Entry<Object, ? extends ConfigurationNode> entry : config.childrenMap().entrySet()) {
-            if (entry.getKey() instanceof String) {
-                map.put((String) entry.getKey(), entry.getValue().raw());
-            } else {
-                map.put(String.valueOf(entry.getKey()), entry.getValue().raw());
-            }
-        }
-        return map;
+        return PluginConfig.getConfigMap(configuration);
     }
 
     /**
@@ -481,8 +472,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         return storedPacks != null ? storedPacks.getString("players." + playerId.toString(), null) : null;
     }
 
-    public ConfigurationNode getStoredPacks() {
-        return storedPacks.getRawConfig("players");
+    public Map<String, Object> getStoredPacks() {
+        return storedPacks.getSection("players");
     }
 
     @Override
