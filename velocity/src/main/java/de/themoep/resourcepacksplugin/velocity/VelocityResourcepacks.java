@@ -29,6 +29,7 @@ import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
@@ -36,6 +37,7 @@ import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration;
@@ -65,7 +67,6 @@ import de.themoep.utils.lang.LangLogger;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.velocity.LanguageManager;
 import de.themoep.utils.lang.velocity.Languaged;
-import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -131,6 +132,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private ViaVersionIntegration viaApi;
     private GeyserIntegration geyser;
     private FloodgateIntegration floodgate;
+    private PluginMessageListener messageChannelHanlder;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -239,7 +241,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         getProxy().getEventManager().register(this, new DisconnectListener(this));
         getProxy().getEventManager().register(this, new ServerSwitchListener(this));
-        getProxy().getEventManager().register(this, new PluginMessageListener(this));
+        messageChannelHanlder = new PluginMessageListener(this);
+        getProxy().getEventManager().register(this, messageChannelHanlder);
         getProxy().getChannelRegistrar().register(MinecraftChannelIdentifier.create("rp", "plugin"));
 
         if (!getConfig().getBoolean("disable-metrics", false)) {
@@ -548,42 +551,11 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 log(Level.WARNING, "Invalid sha1 hash sum for pack " + pack.getName() + " detected! (It was '" + pack.getHash() + "')");
             }
             player.sendResourcePackOffer(packInfoBuilder.build());
+            sendPackInfo(player, getUserManager().getUserPacks(player.getUniqueId()));
         } else {
             log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
             log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
         }
-    }
-
-    /**
-      * <p>Send a plugin message to the server the player is connected to!</p>
-      * <p>Channel: Resourcepack</p>
-      * <p>sub-channel: packChange</p>
-      * <p>arg1: player.getName()</p>
-      * <p>arg2: pack.getName();</p>
-      * <p>arg3: pack.getUrl();</p>
-      * <p>arg4: pack.getHash();</p>
-      * @param player The player to update the pack on the player's bukkit server
-      * @param pack The ResourcePack to send the info of the the Bukkit server, null if you want to clear it!
-      */
-    public void sendPackInfo(Player player, ResourcePack pack) {
-        if (!player.getCurrentServer().isPresent()) {
-            logDebug("Tried to send pack info of " + (pack != null ? pack.getName() : "none") + " for player " + player.getUsername() + " but server was null!");
-            return;
-        }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        if(pack != null) {
-            out.writeUTF("packChange");
-            out.writeUTF(player.getUsername());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            writePack(out, pack);
-        } else {
-            out.writeUTF("clearPack");
-            out.writeUTF(player.getUsername());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
-        }
-        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
     }
 
     /**
@@ -953,5 +925,13 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         } else {
             authenticatedPlayers.remove(playerId);
         }
+    }
+
+    /**
+     * Get the handler for sub channels that listens on the "rp:plugin" channel to register new sub channels
+     * @return  The message channel handler
+     */
+    public SubChannelHandler<ServerConnection> getMessageChannelHandler() {
+        return messageChannelHanlder;
     }
 }

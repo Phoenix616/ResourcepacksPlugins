@@ -41,6 +41,7 @@ import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 import de.themoep.resourcepacksplugin.core.commands.ResetPackCommandExecutor;
@@ -129,7 +130,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     private OpenLoginBukkit openLogin = null;
     private nLoginAPI nLogin = null;
     private LibreLoginPlugin<Player, World> libreLogin = null;
-    private ProxyPackListener proxyPackListener;
+    private ProxyPackListener messageChannelHandler;
 
     private final ExecutorService executor = Executors.newCachedThreadPool(
             new ThreadFactoryBuilder().setNameFormat(getName() + " Thread - %1$d").build());
@@ -160,8 +161,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
             getServer().getMessenger().registerOutgoingPluginChannel(this, "rp:plugin");
-            proxyPackListener = new ProxyPackListener(this);
-            getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", proxyPackListener);
+            messageChannelHandler = new ProxyPackListener(this);
+            getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", messageChannelHandler);
 
             registerCommand(pluginCommand = new ResourcepacksPluginCommandExecutor(this));
             registerCommand(new UsePackCommandExecutor(this));
@@ -528,7 +529,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public boolean isUsepackTemporary() {
         return getConfig().getBoolean("usepack-is-temporary");
     }
-    
+
     @Override
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
@@ -674,7 +675,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     public void logDebug(String message, Throwable throwable) {
         getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
     }
-    
+
     @Override
     public Level getLogLevel() {
         return loglevel;
@@ -829,11 +830,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     /**
-     * Get the listener that listens on the "rp:plugin" channel to register new sub channels
-     * @return  The ProxyPackListener
+     * Get the handler for sub channels that listens on the "rp:plugin" channel to register new sub channels
+     * @return  The message channel handler
      */
-    public ProxyPackListener getProxyPackListener() {
-        return proxyPackListener;
+    public SubChannelHandler<Player> getMessageChannelHandler() {
+        return messageChannelHandler;
     }
 
     /**

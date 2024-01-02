@@ -23,7 +23,7 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import io.github._4drian3d.authmevelocity.api.velocity.event.ProxyLoginEvent;
 import io.github._4drian3d.authmevelocity.api.velocity.event.ProxyRegisterEvent;
 
-public class AuthMeVelocityListener extends AbstractAuthListener {
+public class AuthMeVelocityListener extends AuthHandler {
 
     public AuthMeVelocityListener(VelocityResourcepacks plugin) {
         super(plugin);

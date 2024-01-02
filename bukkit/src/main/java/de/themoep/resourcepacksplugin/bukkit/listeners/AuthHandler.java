@@ -23,14 +23,14 @@ import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import org.bukkit.entity.Player;
 
-public abstract class AbstractAuthListener {
+public class AuthHandler {
     private final WorldResourcepacks plugin;
 
-    public AbstractAuthListener(WorldResourcepacks plugin) {
+    public AuthHandler(WorldResourcepacks plugin) {
         this.plugin = plugin;
     }
 
-    protected void onAuth(Player player, boolean sendToProxy) {
+    public void onAuth(Player player, boolean sendToProxy) {
         if (!plugin.isEnabled() || player == null)
             return;
 

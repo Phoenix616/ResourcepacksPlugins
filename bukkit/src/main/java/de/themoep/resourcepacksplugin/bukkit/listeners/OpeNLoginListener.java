@@ -26,7 +26,7 @@ import org.bukkit.event.Listener;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class OpeNLoginListener extends AbstractAuthListener implements Listener {
+public class OpeNLoginListener extends AuthHandler implements Listener {
 
     public OpeNLoginListener(WorldResourcepacks plugin) {
         super(plugin);

@@ -19,39 +19,25 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
  */
 
 import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 02.02.2016.
  */
-public class ProxyPackListener implements PluginMessageListener {
+public class ProxyPackListener extends SubChannelHandler<Player> implements PluginMessageListener {
 
     private final WorldResourcepacks plugin;
-    private Map<String, ProxyPackReaction> subChannels = new HashMap<>();
 
     public ProxyPackListener(WorldResourcepacks plugin) {
+        super(plugin);
         this.plugin = plugin;
-    }
-
-    @Override
-    public void onPluginMessageReceived(String channel, Player p, byte[] message) {
-        if(!channel.equals("rp:plugin")) {
-            return;
-        }
-
-        ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        String subchannel = in.readUTF();
-
-        if (subchannel.equals("packsChange")) {
+        registerSubChannel("packsChange", (p, in) -> {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
             int packCount = in.readInt();
@@ -72,8 +58,8 @@ public class ProxyPackListener implements PluginMessageListener {
                     plugin.logDebug("Proxy send command to add an unknown pack to " + playerName + "?");
                 }
             }
-
-        } else if (subchannel.equals("clearPack")) {
+        });
+        registerSubChannel("clearPack", (p, in) -> {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
             Player player = plugin.getServer().getPlayer(playerUuid);
@@ -83,7 +69,8 @@ public class ProxyPackListener implements PluginMessageListener {
 
             plugin.logDebug("Proxy send command to clear the pack of player " + playerName);
             plugin.clearPack(playerUuid);
-        } else if (subchannel.equals("removePack")) {
+        });
+        registerSubChannel("removePack", (p, in) -> {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
 
@@ -99,7 +86,8 @@ public class ProxyPackListener implements PluginMessageListener {
             } else {
                 plugin.logDebug("Proxy send command to remove an unknown pack from " + playerName + "?");
             }
-        } else if (subchannel.equals("removePackRequest")) {
+        });
+        registerSubChannel("removePackRequest", (p, in) -> {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
 
@@ -116,12 +104,16 @@ public class ProxyPackListener implements PluginMessageListener {
             } catch (UnsupportedOperationException unsupported) {
                 plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " for player " + playerName + " but the server doesn't support it?");
             }
+        });
+    }
 
-        } else if (subChannels.containsKey(subchannel)) {
-            subChannels.get(subchannel).execute(p, in);
-        } else {
-            plugin.getLogger().log(Level.WARNING, "Unknown subchannel " + subchannel + "! Please make sure you are running a compatible plugin version on your Proxy!");
+    @Override
+    public void onPluginMessageReceived(String channel, Player p, byte[] message) {
+        if(!channel.equals("rp:plugin")) {
+            return;
         }
+
+        handleMessage(p, message);
     }
 
     private ResourcePack readPack(ByteArrayDataInput in) {
@@ -146,16 +138,6 @@ public class ProxyPackListener implements PluginMessageListener {
             }
         }
         return pack;
-    }
-
-    /**
-     * Register a new sub channel with this listener on the channel "rp:plugin"
-     * @param name      The name of the sub channel, case sensitive
-     * @param reaction  The reaction that should happen
-     * @return          The previously registered Reaction or null
-     */
-    public ProxyPackReaction registerSubChannel(String name, ProxyPackReaction reaction) {
-        return subChannels.put(name, reaction);
     }
 
 }

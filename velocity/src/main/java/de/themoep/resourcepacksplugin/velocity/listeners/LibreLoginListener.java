@@ -25,7 +25,7 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
-public class LibreLoginListener extends AbstractAuthListener {
+public class LibreLoginListener extends AuthHandler {
 
     public LibreLoginListener(VelocityResourcepacks plugin, PluginContainer libreLogin) {
         super(plugin);

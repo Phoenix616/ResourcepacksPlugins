@@ -18,19 +18,29 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.ServerConnection;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
 import java.util.UUID;
 
-public class PluginMessageListener extends AbstractAuthListener {
+public class PluginMessageListener extends SubChannelHandler<ServerConnection> {
+    private final VelocityResourcepacks plugin;
+    private final AuthHandler authHandler;
 
     public PluginMessageListener(VelocityResourcepacks plugin) {
         super(plugin);
+        this.plugin = plugin;
+        authHandler = new AuthHandler(plugin);
+        registerSubChannel("authMeLogin", (s, in) -> {
+            String playerName = in.readUTF();
+            UUID playerId = UUID.fromString(in.readUTF());
+            if (!plugin.isAuthenticated(playerId)) {
+                plugin.getProxy().getPlayer(playerId).ifPresent(authHandler::onAuth);
+            }
+        });
     }
 
     @Subscribe
@@ -38,14 +48,6 @@ public class PluginMessageListener extends AbstractAuthListener {
         if (!plugin.isEnabled() || !event.getIdentifier().getId().equals("rp:plugin") || !(event.getSource() instanceof ServerConnection))
             return;
 
-        ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
-        String subchannel = in.readUTF();
-        if ("authMeLogin".equals(subchannel)) {
-            String playerName = in.readUTF();
-            UUID playerId = UUID.fromString(in.readUTF());
-            if (!plugin.isAuthenticated(playerId)) {
-                plugin.getProxy().getPlayer(playerId).ifPresent(this::onAuth);
-            }
-        }
+        handleMessage((ServerConnection) event.getSource(), event.getData());
     }
 }

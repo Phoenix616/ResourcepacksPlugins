@@ -27,7 +27,7 @@ import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class LibreLoginListener extends AbstractAuthListener implements Listener {
+public class LibreLoginListener extends AuthHandler implements Listener {
 
     public LibreLoginListener(WorldResourcepacks plugin, LibreLoginPlugin<Player, World> libreLogin) {
         super(plugin);

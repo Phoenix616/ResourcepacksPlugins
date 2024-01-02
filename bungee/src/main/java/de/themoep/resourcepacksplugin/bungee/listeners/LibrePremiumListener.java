@@ -25,7 +25,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 
-public class LibrePremiumListener extends AbstractAuthListener {
+public class LibrePremiumListener extends AuthHandler {
 
     public LibrePremiumListener(BungeeResourcepacks plugin, Plugin librePremium) {
         super(plugin);

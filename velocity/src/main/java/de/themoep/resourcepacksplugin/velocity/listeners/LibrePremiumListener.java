@@ -25,7 +25,7 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 
-public class LibrePremiumListener extends AbstractAuthListener {
+public class LibrePremiumListener extends AuthHandler {
 
     public LibrePremiumListener(VelocityResourcepacks plugin, PluginContainer librePremium) {
         super(plugin);

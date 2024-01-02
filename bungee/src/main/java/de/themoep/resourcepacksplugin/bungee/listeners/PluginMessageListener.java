@@ -18,9 +18,8 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -29,10 +28,22 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.UUID;
 
-public class PluginMessageListener extends AbstractAuthListener implements Listener {
+public class PluginMessageListener extends SubChannelHandler<Server> implements Listener {
+    private final BungeeResourcepacks plugin;
+    private final AuthHandler authHandler;
 
     public PluginMessageListener(BungeeResourcepacks plugin) {
         super(plugin);
+        this.plugin = plugin;
+        authHandler = new AuthHandler(plugin);
+        registerSubChannel("authMeLogin", (s, in) -> {
+            String playerName = in.readUTF();
+            UUID playerId = UUID.fromString(in.readUTF());
+            ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
+            if (player != null && !plugin.isAuthenticated(playerId)) {
+                authHandler.onAuth(player);
+            }
+        });
     }
 
     @EventHandler
@@ -40,15 +51,6 @@ public class PluginMessageListener extends AbstractAuthListener implements Liste
         if (!plugin.isEnabled() || !event.getTag().equals("rp:plugin") || !(event.getSender() instanceof Server))
             return;
 
-        ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
-        String subchannel = in.readUTF();
-        if ("authMeLogin".equals(subchannel)) {
-            String playerName = in.readUTF();
-            UUID playerId = UUID.fromString(in.readUTF());
-            ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-            if (player != null && !plugin.isAuthenticated(playerId)) {
-                onAuth(player);
-            }
-        }
+        handleMessage((Server) event.getSender(), event.getData());
     }
 }

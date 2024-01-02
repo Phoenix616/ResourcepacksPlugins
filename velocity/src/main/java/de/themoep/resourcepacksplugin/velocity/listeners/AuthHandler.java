@@ -23,14 +23,14 @@ import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractAuthListener {
+public class AuthHandler {
     protected final VelocityResourcepacks plugin;
 
-    public AbstractAuthListener(VelocityResourcepacks plugin) {
+    public AuthHandler(VelocityResourcepacks plugin) {
         this.plugin = plugin;
     }
 
-    protected void onAuth(Player player) {
+    public void onAuth(Player player) {
         if (!plugin.isEnabled() || player == null)
             return;
 

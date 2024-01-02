@@ -26,7 +26,7 @@ import org.bukkit.event.Listener;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class NLoginListener extends AbstractAuthListener implements Listener {
+public class NLoginListener extends AuthHandler implements Listener {
 
     public NLoginListener(WorldResourcepacks plugin) {
         super(plugin);

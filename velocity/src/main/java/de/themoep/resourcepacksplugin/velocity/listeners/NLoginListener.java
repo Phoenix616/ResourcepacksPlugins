@@ -22,7 +22,7 @@ import com.nickuc.login.api.event.velocity.auth.AuthenticateEvent;
 import com.velocitypowered.api.event.Subscribe;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
-public class NLoginListener extends AbstractAuthListener {
+public class NLoginListener extends AuthHandler {
 
     public NLoginListener(VelocityResourcepacks plugin) {
         super(plugin);

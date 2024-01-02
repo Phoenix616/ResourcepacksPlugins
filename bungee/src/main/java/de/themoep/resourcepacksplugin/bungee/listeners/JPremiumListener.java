@@ -23,7 +23,7 @@ import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class JPremiumListener extends AbstractAuthListener implements Listener {
+public class JPremiumListener extends AuthHandler implements Listener {
 
     public JPremiumListener(BungeeResourcepacks plugin) {
         super(plugin);

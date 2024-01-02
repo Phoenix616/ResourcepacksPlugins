@@ -25,7 +25,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
-public class LibreLoginListener extends AbstractAuthListener {
+public class LibreLoginListener extends AuthHandler {
 
     public LibreLoginListener(BungeeResourcepacks plugin, Plugin libreLogin) {
         super(plugin);

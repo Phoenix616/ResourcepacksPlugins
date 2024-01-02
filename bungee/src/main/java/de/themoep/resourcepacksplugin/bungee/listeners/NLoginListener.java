@@ -23,7 +23,7 @@ import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class NLoginListener extends AbstractAuthListener implements Listener {
+public class NLoginListener extends AuthHandler implements Listener {
 
     public NLoginListener(BungeeResourcepacks plugin) {
         super(plugin);

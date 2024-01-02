@@ -23,14 +23,14 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractAuthListener {
+public class AuthHandler {
     protected final BungeeResourcepacks plugin;
 
-    public AbstractAuthListener(BungeeResourcepacks plugin) {
+    public AuthHandler(BungeeResourcepacks plugin) {
         this.plugin = plugin;
     }
 
-    protected void onAuth(ProxiedPlayer player) {
+    public void onAuth(ProxiedPlayer player) {
         if (!plugin.isEnabled() || player == null)
             return;
 

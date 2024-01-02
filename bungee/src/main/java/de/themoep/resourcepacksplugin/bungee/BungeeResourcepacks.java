@@ -44,6 +44,7 @@ import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
+import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.core.UserManager;
 import de.themoep.resourcepacksplugin.core.commands.PluginCommandExecutor;
 import de.themoep.resourcepacksplugin.core.commands.ResetPackCommandExecutor;
@@ -58,6 +59,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.protocol.BadPacketException;
@@ -150,6 +152,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private GeyserApi geyser;
     private FloodgateApi floodgate;
     private boolean appendHashToUrl;
+    private PluginMessageListener messageChannelHandler;
 
     public void onEnable() {
         instance = this;
@@ -261,7 +264,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
         getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
-        getProxy().getPluginManager().registerListener(this, new PluginMessageListener(this));
+        messageChannelHandler = new PluginMessageListener(this);
+        getProxy().getPluginManager().registerListener(this, messageChannelHandler);
         getProxy().registerChannel("rp:plugin");
 
         if (!getConfig().getBoolean("disable-metrics", false)) {
@@ -881,16 +885,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     }
 
     public void clearPack(ProxiedPlayer player) {
-        getUserManager().clearUserPacks(player.getUniqueId());
         sendPackInfo(player, Collections.emptyList());
+        getUserManager().clearUserPacks(player.getUniqueId());
     }
 
     public void clearPack(UUID playerId) {
-        getUserManager().clearUserPacks(playerId);
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if (player != null) {
             sendPackInfo(player, Collections.emptyList());
         }
+        getUserManager().clearUserPacks(playerId);
     }
 
     public PackManager getPackManager() {
@@ -1138,5 +1142,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     public int getBungeeVersion() {
         return bungeeVersion;
+    }
+
+    /**
+     * Get the handler for sub channels that listens on the "rp:plugin" channel to register new sub channels
+     * @return  The message channel handler
+     */
+    protected SubChannelHandler<Server> getMessageChannelHandler() {
+        return messageChannelHandler;
     }
 }

@@ -27,7 +27,7 @@ import org.bukkit.event.Listener;
 /**
  * Created by Phoenix616 on 24.04.2016.
  */
-public class AuthmeLoginListener extends AbstractAuthListener implements Listener {
+public class AuthmeLoginListener extends AuthHandler implements Listener {
 
     public AuthmeLoginListener(WorldResourcepacks plugin) {
         super(plugin);

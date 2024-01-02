@@ -23,7 +23,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
-public class JPremiumListener extends AbstractAuthListener {
+public class JPremiumListener extends AuthHandler {
 
     public JPremiumListener(VelocityResourcepacks plugin) {
         super(plugin);
