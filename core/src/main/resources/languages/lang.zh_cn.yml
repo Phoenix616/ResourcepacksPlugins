@@ -1,0 +1,92 @@
+command:
+  usage: "用法：/%command% %usage%"
+  reloaded: "&a重新加载了 %plugin% 配置！%optional-resend%"
+  optional-resend: " 重新发送包给所有在线玩家！"
+  version: "&a%plugin% 版本：%version%"
+  not-enabled: "&c%plugin% 未启用！"
+  invalid-input: "&f%input%&c 不是有效的 %expected%"
+  no-permission: "&c您没有权限执行 &f%permission%&c！"
+  unknown-pack: "&c找不到名称为 &e%input%&c 的包！"
+  addpack:
+    name-already-used: "&c已经存在名称为 &f%name%&c 的包！"
+    url-already-used: "&c包 &f%name%&c 已经使用 url &f%url%&c！"
+    added: "&e添加了新的包 &f%name%&e，使用 url &f%url%"
+  removepack:
+    removed: "&e移除了包 &f%name%&e，使用 url &f%url%"
+  pack:
+    updated: "&e将包 &f%pack%&e的 &f%type%&e 设置为 &f%value%"
+    info: |-
+      &7----- &e包 &f%name%&e 信息： &7-----
+      &e网址： &f%url%
+      &e哈希： &f%hash%
+      &e格式： &f%format%
+      &e版本： &f%version%
+      &e受限： &f%restricted%
+      &e权限： &f%permission%
+      &e变种： &f%variants%
+    info-variants: |-
+      &7----- &e包 &f%name%&e 信息： &7-----
+      &e格式： &f%format%
+      &e版本： &f%version%
+      &e受限： &f%restricted%
+      &e权限： &f%permission%
+      &e%variants% 变种：
+  assignment:
+    new-assignment: "&c找不到名称为 &e%input%&c 的任务！正在创建新的任务！"
+    updated: "&e将任务 &f%assignment%&e的 &f%type%&e 设置为 &f%value%"
+    optional-pack:
+      added:  "&e将包 &f%pack%&e 添加到任务 &f%assignment%&e 的可选包列表中！"
+      already-added:  "&c包 &f%pack%&c 已经在任务 &f%assignment%&c 的可选包列表中了！"
+      removed:  "&e将包 &f%pack%&e 从任务 &f%assignment%&e 的可选包列表中移除！"
+      not-added:  "&c包 &f%pack%&c 不在任务 &f%assignment%&c 的可选包列表中！"
+    info: |-
+      &7----- &e任务 &f%name%&e 信息： &7-----
+      &e包： &f%pack%
+      &e可选包： &f%optional-packs%
+      &e正则表达式： &f%regex%
+      &e发送延迟： &f%send-delay%
+  deleteassignment:
+    unknown-assignment: "&c找不到名称为 &e%input%&c 的任务！"
+    deleted: "&e删除了任务 &f%name%&e！"
+  listassignments:
+    head: "&a已配置的任务："
+    entry: "&e%name%"
+  usepack:
+    invalid-temporary: "&f%input%&c 不是有效的布尔值！（true/false）"
+    player-not-online: "&c玩家 &f%input%&c 不在线"
+    bedrock-not-supported: "&c不支持更改基岩版玩家的包！"
+    already-in-use: "&f%player%&c 已经使用包 '&f%pack%&c'！"
+    no-variant-found:
+      permission: "&f%player%&c 由于其权限，无法使用包 '&f%pack%&c' 的任何变种！"
+      version: "&f%player%&c 由于其版本，无法使用包 '&f%pack%&c' 的任何变种！"
+      perm-and-version: "&f%player%&c 由于其版本和权限，无法使用包 '&f%pack%&c' 的任何变种！"
+    restricted: "&c您没有权限 &f%permission%%c 来设置受限包 '&f%pack%&c'！"
+    unknown-pack: "&c错误：没有名称为 '&f%input%&c' 的包！"
+    success-other: "&f%player% &a现在使用包 '&f%pack%&a'！"
+    success: "&a您现在使用包 %pack%！"
+    pack-list:
+      head: "&a可用于您的包："
+      entry: "  [&e%pack%](/usepack %pack%)%optional-format%%optional-version%"
+      entry-selected: "> [%pack%](/resetpack)%optional-format%%optional-version%"
+      optional-format: "&7（格式：%format%）"
+      optional-version: "&7（版本：%version%）"
+    no-packs: "&c未找到包！"
+  resetpack:
+    player-not-online: "&c玩家 &f%input%&c 不在线"
+    bedrock-not-supported: "&c不支持更改基岩版玩家的包！"
+    no-pack-stored: "&c未存储任何包。"
+    had-stored-pack: "&a已存储包 '&f%pack%&a'。"
+    success-other: "&a重置了 &f%player%&a 的包！"
+    success: "&a重置了您的包！"
+    no-pack: "&c您没有应用任何包（或者是空包）吗？"
+    no-pack-other: "&f%player% &c没有应用任何包（或者是空包）！"
+
+
+generate-hashes:
+  generating: "&e正在生成哈希值..."
+  downloading: "&e正在下载 &f%pack%&e..."
+  hash-sum: "&e&f%pack%&e 的 SHA 1 哈希值： &f%hash%"
+  invalid-url: "&e%url%&c 不是有效的 URL！"
+  failed-to-load-pack: "&c无法加载 %pack%! %error%"
+  changed: "&a%amount% 个包的哈希值已更改！正在保存到配置文件。"
+  none-changed: "&a没有哈希值更改！"
