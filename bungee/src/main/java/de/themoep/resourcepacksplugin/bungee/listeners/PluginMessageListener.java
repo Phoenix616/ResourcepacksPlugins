@@ -104,7 +104,7 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
                 plugin.log(Level.SEVERE, "Error while loading key.yml! " + e.getMessage());
             }
             if (key == null) {
-                generateKey();
+                key = generateKey();
                 saveKey(key);
             }
         }
