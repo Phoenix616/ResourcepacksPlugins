@@ -760,11 +760,23 @@ public class PackManager {
     /**
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
      * @param playerId  The UUID of the player to set the pack for
-     * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
+     * @param pack      The ResourcePack to set, if it is null/empty it will reset to empty if the player has a pack applied
      * @param temporary Should the pack be removed on log out or stored?
      * @return the status, SUCCESS if the pack was set
      */
     public Status setPack(UUID playerId, ResourcePack pack, boolean temporary) {
+        return setPack(playerId, pack, temporary, pack == null || pack.equals(getEmptyPack()));
+    }
+
+    /**
+     * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
+     * @param playerId  The UUID of the player to set the pack for
+     * @param pack      The ResourcePack to set
+     * @param temporary Should the pack be removed on log out or stored?
+     * @param removeExisting Should existing packs be removed? (Only works on 1.20.3+, versions before that will always remove)
+     * @return the status, SUCCESS if the pack was set
+     */
+    public Status setPack(UUID playerId, ResourcePack pack, boolean temporary, boolean removeExisting) {
         List<ResourcePack> prev = plugin.getUserManager().getUserPacks(playerId);
         if (!temporary) {
             if (pack == null) {
@@ -779,6 +791,13 @@ public class PackManager {
             if (stored != null && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
                 pack = stored;
                 plugin.logDebug(playerId + " has the pack " + stored.getName() + " stored!");
+            }
+        }
+        if (plugin.supportsMultiplePacks(playerId) && removeExisting) {
+            for (ResourcePack existing : prev) {
+                if (existing != pack) {
+                    removePack(playerId, existing);
+                }
             }
         }
         if (pack != null && prev.contains(pack)) {

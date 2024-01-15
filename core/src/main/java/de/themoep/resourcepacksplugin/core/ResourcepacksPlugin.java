@@ -98,6 +98,12 @@ public interface ResourcepacksPlugin {
      */
     void removePack(UUID playerId, ResourcePack pack);
 
+    /**
+     * Clear the packs of a player stored in memory and sends that info to the other servers.
+     * <br />
+     * Does not remove from the client!
+     * @param playerId The UUID of the player to clear the packs for.
+     */
     void clearPack(UUID playerId);
 
     PackManager getPackManager();

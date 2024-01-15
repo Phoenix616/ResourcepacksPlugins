@@ -78,7 +78,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
 
-                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp)) {
+                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp, true)) {
                         case SUCCESS:
                             if (!player.equals(sender)) {
                                 sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
