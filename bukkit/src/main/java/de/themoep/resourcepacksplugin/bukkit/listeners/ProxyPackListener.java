@@ -19,10 +19,14 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
  */
 
 import com.google.common.io.ByteArrayDataInput;
+import de.themoep.resourcepacksplugin.bukkit.ConfigAccessor;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.util.UUID;
@@ -30,13 +34,19 @@ import java.util.UUID;
 /**
  * Created by Phoenix616 on 02.02.2016.
  */
-public class ProxyPackListener extends SubChannelHandler<Player> implements PluginMessageListener {
+public class ProxyPackListener extends SubChannelHandler<Player> implements PluginMessageListener, Listener {
 
     private final WorldResourcepacks plugin;
+
+    private final ConfigAccessor keyConfig;
+
+    private boolean playerJoined = false;
 
     public ProxyPackListener(WorldResourcepacks plugin) {
         super(plugin);
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        keyConfig = new ConfigAccessor(plugin, "key.yml");
         registerSubChannel("packsChange", (p, in) -> {
             String playerName = in.readUTF();
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
@@ -109,11 +119,22 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
 
     @Override
     public void onPluginMessageReceived(String channel, Player p, byte[] message) {
-        if(!channel.equals("rp:plugin")) {
+        if (!plugin.isEnabled() || !channel.equals("rp:plugin")) {
             return;
         }
 
         handleMessage(p, message);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        if (playerJoined) {
+            if (acceptsNewKey()) {
+                setKey("");
+            }
+        } else {
+            playerJoined = true;
+        }
     }
 
     private ResourcePack readPack(ByteArrayDataInput in) {
@@ -140,4 +161,25 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
         return pack;
     }
 
+    @Override
+    protected void sendPluginMessage(Player target, byte[] data) {
+        target.sendPluginMessage(plugin, "rp:plugin", data);
+    }
+
+    @Override
+    protected void saveKey(String key) {
+        keyConfig.getConfig().set("key", key);
+        keyConfig.saveConfig();
+    }
+
+    @Override
+    protected String loadKey() {
+        keyConfig.reloadConfig();
+        return keyConfig.getConfig().getString("key", null);
+    }
+
+    @Override
+    protected boolean trustsSender() {
+        return false;
+    }
 }

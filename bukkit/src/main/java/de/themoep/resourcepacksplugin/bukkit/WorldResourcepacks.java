@@ -156,13 +156,14 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
 
+        messageChannelHandler = new ProxyPackListener(this);
+
         if (loadConfig()) {
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
-            getServer().getMessenger().registerOutgoingPluginChannel(this, "rp:plugin");
-            messageChannelHandler = new ProxyPackListener(this);
-            getServer().getMessenger().registerIncomingPluginChannel(this, "rp:plugin", messageChannelHandler);
+            getServer().getMessenger().registerOutgoingPluginChannel(this, SubChannelHandler.MESSAGING_CHANNEL);
+            getServer().getMessenger().registerIncomingPluginChannel(this, SubChannelHandler.MESSAGING_CHANNEL, messageChannelHandler);
 
             registerCommand(pluginCommand = new ResourcepacksPluginCommandExecutor(this));
             registerCommand(new UsePackCommandExecutor(this));
@@ -280,6 +281,8 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
+
+        messageChannelHandler.reload();
 
         lm = new LanguageManager(this, getConfig().getString("default-language"));
 

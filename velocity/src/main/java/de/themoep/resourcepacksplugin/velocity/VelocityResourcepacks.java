@@ -19,7 +19,6 @@ package de.themoep.resourcepacksplugin.velocity;
  */
 
 import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -96,8 +95,6 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private final File dataFolder;
     private PluginContainer ownContainer = null;
 
-    public static final ChannelIdentifier PLUGIN_MESSAGE_CHANNEL = MinecraftChannelIdentifier.create("rp", "plugin");
-
     private PluginConfig config;
 
     private PluginConfig storedPacks;
@@ -131,7 +128,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private ViaVersionIntegration viaApi;
     private GeyserIntegration geyser;
     private FloodgateIntegration floodgate;
-    private PluginMessageListener messageChannelHanlder;
+    private PluginMessageListener messageChannelHandler;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -152,6 +149,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             return;
         }
         boolean firstStart = !getDataFolder().exists();
+
+        messageChannelHandler = new PluginMessageListener(this);
 
         if (!loadConfig()) {
             return;
@@ -249,8 +248,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         getProxy().getEventManager().register(this, new DisconnectListener(this));
         getProxy().getEventManager().register(this, new ServerSwitchListener(this));
-        messageChannelHanlder = new PluginMessageListener(this);
-        getProxy().getEventManager().register(this, messageChannelHanlder);
+        getProxy().getEventManager().register(this, messageChannelHandler);
         getProxy().getChannelRegistrar().register(MinecraftChannelIdentifier.create("rp", "plugin"));
 
         if (!getConfig().getBoolean("disable-metrics", false)) {
@@ -286,7 +284,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         storedPacks = new PluginConfig(this, new File(getDataFolder(), "players.conf"), null);
         if (!storedPacks.load()) {
-            log(Level.SEVERE, "Unable to load players.yml! Stored player packs will not apply!");
+            log(Level.SEVERE, "Unable to load players.conf! Stored player packs will not apply!");
         }
 
         String debugString = getConfig().getString("debug", "true");
@@ -302,6 +300,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             }
         }
         log(Level.INFO, "Debug level: " + getLogLevel().getName());
+
+        messageChannelHandler.reload();
 
         if (getConfig().getBoolean("use-auth-plugin", getConfig().getBoolean("useauth", false))) {
             log(Level.INFO, "Compatibility with backend authentication plugin ('use-auth-plugin') is enabled.");
@@ -565,23 +565,23 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             logDebug("Tried to send pack info of " + packs.size() + " packs for player " + player.getUsername() + " but server was null!");
             return;
         }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
         if (!packs.isEmpty()) {
-            out.writeUTF("packsChange");
-            out.writeUTF(player.getUsername());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            out.writeInt(packs.size());
-            for (ResourcePack pack : packs) {
-                writePack(out, pack);
-            }
+            getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "packsChange", out -> {
+                out.writeUTF(player.getUsername());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+                out.writeInt(packs.size());
+                for (ResourcePack pack : packs) {
+                    writePack(out, pack);
+                }
+            });
         } else {
-            out.writeUTF("clearPack");
-            out.writeUTF(player.getUsername());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "clearPack", out -> {
+                out.writeUTF(player.getUsername());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            });
         }
-        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {
@@ -609,13 +609,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             logDebug("Tried to send pack removal request of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
             return;
         }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("removePackRequest");
-        out.writeUTF(player.getUsername());
-        out.writeLong(player.getUniqueId().getMostSignificantBits());
-        out.writeLong(player.getUniqueId().getLeastSignificantBits());
-        writePack(out, pack);
-        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
+        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePackRequest", out -> {
+            out.writeUTF(player.getUsername());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            writePack(out, pack);
+        });
         logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
     }
 
@@ -625,13 +624,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             logDebug("Tried to send pack removal info of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
             return;
         }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("removePack");
-        out.writeUTF(player.getUsername());
-        out.writeLong(player.getUniqueId().getMostSignificantBits());
-        out.writeLong(player.getUniqueId().getLeastSignificantBits());
-        writePack(out, pack);
-        player.getCurrentServer().get().sendPluginMessage(PLUGIN_MESSAGE_CHANNEL, out.toByteArray());
+        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePack", out -> {
+            out.writeUTF(player.getUsername());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            writePack(out, pack);
+        });
     }
 
     private void writePack(ByteArrayDataOutput out, ResourcePack pack) {
@@ -923,6 +921,6 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      * @return  The message channel handler
      */
     public SubChannelHandler<ServerConnection> getMessageChannelHandler() {
-        return messageChannelHanlder;
+        return messageChannelHandler;
     }
 }

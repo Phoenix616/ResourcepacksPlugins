@@ -18,8 +18,6 @@ package de.themoep.resourcepacksplugin.bungee;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.ViaAPI;
 import de.themoep.bungeeplugin.FileConfiguration;
@@ -154,10 +152,13 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     private boolean appendHashToUrl;
     private PluginMessageListener messageChannelHandler;
 
+    @Override
     public void onEnable() {
         instance = this;
 
         boolean firstStart = !getDataFolder().exists();
+
+        messageChannelHandler = new PluginMessageListener(this);
 
         if (!loadConfig()) {
             return;
@@ -264,9 +265,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
         getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
-        messageChannelHandler = new PluginMessageListener(this);
         getProxy().getPluginManager().registerListener(this, messageChannelHandler);
-        getProxy().registerChannel("rp:plugin");
+        getProxy().registerChannel(SubChannelHandler.MESSAGING_CHANNEL);
 
         if (!getConfig().getBoolean("disable-metrics", false)) {
             new MetricsLite(this);
@@ -510,6 +510,8 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
         }
         getLogger().log(Level.INFO, "Debug level: " + getLogLevel().getName());
+
+        messageChannelHandler.reload();
 
         if (getConfig().getBoolean("use-auth-plugin", getConfig().getBoolean("useauth", false))) {
             getLogger().log(Level.INFO, "Compatibility with backend authentication plugin ('use-auth-plugin') is enabled.");
@@ -816,27 +818,27 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             logDebug("Tried to send pack info of " + packs.size() + " packs for player " + player.getName() + " but server was null!");
             return;
         }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
         if (!packs.isEmpty()) {
-            out.writeUTF("packsChange");
-            out.writeUTF(player.getName());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            out.writeInt(packs.size());
-            for (ResourcePack pack : packs) {
-                out.writeUTF(pack.getName());
-                out.writeUTF(pack.getUrl());
-                out.writeUTF(pack.getHash());
-                out.writeLong(pack.getUuid().getMostSignificantBits());
-                out.writeLong(pack.getUuid().getLeastSignificantBits());
-            }
+            getMessageChannelHandler().sendMessage(player.getServer(), "packsChange", out -> {
+                out.writeUTF(player.getName());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+                out.writeInt(packs.size());
+                for (ResourcePack pack : packs) {
+                    out.writeUTF(pack.getName());
+                    out.writeUTF(pack.getUrl());
+                    out.writeUTF(pack.getHash());
+                    out.writeLong(pack.getUuid().getMostSignificantBits());
+                    out.writeLong(pack.getUuid().getLeastSignificantBits());
+                }
+            });
         } else {
-            out.writeUTF("clearPack");
-            out.writeUTF(player.getName());
-            out.writeLong(player.getUniqueId().getMostSignificantBits());
-            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            getMessageChannelHandler().sendMessage(player.getServer(), "clearPack", out -> {
+                out.writeUTF(player.getName());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            });
         }
-        player.getServer().sendData("rp:plugin", out.toByteArray());
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {
@@ -871,17 +873,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             logDebug("Tried to send pack removal info of pack " + pack.getName() + " for player " + player.getName() + " but server was null!");
             return;
         }
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("removePack");
-        out.writeUTF(player.getName());
-        out.writeLong(player.getUniqueId().getMostSignificantBits());
-        out.writeLong(player.getUniqueId().getLeastSignificantBits());
-        out.writeUTF(pack.getName());
-        out.writeUTF(pack.getUrl());
-        out.writeUTF(pack.getHash());
-        out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
-        out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
-        player.getServer().sendData("rp:plugin", out.toByteArray());
+        getMessageChannelHandler().sendMessage(player.getServer(), "removePack", out -> {
+            out.writeUTF(player.getName());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            out.writeUTF(pack.getName());
+            out.writeUTF(pack.getUrl());
+            out.writeUTF(pack.getHash());
+            out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
+            out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
+        });
     }
 
     public void clearPack(ProxiedPlayer player) {
@@ -1148,7 +1149,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      * Get the handler for sub channels that listens on the "rp:plugin" channel to register new sub channels
      * @return  The message channel handler
      */
-    protected SubChannelHandler<Server> getMessageChannelHandler() {
+    public SubChannelHandler<Server> getMessageChannelHandler() {
         return messageChannelHandler;
     }
 }
