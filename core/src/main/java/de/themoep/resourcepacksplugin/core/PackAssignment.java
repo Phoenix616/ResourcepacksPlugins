@@ -378,7 +378,7 @@ public class PackAssignment {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
         if (packs.size() > 1) {
-            map.put("packs", packs);
+            map.put("packs", new ArrayList<>(packs));
             map.put("pack", null);
         } else if (packs.isEmpty()) {
             map.put("packs", null);
