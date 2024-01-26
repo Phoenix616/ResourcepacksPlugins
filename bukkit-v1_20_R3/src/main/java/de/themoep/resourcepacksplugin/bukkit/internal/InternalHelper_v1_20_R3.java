@@ -21,6 +21,7 @@ package de.themoep.resourcepacksplugin.bukkit.internal;
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -36,6 +37,13 @@ public class InternalHelper_v1_20_R3 extends InternalHelper_fallback {
     public InternalHelper_v1_20_R3(WorldResourcepacks plugin) {
         super(plugin);
         this.plugin = plugin;
+    }
+
+    @Override
+    public void setResourcePack(Player player, ResourcePack pack) {
+        ((CraftPlayer) player).getHandle().connection.send(new ClientboundResourcePackPushPacket(
+                pack.getUuid(), pack.getUrl(), pack.getHash(), false, null
+        ));
     }
 
     @Override
