@@ -93,8 +93,12 @@ public class ResourcePackRemovePacket extends DefinedPacket {
         if (plugin.isEnabled()) {
             if (uuid.isPresent()) {
                 ResourcePack pack = plugin.getPackManager().getByUuid(uuid.get());
-                plugin.getUserManager().removeUserPack(usercon.getUniqueId(), pack);
-                plugin.logDebug("Backend mc server removed pack " + pack.getName() + " (" + pack.getUrl() + ") from player " + usercon.getName());
+                if (pack != null) {
+                    plugin.getUserManager().removeUserPack(usercon.getUniqueId(), pack);
+                    plugin.logDebug("Backend mc server removed pack " + pack.getName() + " (" + pack.getUrl() + ") from player " + usercon.getName());
+                } else {
+                    plugin.logDebug("Backend mc server removed pack " + uuid.get() + " that we don't know about from player " + usercon.getName());
+                }
             } else {
                 plugin.getUserManager().clearUserPacks(usercon.getUniqueId());
             }
