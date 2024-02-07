@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 22.07.2016.
@@ -33,10 +34,11 @@ import java.util.UUID;
 public class InternalHelper_fallback implements InternalHelper {
 
     private final WorldResourcepacks plugin;
-    private Method setPackWithHashMethod = null;
+    private final Method setPackWithHashMethod = null;
 
     private Method getHandle = null;
     private Method setResourcePack = null;
+    private boolean hasAddResourcePack = false;
     private boolean hasSetIdResourcePack = false;
     private boolean hasSetResourcePack = false;
     private boolean hasRemoveResourcepacks = false;
@@ -44,26 +46,27 @@ public class InternalHelper_fallback implements InternalHelper {
     public InternalHelper_fallback(WorldResourcepacks plugin) {
         this.plugin = plugin;
         try {
+            hasAddResourcePack = Player.class.getMethod("addResourcePack", UUID.class, String.class, byte[].class, String.class, boolean.class) != null;
+        } catch (NoSuchMethodException ignored) {}
+        try {
             hasSetIdResourcePack = Player.class.getMethod("setResourcePack", UUID.class, String.class, byte[].class) != null;
-        } catch (NoSuchMethodException e2) {
-            try {
-                hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
-            } catch (NoSuchMethodException e) {
-                // Old version, method still not there
-                String packageName = Bukkit.getServer().getClass().getPackage().getName();
-                String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
+        } catch (NoSuchMethodException ignored) {}
+        try {
+            hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
+        } catch (NoSuchMethodException ignored) {}
+        // Old version, method still not there
+        String packageName = Bukkit.getServer().getClass().getPackage().getName();
+        String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-                try {
-                    Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
-                    getHandle = craftPlayer.getDeclaredMethod("getHandle");
+        try {
+            Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
+            getHandle = craftPlayer.getDeclaredMethod("getHandle");
 
-                    Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
-                    setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+            Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
+            setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
 
-                } catch (ClassNotFoundException | NoSuchMethodException e1) {
-                    e1.printStackTrace();
-                }
-            }
+        } catch (ClassNotFoundException | NoSuchMethodException e1) {
+            plugin.log(Level.SEVERE, "Unable to find method which enables us to efficiently send a resource pack!", e1);
         }
         try {
             hasRemoveResourcepacks = Player.class.getMethod("removeResourcePack", String.class) != null;
@@ -72,6 +75,11 @@ public class InternalHelper_fallback implements InternalHelper {
 
     @Override
     public void setResourcePack(Player player, ResourcePack pack) {
+        if (hasAddResourcePack) {
+            player.addResourcePack(pack.getUuid(), plugin.getPackManager().getPackUrl(pack), pack.getRawHash(), null, false);
+            return;
+        }
+
         if (hasSetIdResourcePack) {
             player.setResourcePack(pack.getUuid(), plugin.getPackManager().getPackUrl(pack), pack.getRawHash(), null, false);
             return;
