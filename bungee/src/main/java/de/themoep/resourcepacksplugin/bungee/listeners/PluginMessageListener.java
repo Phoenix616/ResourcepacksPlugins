@@ -81,7 +81,11 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
 
     @Override
     protected void sendPluginMessage(Server target, byte[] data) {
-        target.sendData(MESSAGING_CHANNEL, data);
+        try {
+            target.sendData(MESSAGING_CHANNEL, data);
+        } catch (Exception e) {
+            plugin.log(Level.WARNING, "Failed to send plugin message to " + target + "! This is most likely because the player connection timed out. " + e.getMessage());
+        }
     }
 
     @Override

@@ -24,6 +24,7 @@ import de.themoep.bungeeplugin.FileConfiguration;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bungee.events.ResourcePackSendEvent;
+import de.themoep.resourcepacksplugin.bungee.listeners.ConnectListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.JPremiumListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.bungee.listeners.LibrePremiumListener;
@@ -263,6 +264,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
         um = new UserManager(this);
 
+        getProxy().getPluginManager().registerListener(this, new ConnectListener(this));
         getProxy().getPluginManager().registerListener(this, new DisconnectListener(this));
         getProxy().getPluginManager().registerListener(this, new ServerSwitchListener(this));
         getProxy().getPluginManager().registerListener(this, messageChannelHandler);

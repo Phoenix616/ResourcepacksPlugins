@@ -160,6 +160,15 @@ public class UserManager {
     }
     
     /**
+     * What should happen when a player connects?
+     * @param playerId The UUID of the player
+     */
+    public void onConnect(UUID playerId) {
+        userPackTime.remove(playerId);
+        clearUserPacks(playerId); // don't call plugin method as we don't need to send info to backend server and we aren't connect to one yet
+    }
+
+    /**
      * What should happen when a player disconnects?
      * @param playerId The UUID of the player
      */

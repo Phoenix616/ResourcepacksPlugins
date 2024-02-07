@@ -44,6 +44,7 @@ import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration
 import de.themoep.resourcepacksplugin.velocity.integrations.GeyserIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.ViaVersionIntegration;
 import de.themoep.resourcepacksplugin.velocity.listeners.AuthMeVelocityListener;
+import de.themoep.resourcepacksplugin.velocity.listeners.ConnectListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.JPremiumListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.velocity.listeners.LibrePremiumListener;
@@ -246,6 +247,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         um = new UserManager(this);
 
+        getProxy().getEventManager().register(this, new ConnectListener(this));
         getProxy().getEventManager().register(this, new DisconnectListener(this));
         getProxy().getEventManager().register(this, new ServerSwitchListener(this));
         getProxy().getEventManager().register(this, messageChannelHandler);

@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 02.02.2016.
@@ -163,7 +164,11 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
 
     @Override
     protected void sendPluginMessage(Player target, byte[] data) {
-        target.sendPluginMessage(plugin, "rp:plugin", data);
+        try {
+            target.sendPluginMessage(plugin, MESSAGING_CHANNEL, data);
+        } catch (Exception e) {
+            plugin.log(Level.WARNING, "Failed to send plugin message to " + target + "! This is most likely because the player connection timed out. " + e.getMessage());
+        }
     }
 
     @Override

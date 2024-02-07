@@ -27,6 +27,7 @@ import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper_fallback;
 import de.themoep.resourcepacksplugin.bukkit.listeners.AuthmeLoginListener;
+import de.themoep.resourcepacksplugin.bukkit.listeners.ConnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.DisconnectListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.LibreLoginListener;
 import de.themoep.resourcepacksplugin.bukkit.listeners.NLoginListener;
@@ -159,6 +160,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         messageChannelHandler = new ProxyPackListener(this);
 
         if (loadConfig()) {
+            getServer().getPluginManager().registerEvents(new ConnectListener(this), this);
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
