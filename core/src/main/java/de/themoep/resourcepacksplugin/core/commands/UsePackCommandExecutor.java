@@ -86,6 +86,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                             sendMessage(player, "success", "pack", pack.getName());
                             String senderName = sender != null ? sender.getName() : "CONSOLE";
                             plugin.logDebug(senderName + " set the pack of " + player.getName() + " to '" + pack.getName() + "'!");
+                            plugin.sendPackInfo(player.getUniqueId());
                             break;
                         case NO_PERMISSION:
                             sendMessage(sender, "no-variant-found.permission", "player", player.getName(), "pack", pack.getName());

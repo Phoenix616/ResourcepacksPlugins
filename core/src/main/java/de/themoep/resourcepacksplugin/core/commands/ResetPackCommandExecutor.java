@@ -87,6 +87,7 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
             sendMessage(player, "success");
             String senderName = sender != null ? sender.getName() : "CONSOLE";
             plugin.logDebug(senderName + " reset the pack of " + player.getName());
+            plugin.sendPackInfo(player.getUniqueId());
         } else {
             if (player.equals(sender)) {
                 sendMessage(sender, "no-pack");

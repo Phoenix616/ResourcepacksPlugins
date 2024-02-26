@@ -548,6 +548,45 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     }
 
+    @Override
+    public void sendPackInfo(UUID playerId) {
+        Player player = getServer().getPlayer(playerId);
+        if (player != null) {
+            sendPackInfo(player, getUserManager().getUserPacks(playerId));
+        }
+    }
+
+    /**
+     * <p>Send a plugin message to the server the player is connected to!</p>
+     * <p>Channel: Resourcepack</p>
+     * <p>sub-channel: packsChange</p>
+     * <p>arg1: player.getName()</p>
+     * <p>arg2: pack.getName();</p>
+     * <p>arg3: pack.getUrl();</p>
+     * <p>arg4: pack.getHash();</p>
+     * @param player The player to update the pack on the player's bukkit server
+     * @param packs The ResourcePacks to send the info of the the Bukkit server, can be empty to clear it!
+     */
+    private void sendPackInfo(Player player, List<ResourcePack> packs) {
+        if (!packs.isEmpty()) {
+            getMessageChannelHandler().sendMessage(player, "packsChange", out -> {
+                out.writeUTF(player.getName());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+                out.writeInt(packs.size());
+                for (ResourcePack pack : packs) {
+                    getMessageChannelHandler().writePack(out, pack);
+                }
+            });
+        } else {
+            getMessageChannelHandler().sendMessage(player, "clearPack", out -> {
+                out.writeUTF(player.getName());
+                out.writeLong(player.getUniqueId().getMostSignificantBits());
+                out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            });
+        }
+    }
+
     /**
      * Resends the pack that corresponds to the player's world
      * @param player The player to set the pack for
@@ -558,10 +597,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             worldName = player.getWorld().getName();
         }
         getPackManager().applyPack(player.getUniqueId(), worldName);
-    }
-
-    public void setPack(UUID playerId, ResourcePack pack) {
-        getPackManager().setPack(playerId, pack);
     }
 
     public void sendPack(UUID playerId, ResourcePack pack) {

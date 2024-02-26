@@ -781,7 +781,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             } catch (Throwable t) {
                 player.unsafe().sendPacket(packet);
             }
-            sendPackInfo(player, Collections.emptyList());
             logDebug("Cleared all packs of " + player.getName());
         } else if (clientVersion >= MinecraftVersion.MINECRAFT_1_8.getProtocolNumber()) {
             try {
@@ -791,7 +790,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 } catch (Throwable t) {
                     player.unsafe().sendPacket(packet);
                 }
-                sendPackInfo(player, getUserManager().getUserPacks(player.getUniqueId()));
                 logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
             } catch(BadPacketException e) {
                 getLogger().log(Level.SEVERE, e.getMessage() + " Please check for updates!");
@@ -804,18 +802,20 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         }
     }
 
+    @Override
+    public void sendPackInfo(UUID playerId) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if (player != null) {
+            sendPackInfo(player, getUserManager().getUserPacks(playerId));
+        }
+    }
+
     /**
       * <p>Send a plugin message to the server the player is connected to!</p>
-      * <p>Channel: Resourcepack</p>
-      * <p>sub-channel: packsChange</p>
-      * <p>arg1: player.getName()</p>
-      * <p>arg2: pack.getName();</p>
-      * <p>arg3: pack.getUrl();</p>
-      * <p>arg4: pack.getHash();</p>
       * @param player The player to update the pack on the player's bukkit server
-      * @param packs The ResourcePacks to send the info of the the Bukkit server, can be empty to clear it!
+      * @param packs The ResourcePacks to send the info of the Bukkit server, can be empty to clear it!
       */
-    public void sendPackInfo(ProxiedPlayer player, List<ResourcePack> packs) {
+    private void sendPackInfo(ProxiedPlayer player, List<ResourcePack> packs) {
         if (player.getServer() == null) {
             logDebug("Tried to send pack info of " + packs.size() + " packs for player " + player.getName() + " but server was null!");
             return;
@@ -841,10 +841,6 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 out.writeLong(player.getUniqueId().getLeastSignificantBits());
             });
         }
-    }
-
-    public void setPack(UUID playerId, ResourcePack pack) {
-        getPackManager().setPack(playerId, pack);
     }
 
     public void sendPack(UUID playerId, ResourcePack pack) {
@@ -879,24 +875,15 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             out.writeUTF(player.getName());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            out.writeUTF(pack.getName());
-            out.writeUTF(pack.getUrl());
-            out.writeUTF(pack.getHash());
-            out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
-            out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
+            getMessageChannelHandler().writePack(out, pack);
         });
     }
 
     public void clearPack(ProxiedPlayer player) {
-        sendPackInfo(player, Collections.emptyList());
         getUserManager().clearUserPacks(player.getUniqueId());
     }
 
     public void clearPack(UUID playerId) {
-        ProxiedPlayer player = getProxy().getPlayer(playerId);
-        if (player != null) {
-            sendPackInfo(player, Collections.emptyList());
-        }
         getUserManager().clearUserPacks(playerId);
     }
 

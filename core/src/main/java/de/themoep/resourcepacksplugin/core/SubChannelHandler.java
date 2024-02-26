@@ -29,6 +29,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -49,6 +50,56 @@ public abstract class SubChannelHandler<S> {
                     plugin.logDebug("New key was sent via connection of " + p + " (If you are not using a proxy, this is a bug or player trying to exploit your server!)");
                     setKey(key);
                 }
+            }
+        });
+        registerSubChannel("packsChange", (p, in) -> {
+            String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+            int packCount = in.readInt();
+
+            ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
+            if (player == null) {
+                plugin.logDebug("(proxy)server sent pack " + packCount + " packs to player " + playerName + " but they aren't online?");
+            }
+
+            plugin.getUserManager().clearUserPacks(playerUuid);
+
+            for (int i = 0; i < packCount; i++) {
+                ResourcePack pack = readPack(in);
+                if (pack != null) {
+                    plugin.logDebug("(proxy)server sent pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
+                    plugin.getUserManager().addUserPack(playerUuid, pack);
+                } else {
+                    plugin.logDebug("(proxy)server sent command to add an unknown pack to " + playerName + "?");
+                }
+            }
+        });
+        registerSubChannel("clearPack", (p, in) -> {
+            String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+            ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
+            if (player == null) {
+                plugin.logDebug("(proxy)server sent command to clear the pack of player " + playerName + " but they aren't online?");
+            }
+
+            plugin.logDebug("(proxy)server sent command to clear the pack of player " + playerName);
+            plugin.clearPack(playerUuid);
+        });
+        registerSubChannel("removePack", (p, in) -> {
+            String playerName = in.readUTF();
+            UUID playerUuid = new UUID(in.readLong(), in.readLong());
+
+            ResourcePack pack = readPack(in);
+
+            if (pack != null) {
+                ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
+                if (player == null) {
+                    plugin.logDebug("(proxy)server sent command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
+                }
+                plugin.logDebug("(proxy)server sent command to remove the pack " + pack.getName() + " from player " + playerName);
+                plugin.getUserManager().removeUserPack(playerUuid, pack);
+            } else {
+                plugin.logDebug("(proxy)server sent command to remove an unknown pack from " + playerName + "?");
             }
         });
     }
@@ -120,6 +171,58 @@ public abstract class SubChannelHandler<S> {
         sendPluginMessage(target, dataOutput.toByteArray());
     }
 
+    /**
+     * Write a pack to the output. If the pack is null, an empty string will be written
+     *
+     * @param out  The output to write to
+     * @param pack The pack to write
+     */
+    public void writePack(ByteArrayDataOutput out, ResourcePack pack) {
+        if (pack == null) {
+            out.writeUTF("");
+            return;
+        }
+        out.writeUTF(pack.getName());
+        out.writeUTF(pack.getUrl());
+        out.writeUTF(pack.getHash());
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
+        out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
+    }
+
+    /**
+     * Read a pack from the input
+     *
+     * @param in The input to read from
+     * @return The pack that was read, if the name is empty then the empty pack will be returned,
+     *         if the pack is unknown then <code>null</code> is returned
+     */
+    protected ResourcePack readPack(ByteArrayDataInput in) {
+        String packName = in.readUTF();
+        if (packName.isEmpty()) {
+            return plugin.getPackManager().getEmptyPack();
+        }
+        String packUrl = in.readUTF();
+        String packHash = in.readUTF();
+        UUID packUuid = new UUID(in.readLong(), in.readLong());
+        if (packUuid.getLeastSignificantBits() == 0 && packUuid.getMostSignificantBits() == 0) {
+            packUuid = null;
+        }
+
+        ResourcePack pack = plugin.getPackManager().getByName(packName);
+        if (pack == null) {
+            try {
+                pack = new ResourcePack(packName, packUuid, packUrl, packHash);
+                plugin.getPackManager().addPack(pack);
+            } catch (IllegalArgumentException e) {
+                pack = plugin.getPackManager().getByHash(packHash);
+                if (pack == null) {
+                    pack = plugin.getPackManager().getByUrl(packUrl);
+                }
+            }
+        }
+        return pack;
+    }
+
     protected abstract void sendPluginMessage(S target, byte[] data);
 
     /**
@@ -184,5 +287,4 @@ public abstract class SubChannelHandler<S> {
      * @return The key (or null if none is stored)
      */
     protected abstract String loadKey();
-
 }

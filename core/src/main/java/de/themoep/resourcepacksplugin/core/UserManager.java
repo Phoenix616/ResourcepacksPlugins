@@ -165,7 +165,7 @@ public class UserManager {
      */
     public void onConnect(UUID playerId) {
         userPackTime.remove(playerId);
-        clearUserPacks(playerId); // don't call plugin method as we don't need to send info to backend server and we aren't connect to one yet
+        clearUserPacks(playerId);
     }
 
     /**
@@ -177,7 +177,8 @@ public class UserManager {
             plugin.log(plugin.getLogLevel(), "Removed stored pack from " + playerId + " as he logged out in under " + plugin.getPermanentPackRemoveTime() + " seconds after it got applied!");
         }
         userPackTime.remove(playerId);
-        plugin.clearPack(playerId); //call plugin method because that might send a clear info
+        clearUserPacks(playerId);
+        plugin.sendPackInfo(playerId);
     }
     
     /**

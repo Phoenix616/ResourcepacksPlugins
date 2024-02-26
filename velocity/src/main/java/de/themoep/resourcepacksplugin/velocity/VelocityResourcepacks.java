@@ -29,7 +29,6 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.api.util.ProxyVersion;
@@ -549,25 +548,23 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             } catch (IllegalStateException e) {
                 logDebug("Not sending pack " + pack.getName() + "to " + player.getUsername() + ": " + e.getMessage());
             }
-            sendPackInfo(player, getUserManager().getUserPacks(player.getUniqueId()));
         } else {
             log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
             log(Level.WARNING, "Consider blocking access to your server for clients with version under 1.8 if you want this plugin to work for everyone!");
         }
     }
 
+    @Override
+    public void sendPackInfo(UUID playerId) {
+        getProxy().getPlayer(playerId).ifPresent(player -> sendPackInfo(player, getUserManager().getUserPacks(playerId)));
+    }
+
     /**
      * <p>Send a plugin message to the server the player is connected to!</p>
-     * <p>Channel: Resourcepack</p>
-     * <p>sub-channel: packsChange</p>
-     * <p>arg1: player.getName()</p>
-     * <p>arg2: pack.getName();</p>
-     * <p>arg3: pack.getUrl();</p>
-     * <p>arg4: pack.getHash();</p>
      * @param player The player to update the pack on the player's bukkit server
      * @param packs The ResourcePacks to send the info of the the Bukkit server, can be empty to clear it!
      */
-    public void sendPackInfo(Player player, List<ResourcePack> packs) {
+    private void sendPackInfo(Player player, List<ResourcePack> packs) {
         if (!player.getCurrentServer().isPresent()) {
             logDebug("Tried to send pack info of " + packs.size() + " packs for player " + player.getUsername() + " but server was null!");
             return;
@@ -579,7 +576,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 out.writeLong(player.getUniqueId().getLeastSignificantBits());
                 out.writeInt(packs.size());
                 for (ResourcePack pack : packs) {
-                    writePack(out, pack);
+                    getMessageChannelHandler().writePack(out, pack);
                 }
             });
         } else {
@@ -589,10 +586,6 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 out.writeLong(player.getUniqueId().getLeastSignificantBits());
             });
         }
-    }
-
-    public void setPack(UUID playerId, ResourcePack pack) {
-        getPackManager().setPack(playerId, pack);
     }
 
     public void sendPack(UUID playerId, ResourcePack pack) {
@@ -627,7 +620,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            writePack(out, null);
+            getMessageChannelHandler().writePack(out, null);
         });
         logDebug("Removed all packs from " + player.getUsername());
     }
@@ -650,7 +643,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            writePack(out, pack);
+            getMessageChannelHandler().writePack(out, pack);
         });
         logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
     }
@@ -665,30 +658,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
-            writePack(out, pack);
+            getMessageChannelHandler().writePack(out, pack);
         });
-    }
-
-    private void writePack(ByteArrayDataOutput out, ResourcePack pack) {
-        if (pack == null) {
-            out.writeUTF("");
-            return;
-        }
-        out.writeUTF(pack.getName());
-        out.writeUTF(pack.getUrl());
-        out.writeUTF(pack.getHash());
-        out.writeLong(pack.getUuid() != null ? pack.getUuid().getMostSignificantBits() : 0);
-        out.writeLong(pack.getUuid() != null ? pack.getUuid().getLeastSignificantBits() : 0);
     }
 
     public void clearPack(Player player) {
         getUserManager().clearUserPacks(player.getUniqueId());
-        sendPackInfo(player, Collections.emptyList());
     }
 
     public void clearPack(UUID playerId) {
         getUserManager().clearUserPacks(playerId);
-        getProxy().getPlayer(playerId).ifPresent(p -> sendPackInfo(p, Collections.emptyList()));
     }
 
     public PackManager getPackManager() {

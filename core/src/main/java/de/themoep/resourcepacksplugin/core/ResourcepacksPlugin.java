@@ -76,13 +76,10 @@ public interface ResourcepacksPlugin {
     void resendPack(UUID playerId);
 
     /**
-     * Set the resoucepack of a connected player
-     * @param playerId The UUID of the player to set the pack for
-     * @param pack The resourcepack to set for the player
-     * @deprecated Please use {@link PackManager#setPack(UUID, ResourcePack)}!
+     * <p>Send a plugin message to the server/proxy the player is connected to!</p>
+     * @param playerId The UUID of the player to send the pack info for
      */
-    @Deprecated
-    void setPack(UUID playerId, ResourcePack pack);
+    void sendPackInfo(UUID playerId);
 
     /**
      * Internal method to send a resoucepack to a player, please use {@link PackManager#setPack(UUID, ResourcePack)}!

@@ -48,8 +48,7 @@ public class ServerSwitchListener {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            List<ResourcePack> packs = plugin.getUserManager().getUserPacks(playerId);
-            plugin.sendPackInfo(event.getPlayer(), packs);
+            plugin.sendPackInfo(playerId);
 
             long sendDelay = -1;
             Optional<ServerConnection> server = event.getPlayer().getCurrentServer();

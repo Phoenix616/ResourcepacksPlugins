@@ -47,9 +47,7 @@ public class ServerSwitchListener implements Listener {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            List<ResourcePack> packs = plugin.getUserManager().getUserPacks(playerId);
-
-            plugin.sendPackInfo(event.getPlayer(), packs);
+            plugin.sendPackInfo(playerId);
 
             if (plugin.getPlayerProtocol(playerId) == MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
                 // In 1.20.2 the pack needs to be resent on server switch -> we remove the user pack which forces a resend

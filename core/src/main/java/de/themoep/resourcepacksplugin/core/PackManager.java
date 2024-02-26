@@ -856,7 +856,9 @@ public class PackManager {
                     } catch (IOException e) {
                         plugin.log(Level.WARNING, "Error while trying to read resource pack " + pack.getName() + " file from local path " + path, e);
                     }
-                    plugin.runTask(() -> plugin.sendPack(playerId, pack));
+                    plugin.runTask(() -> {
+                        plugin.sendPack(playerId, pack);
+                    });
                 });
                 return;
             }
@@ -911,6 +913,8 @@ public class PackManager {
         } else if (!packs.isEmpty()) {
             setPack(playerId, packs.iterator().next());
         }
+
+        plugin.sendPackInfo(playerId);
     }
 
     /**

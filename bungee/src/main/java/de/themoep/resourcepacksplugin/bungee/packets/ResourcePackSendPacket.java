@@ -139,7 +139,7 @@ public class ResourcePackSendPacket extends DefinedPacket {
                 }
             }
             plugin.setBackend(usercon.getUniqueId());
-            plugin.logDebug("Backend mc server send pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
+            plugin.logDebug("Backend mc server sent pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + usercon.getName());
             plugin.getUserManager().addUserPack(usercon.getUniqueId(), pack);
         }
     }
