@@ -534,7 +534,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if (clientVersion >= ProtocolVersion.MINECRAFT_1_8.getProtocol()) {
             if (clientVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()
                     && (pack == null || pack == getPackManager().getEmptyPack())) {
-                sendPackRemovalRequest(player, pack);
+                sendPackClearRequest(player);
                 return;
             }
             ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(getPackManager().getPackUrl(pack));
@@ -543,7 +543,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             } else if (pack.getRawHash().length > 0) {
                 log(Level.WARNING, "Invalid sha1 hash sum for pack " + pack.getName() + " detected! (It was '" + pack.getHash() + "')");
             }
-            player.sendResourcePackOffer(packInfoBuilder.build());
+            try {
+                player.sendResourcePackOffer(packInfoBuilder.build());
+                logDebug("Sent pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + ".");
+            } catch (IllegalStateException e) {
+                logDebug("Not sending pack " + pack.getName() + "to " + player.getUsername() + ": " + e.getMessage());
+            }
             sendPackInfo(player, getUserManager().getUserPacks(player.getUniqueId()));
         } else {
             log(Level.WARNING, "Cannot send the pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getUsername() + " as he uses the unsupported protocol version " + clientVersion + "!");
@@ -606,7 +611,37 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         sendPackRemoveInfo(player, pack);
     }
 
+    private void sendPackClearRequest(Player player) {
+        try {
+            player.clearResourcePacks();
+            logDebug("Removed all packs from " + player.getUsername());
+            return;
+        } catch (NoSuchMethodError ignored) {
+            // Outdated Velocity, fall back to plugin message
+        }
+        if (!player.getCurrentServer().isPresent()) {
+            logDebug("Tried to send pack clear request for player " + player.getUsername() + " but server was null!");
+            return;
+        }
+        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePackRequest", out -> {
+            out.writeUTF(player.getUsername());
+            out.writeLong(player.getUniqueId().getMostSignificantBits());
+            out.writeLong(player.getUniqueId().getLeastSignificantBits());
+            writePack(out, null);
+        });
+        logDebug("Removed all packs from " + player.getUsername());
+    }
+
     private void sendPackRemovalRequest(Player player, ResourcePack pack) {
+        if (pack.getUuid() != null) {
+            try {
+                player.removeResourcePacks(pack.getUuid());
+                logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getUsername());
+                return;
+            } catch (NoSuchMethodError ignored) {
+                // Outdated Velocity, fall back to plugin message
+            }
+        }
         if (!player.getCurrentServer().isPresent()) {
             logDebug("Tried to send pack removal request of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
             return;
@@ -635,6 +670,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     private void writePack(ByteArrayDataOutput out, ResourcePack pack) {
+        if (pack == null) {
+            out.writeUTF("");
+            return;
+        }
         out.writeUTF(pack.getName());
         out.writeUTF(pack.getUrl());
         out.writeUTF(pack.getHash());

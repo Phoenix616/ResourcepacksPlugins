@@ -103,10 +103,19 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
 
             ResourcePack pack = readPack(in);
+            if (pack == null) {
+                plugin.logDebug("Proxy send command to send a pack removal request for an unknown pack for player " + playerName + "?");
+                return;
+            }
 
             Player player = plugin.getServer().getPlayer(playerUuid);
             if (player == null || !player.isOnline()) {
                 plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " of player " + playerName + " but they aren't online?");
+                return;
+            }
+            if (pack.equals(plugin.getPackManager().getEmptyPack())) {
+                plugin.logDebug("Proxy send command to send a pack removal request for all packs for player " + playerName);
+                plugin.removePacks(playerUuid);
                 return;
             }
             plugin.logDebug("Proxy send command to send a pack removal request for pack " + pack.getName() + "/" + pack.getUuid() + " for player " + playerName);
@@ -140,6 +149,9 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
 
     private ResourcePack readPack(ByteArrayDataInput in) {
         String packName = in.readUTF();
+        if (packName.isEmpty()) {
+            return plugin.getPackManager().getEmptyPack();
+        }
         String packUrl = in.readUTF();
         String packHash = in.readUTF();
         UUID packUuid = new UUID(in.readLong(), in.readLong());

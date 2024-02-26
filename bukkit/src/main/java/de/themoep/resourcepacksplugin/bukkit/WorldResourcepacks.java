@@ -580,11 +580,27 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         int clientVersion = getPlayerProtocol(player.getUniqueId());
         if (clientVersion >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()
                 && (pack == null || pack == getPackManager().getEmptyPack())) {
-            internalHelper.removeResourcePacks(player);
+            removePacks(player);
             return;
         }
         internalHelper.setResourcePack(player, pack);
         logDebug("Send pack " + pack.getName() + " (" + pack.getUrl() + ") to " + player.getName());
+    }
+
+    public void removePacks(UUID playerId) {
+        Player player = getServer().getPlayer(playerId);
+        if (player != null) {
+            removePacks(player);
+        }
+    }
+
+    public void removePacks(Player player) {
+        if (supportsMultiplePacks(player.getUniqueId())) {
+            try {
+                internalHelper.removeResourcePacks(player);
+                logDebug("Removed all packs from " + player.getName());
+            } catch (UnsupportedOperationException ignored) {}
+        }
     }
 
     @Override
@@ -596,9 +612,13 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     public void removePack(Player player, ResourcePack pack) {
-        if (pack.getUuid() != null) {
-            internalHelper.removeResourcePack(player, pack);
-            logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
+        if (supportsMultiplePacks(player.getUniqueId())) {
+            try {
+                if (pack.getUuid() != null) {
+                    internalHelper.removeResourcePack(player, pack);
+                    logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
+                }
+            } catch (UnsupportedOperationException ignored) {}
         }
     }
 

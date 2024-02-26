@@ -778,11 +778,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             ResourcePackRemovePacket packet = new ResourcePackRemovePacket();
             try {
                 ((UserConnection) player).sendPacketQueued(packet);
-                sendPackInfo(player, Collections.emptyList());
-                logDebug("Cleared all packs of " + player.getName());
             } catch (Throwable t) {
                 player.unsafe().sendPacket(packet);
             }
+            sendPackInfo(player, Collections.emptyList());
+            logDebug("Cleared all packs of " + player.getName());
         } else if (clientVersion >= MinecraftVersion.MINECRAFT_1_8.getProtocolNumber()) {
             try {
                 ResourcePackSendPacket packet = new ResourcePackSendPacket(getPackManager().getPackUrl(pack), pack.getHash());
