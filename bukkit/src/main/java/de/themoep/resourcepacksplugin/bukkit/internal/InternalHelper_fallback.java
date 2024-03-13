@@ -34,7 +34,6 @@ import java.util.logging.Level;
 public class InternalHelper_fallback implements InternalHelper {
 
     private final WorldResourcepacks plugin;
-    private final Method setPackWithHashMethod = null;
 
     private Method getHandle = null;
     private Method setResourcePack = null;
@@ -54,19 +53,22 @@ public class InternalHelper_fallback implements InternalHelper {
         try {
             hasSetResourcePack = Player.class.getMethod("setResourcePack", String.class, byte[].class) != null;
         } catch (NoSuchMethodException ignored) {}
-        // Old version, method still not there
-        String packageName = Bukkit.getServer().getClass().getPackage().getName();
-        String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-        try {
-            Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
-            getHandle = craftPlayer.getDeclaredMethod("getHandle");
+        if (!hasAddResourcePack && !hasSetIdResourcePack && !hasSetResourcePack) {
+            // Old version, methods still not there
+            String packageName = Bukkit.getServer().getClass().getPackage().getName();
+            String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-            Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
-            setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+            try {
+                Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
+                getHandle = craftPlayer.getDeclaredMethod("getHandle");
 
-        } catch (ClassNotFoundException | NoSuchMethodException e1) {
-            plugin.log(Level.SEVERE, "Unable to find method which enables us to efficiently send a resource pack!", e1);
+                Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
+                setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
+
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                plugin.log(Level.SEVERE, "Unable to find method which enables us to efficiently send a resource pack!", e);
+            }
         }
         try {
             hasRemoveResourcepacks = Player.class.getMethod("removeResourcePack", String.class) != null;
@@ -91,19 +93,12 @@ public class InternalHelper_fallback implements InternalHelper {
         }
 
         try {
-            if (setPackWithHashMethod != null) {
-                setPackWithHashMethod.invoke(player, plugin.getPackManager().getPackUrl(pack), pack.getRawHash());
-                return;
-            } else if (getHandle != null && setResourcePack != null) {
+            if (getHandle != null && setResourcePack != null) {
                 Object entityPlayer = getHandle.invoke(player);
                 setResourcePack.invoke(entityPlayer, plugin.getPackManager().getPackUrl(pack), pack.getHash());
                 return;
             }
-        } catch (InvocationTargetException e) {
-            // invokation failed
-        } catch (IllegalAccessException e) {
-            // not allowed to access it?
-        }
+        } catch (InvocationTargetException | IllegalAccessException ignored) {}
         player.setResourcePack(pack.getUrl());
     }
 
