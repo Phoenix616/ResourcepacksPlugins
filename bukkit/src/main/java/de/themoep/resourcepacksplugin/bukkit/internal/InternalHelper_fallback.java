@@ -99,7 +99,8 @@ public class InternalHelper_fallback implements InternalHelper {
                 return;
             }
         } catch (InvocationTargetException | IllegalAccessException ignored) {}
-        player.setResourcePack(pack.getUrl());
+
+        player.setResourcePack(plugin.getPackManager().getPackUrl(pack));
     }
 
     @Override
