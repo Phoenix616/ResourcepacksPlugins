@@ -30,12 +30,11 @@ import java.util.Optional;
 /**
  * Created by Phoenix616 on 22.07.2016.
  */
-public class InternalHelper_v1_20_R3 extends InternalHelper_fallback {
+public class InternalHelper_v1_20_R3 implements InternalHelper {
 
     private WorldResourcepacks plugin;
 
     public InternalHelper_v1_20_R3(WorldResourcepacks plugin) {
-        super(plugin);
         this.plugin = plugin;
     }
 
