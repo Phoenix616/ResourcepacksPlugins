@@ -57,13 +57,12 @@ public class InternalHelper_fallback implements InternalHelper {
         if (!hasAddResourcePack && !hasSetIdResourcePack && !hasSetResourcePack) {
             // Old version, methods still not there
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
-            String serverVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
             try {
-                Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".entity.CraftPlayer");
+                Class<?> craftPlayer = Class.forName(packageName + ".entity.CraftPlayer");
                 getHandle = craftPlayer.getDeclaredMethod("getHandle");
 
-                Class<?> entityPlayer = Class.forName("net.minecraft.server." + serverVersion + ".EntityPlayer");
+                Class<?> entityPlayer = getHandle.getReturnType();
                 setResourcePack = entityPlayer.getDeclaredMethod("setResourcePack", String.class, String.class);
 
             } catch (ClassNotFoundException | NoSuchMethodException e) {
