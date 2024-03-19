@@ -40,7 +40,7 @@ public class ForwardingCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         ResourcepacksPlayer s = null;
         if (sender instanceof Player) {
-            s = executor.getPlugin().getPlayer(((Player) sender).getUniqueId());
+            s = ((WorldResourcepacks) executor.getPlugin()).getPlayer((Player) sender);
         }
         executor.execute(s, args);
         return true;

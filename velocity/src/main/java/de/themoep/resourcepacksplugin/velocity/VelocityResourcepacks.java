@@ -804,16 +804,16 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public ResourcepacksPlayer getPlayer(UUID playerId) {
-        return getProxy().getPlayer(playerId)
-                .map(player1 -> new ResourcepacksPlayer(player1.getUsername(), player1.getUniqueId()))
-                .orElse(null);
+        return getPlayer(getProxy().getPlayer(playerId).orElse(null));
     }
 
     @Override
     public ResourcepacksPlayer getPlayer(String playerName) {
-        return getProxy().getPlayer(playerName)
-                .map(player1 -> new ResourcepacksPlayer(player1.getUsername(), player1.getUniqueId()))
-                .orElse(null);
+        return getPlayer(getProxy().getPlayer(playerName).orElse(null));
+    }
+
+    public ResourcepacksPlayer getPlayer(Player player) {
+        return player != null ? new ResourcepacksPlayer(player.getUsername(), player.getUniqueId()) : null;
     }
 
     @Override

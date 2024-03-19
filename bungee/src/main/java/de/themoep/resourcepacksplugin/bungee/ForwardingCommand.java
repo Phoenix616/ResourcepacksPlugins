@@ -36,7 +36,7 @@ public class ForwardingCommand extends Command {
     public void execute(CommandSender sender, String[] args) {
         ResourcepacksPlayer s = null;
         if(sender instanceof ProxiedPlayer) {
-            s = executor.getPlugin().getPlayer(((ProxiedPlayer) sender).getUniqueId());
+            s = ((BungeeResourcepacks) executor.getPlugin()).getPlayer((ProxiedPlayer) sender);
         }
         executor.execute(s, args);
     }

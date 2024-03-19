@@ -613,18 +613,16 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public ResourcepacksPlayer getPlayer(UUID playerId) {
-        Optional<Player> player = Sponge.getServer().getPlayer(playerId);
-        return player
-                .map(p -> new ResourcepacksPlayer(p.getName(), p.getUniqueId()))
-                .orElse(null);
+        return getPlayer(Sponge.getServer().getPlayer(playerId).orElse(null));
     }
 
     @Override
     public ResourcepacksPlayer getPlayer(String playerName) {
-        Optional<Player> player = Sponge.getServer().getPlayer(playerName);
-        return player
-                .map(p -> new ResourcepacksPlayer(p.getName(), p.getUniqueId()))
-                .orElse(null);
+        return getPlayer(Sponge.getServer().getPlayer(playerName).orElse(null));
+    }
+
+    public ResourcepacksPlayer getPlayer(Player player) {
+        return player != null ? new ResourcepacksPlayer(player.getName(), player.getUniqueId()) : null;
     }
 
     @Override

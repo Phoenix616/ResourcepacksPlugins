@@ -38,7 +38,7 @@ public class ForwardingCommand implements SimpleCommand {
     public void execute(Invocation i) {
         ResourcepacksPlayer s = null;
         if (i.source() instanceof Player) {
-            s = executor.getPlugin().getPlayer(((Player) i.source()).getUniqueId());
+            s = ((VelocityResourcepacks) executor.getPlugin()).getPlayer((Player) i.source());
         }
         executor.execute(s, i.arguments());
     }

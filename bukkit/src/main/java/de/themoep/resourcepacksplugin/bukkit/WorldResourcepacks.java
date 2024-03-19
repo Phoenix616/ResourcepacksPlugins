@@ -743,20 +743,16 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public ResourcepacksPlayer getPlayer(UUID playerId) {
-        Player player = getServer().getPlayer(playerId);
-        if(player != null) {
-            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
-        }
-        return null;
+        return getPlayer(getServer().getPlayer(playerId));
     }
 
     @Override
     public ResourcepacksPlayer getPlayer(String playerName) {
-        Player player = getServer().getPlayer(playerName);
-        if(player != null) {
-            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
-        }
-        return null;
+        return getPlayer(getServer().getPlayerExact(playerName));
+    }
+
+    public ResourcepacksPlayer getPlayer(Player player) {
+        return player != null ? new ResourcepacksPlayer(player.getName(), player.getUniqueId()) : null;
     }
 
     @Override

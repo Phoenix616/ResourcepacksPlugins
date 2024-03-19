@@ -52,7 +52,7 @@ public class ForwardingCommand implements CommandCallable {
     public CommandResult process(CommandSource sender, String args) throws CommandException {
         ResourcepacksPlayer s = null;
         if (sender instanceof Player) {
-            s = executor.getPlugin().getPlayer(((Player) sender).getUniqueId());
+            s = ((SpongeResourcepacks) executor.getPlugin()).getPlayer((Player) sender);
         }
         executor.execute(s, args.split(" "));
         return CommandResult.success();

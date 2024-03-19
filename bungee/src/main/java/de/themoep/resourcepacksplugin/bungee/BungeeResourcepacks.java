@@ -78,7 +78,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -995,20 +994,16 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     @Override
     public ResourcepacksPlayer getPlayer(UUID playerId) {
-        ProxiedPlayer player = getProxy().getPlayer(playerId);
-        if(player != null) {
-            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
-        }
-        return null;
+        return getPlayer(getProxy().getPlayer(playerId));
     }
 
     @Override
     public ResourcepacksPlayer getPlayer(String playerName) {
-        ProxiedPlayer player = getProxy().getPlayer(playerName);
-        if(player != null) {
-            return new ResourcepacksPlayer(player.getName(), player.getUniqueId());
-        }
-        return null;
+        return getPlayer(getProxy().getPlayer(playerName));
+    }
+
+    public ResourcepacksPlayer getPlayer(ProxiedPlayer player) {
+        return player != null ? new ResourcepacksPlayer(player.getName(), player.getUniqueId()) : null;
     }
 
     @Override
