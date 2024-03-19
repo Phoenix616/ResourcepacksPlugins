@@ -79,11 +79,12 @@ public class ServerSwitchListener {
         Optional<Player> player = plugin.getProxy().getPlayer(playerId);
         if (player.isPresent()) {
             String serverName = "";
-            Optional<ServerConnection> server = player.get().getCurrentServer();
+            Player p = player.get();
+            Optional<ServerConnection> server = p.getCurrentServer();
             if (server.isPresent()) {
                 serverName = server.get().getServerInfo().getName();
             }
-            plugin.getPackManager().applyPack(playerId, serverName);
+            plugin.getPackManager().applyPack(plugin.getPlayer(p), serverName);
         }
     }
 }

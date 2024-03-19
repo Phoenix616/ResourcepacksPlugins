@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.bukkit.listeners;
  */
 
 import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import org.bukkit.entity.Player;
 
 public class AuthHandler {
@@ -38,10 +39,11 @@ public class AuthHandler {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
             }
             plugin.logDebug(player.getName() + " authenticated! Sending pack in " + sendDelay + " ticks...");
+            ResourcepacksPlayer rpPlayer = plugin.getPlayer(player);
             if (sendDelay > 0) {
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), player.getWorld().getName()), sendDelay);
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> plugin.getPackManager().applyPack(rpPlayer, player.getWorld().getName()), sendDelay);
             } else {
-                plugin.getPackManager().applyPack(player.getUniqueId(), player.getWorld().getName());
+                plugin.getPackManager().applyPack(rpPlayer, player.getWorld().getName());
             }
         }
 

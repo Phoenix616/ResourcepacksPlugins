@@ -755,7 +755,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if(player.getServer() != null) {
             serverName = player.getServer().getInfo().getName();
         }
-        getPackManager().applyPack(player.getUniqueId(), serverName);
+        getPackManager().applyPack(getPlayer(player), serverName);
     }
 
     public void resendPack(UUID playerId) {

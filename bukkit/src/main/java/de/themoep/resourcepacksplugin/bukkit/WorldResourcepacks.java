@@ -596,7 +596,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         if(player.getWorld() != null) {
             worldName = player.getWorld().getName();
         }
-        getPackManager().applyPack(player.getUniqueId(), worldName);
+        getPackManager().applyPack(getPlayer(player), worldName);
     }
 
     public void sendPack(UUID playerId, ResourcePack pack) {

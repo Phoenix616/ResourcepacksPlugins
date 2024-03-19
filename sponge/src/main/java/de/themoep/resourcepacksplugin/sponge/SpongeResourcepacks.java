@@ -459,7 +459,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         if(player.getWorld() != null) {
             worldName = player.getWorld().getName();
         }
-        getPackManager().applyPack(player.getUniqueId(), worldName);
+        getPackManager().applyPack(getPlayer(player), worldName);
     }
 
     public void setPack(UUID playerId, ResourcePack pack) {

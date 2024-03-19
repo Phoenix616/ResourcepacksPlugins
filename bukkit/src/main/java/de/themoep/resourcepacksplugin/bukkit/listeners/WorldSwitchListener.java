@@ -79,7 +79,7 @@ public class WorldSwitchListener implements Listener {
                 if(player.getWorld() != null) {
                     worldName = player.getWorld().getName();
                 }
-                plugin.getPackManager().applyPack(player.getUniqueId(), worldName);
+                plugin.getPackManager().applyPack(plugin.getPlayer(player), worldName);
             }
         }
     }

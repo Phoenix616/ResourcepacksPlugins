@@ -516,7 +516,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if(player.getCurrentServer().isPresent()) {
             serverName = player.getCurrentServer().get().getServerInfo().getName();
         }
-        getPackManager().applyPack(player.getUniqueId(), serverName);
+        getPackManager().applyPack(getPlayer(player), serverName);
     }
 
     public void resendPack(UUID playerId) {

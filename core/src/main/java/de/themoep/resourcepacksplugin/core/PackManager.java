@@ -895,9 +895,21 @@ public class PackManager {
      * Apply the pack that a player should have on that server/world
      * @param playerId      The UUID of the player
      * @param serverName    The name of the server/world
+     * @deprecated Use {@link #applyPack(ResourcepacksPlayer, String)} instead
      */
+    @Deprecated
     public void applyPack(UUID playerId, String serverName) {
-        LinkedHashSet<ResourcePack> packs = getApplicablePacks(playerId, serverName);
+        applyPack(plugin.getPlayer(playerId), serverName);
+    }
+
+    /**
+     * Apply the pack that a player should have on that server/world
+     * @param player        The player
+     * @param serverName    The name of the server/world
+     */
+    public void applyPack(ResourcepacksPlayer player, String serverName) {
+        UUID playerId = player.getUniqueId();
+        LinkedHashSet<ResourcePack> packs = getApplicablePacks(player, serverName);
         if (plugin.supportsMultiplePacks(playerId)) {
             PackAssignment assignment = getAssignment(serverName);
             List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
@@ -922,16 +934,24 @@ public class PackManager {
      * @param playerId The UUID of the player
      * @param serverName The name of the server
      * @return The packs for that server; an empty list if they should have none
+     * @deprecated Use {@link #getApplicablePacks(ResourcepacksPlayer, String)} instead
      */
+    @Deprecated
     public LinkedHashSet<ResourcePack> getApplicablePacks(UUID playerId, String serverName) {
+        return getApplicablePacks(plugin.getPlayer(playerId), serverName);
+    }
+
+    /**
+     * Get the pack the player should have on that server
+     * @param player     The player
+     * @param serverName The name of the server
+     * @return The packs for that server; an empty list if they should have none
+     */
+    public LinkedHashSet<ResourcePack> getApplicablePacks(ResourcepacksPlayer player, String serverName) {
+        UUID playerId = player.getUniqueId();
         List<ResourcePack> previousPacks = plugin.getUserManager().getUserPacks(playerId);
         LinkedHashSet<ResourcePack> packs = new LinkedHashSet<>();
         ResourcePack stored = getByName(plugin.getStoredPack(playerId));
-
-        ResourcepacksPlayer player = plugin.getPlayer(playerId);
-        if (player == null) {
-            player = new ResourcepacksPlayer("uuid:" + playerId, playerId);
-        }
 
         if (getStoredPacksOverride() && stored != null) {
             if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {

@@ -72,7 +72,7 @@ public class WorldSwitchListener {
                 return;
             }
             Sponge.getServer().getPlayer(playerId)
-                    .ifPresent(p -> plugin.getPackManager().applyPack(p.getUniqueId(), p.getWorld().getName()));
+                    .ifPresent(p -> plugin.getPackManager().applyPack(plugin.getPlayer(p), p.getWorld().getName()));
         }
     }
 }

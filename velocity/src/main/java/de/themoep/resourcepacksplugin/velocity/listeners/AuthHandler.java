@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  */
 
 import com.velocitypowered.api.proxy.Player;
+import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
 import java.util.concurrent.TimeUnit;
@@ -45,14 +46,15 @@ public class AuthHandler {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
             }
             plugin.logDebug(player.getUsername() + " authenticated on the backend server " + serverName + "! Sending pack in " + sendDelay + " ticks...");
+            ResourcepacksPlayer rpPlayer = plugin.getPlayer(player);
             if (sendDelay > 0) {
                 String finalServerName = serverName;
                 plugin.getProxy().getScheduler()
-                        .buildTask(plugin, () -> plugin.getPackManager().applyPack(player.getUniqueId(), finalServerName))
+                        .buildTask(plugin, () -> plugin.getPackManager().applyPack(rpPlayer, finalServerName))
                         .delay(sendDelay * 20, TimeUnit.MILLISECONDS)
                         .schedule();
             } else {
-                plugin.getPackManager().applyPack(player.getUniqueId(), serverName);
+                plugin.getPackManager().applyPack(rpPlayer, serverName);
             }
         }
     }
