@@ -955,15 +955,14 @@ public class PackManager {
 
         if (getStoredPacksOverride() && stored != null) {
             if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
-                if (stored.equals(previousPacks)) {
+                if (previousPacks.contains(stored)) {
                     plugin.logDebug(player.getName() + " already uses the stored pack " + stored.getName());
                 } else {
                     plugin.logDebug(player.getName() + " had the pack " + stored.getName() + " stored, using that");
                 }
                 packs.add(stored);
 
-                if (!plugin.supportsMultiplePacks(playerId))
-                    return packs;
+                return packs;
             }
         }
 
