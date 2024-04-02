@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -393,81 +394,23 @@ public class ResourcePack {
         return variants;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        } else if (o == this) {
-            return true;
-        } else if (!(o instanceof ResourcePack)) {
-            return false;
-        } else {
-            ResourcePack other = (ResourcePack)o;
-            String this$name = this.getName();
-            String other$name = other.getName();
-            if (this$name == null) {
-                if (other$name != null) {
-                    return false;
-                }
-            } else if (!this$name.equals(other$name)) {
-                return false;
-            }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResourcePack pack = (ResourcePack) o;
+        return format == pack.format && version == pack.version && restricted == pack.restricted
+                && Objects.equals(name, pack.name) && Objects.equals(uuid, pack.uuid)
+                && Objects.equals(url, pack.url) && Objects.equals(localPath, pack.localPath)
+                && Arrays.equals(hash, pack.hash) && Objects.equals(permission, pack.permission)
+                && type == pack.type && Objects.equals(variants, pack.variants);
+    }
 
-            UUID this$uuid = this.getUuid();
-            UUID other$uuid = other.getUuid();
-            if (this$uuid == null) {
-                if (other$uuid != null) {
-                    return false;
-                }
-            } else if (!this$uuid.equals(other$uuid)) {
-                return false;
-            }
-            
-            String this$url = this.getUrl();
-            String other$url = other.getUrl();
-            if (this$url == null) {
-                if (other$url != null) {
-                    return false;
-                }
-            } else if (!this$url.equals(other$url)) {
-                return false;
-            }
-
-            String this$path = this.getLocalPath();
-            String other$path = other.getLocalPath();
-            if (this$path == null) {
-                if (other$path != null) {
-                    return false;
-                }
-            } else if (!this$path.equals(other$path)) {
-                return false;
-            }
-
-            byte[] this$hash = this.getRawHash();
-            byte[] other$hash = other.getRawHash();
-            if (this$hash == null) {
-                if (other$hash != null) {
-                    return false;
-                }
-            } else if (!Arrays.equals(this$hash, other$hash)) {
-                return false;
-            }
-
-            if (this.getType() != other.getType()) {
-                return false;
-            }
-
-            if (this.getVariants().size() != other.getVariants().size()) {
-                return false;
-            }
-
-            for (int i = 0; i < this.getVariants().size(); i++) {
-                if (!this.getVariants().get(i).equals(other.getVariants().get(i))) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(name, uuid, url, localPath, format, version, restricted, permission, type, variants);
+        result = 31 * result + Arrays.hashCode(hash);
+        return result;
     }
 
     public String[] getReplacements() {
