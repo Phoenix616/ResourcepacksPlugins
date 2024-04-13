@@ -112,7 +112,7 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
 
     private SpongePluginLogger pluginLogger = new SpongePluginLogger(logger);
 
-    private int serverProtocolVersion = 0;
+    private int serverProtocolVersion = -1;
 
     protected ResourcepacksPluginCommandExecutor pluginCommand;
 

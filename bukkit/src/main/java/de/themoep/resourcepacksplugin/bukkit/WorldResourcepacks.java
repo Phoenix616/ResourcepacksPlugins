@@ -117,7 +117,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     };
 
-    private int serverProtocolVersion = 0;
+    private int serverProtocolVersion = -1;
 
     private InternalHelper internalHelper;
 

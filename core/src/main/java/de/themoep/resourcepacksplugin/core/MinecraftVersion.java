@@ -65,6 +65,7 @@ public enum MinecraftVersion {
     MINECRAFT_1_9_2(109),
     MINECRAFT_1_9_1(108),
     MINECRAFT_1_9(107),
+    MINECRAFT_1_8_8(47),
     MINECRAFT_1_8(47),
     MINECRAFT_1_7_6(5),
     MINECRAFT_1_7_2(4),
