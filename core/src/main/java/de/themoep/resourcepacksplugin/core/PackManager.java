@@ -1086,6 +1086,9 @@ public class PackManager {
         }
 
         IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, new ArrayList<>(packs), status);
+        if (selectEvent.getStatus() != IResourcePackSelectEvent.Status.SUCCESS) {
+            plugin.logDebug(player.getName() + " ResourcePackSelectEvent Status: " + selectEvent.getStatus());
+        }
         return new LinkedHashSet<>(selectEvent.getPacks());
     }
 
