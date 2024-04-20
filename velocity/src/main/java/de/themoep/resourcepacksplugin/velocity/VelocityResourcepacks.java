@@ -76,7 +76,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -291,7 +290,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         String debugString = getConfig().getString("debug", "true");
         if (debugString.equalsIgnoreCase("true")) {
             loglevel = Level.INFO;
-        } else if (debugString.equalsIgnoreCase("false") || debugString.equalsIgnoreCase("off")) {
+        } else if (debugString.equalsIgnoreCase("false")) {
             loglevel = Level.FINE;
         } else {
             try {
@@ -794,7 +793,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     @Override
     public void logDebug(String message, Throwable throwable) {
-        log(getLogLevel(), "[DEBUG] " + message, throwable);
+        if (getLogLevel() != Level.OFF) {
+            log(getLogLevel(), "[DEBUG] " + message, throwable);
+        }
     }
 
     @Override

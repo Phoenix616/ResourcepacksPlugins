@@ -273,7 +273,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         String debugString = getConfig().getString("debug");
         if (debugString.equalsIgnoreCase("true")) {
             loglevel = Level.INFO;
-        } else if (debugString.equalsIgnoreCase("false") || debugString.equalsIgnoreCase("off")) {
+        } else if (debugString.equalsIgnoreCase("false")) {
             loglevel = Level.FINE;
         } else {
             try {
@@ -733,7 +733,9 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
     @Override
     public void logDebug(String message, Throwable throwable) {
-        getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
+        if (getLogLevel() != Level.OFF) {
+            getLogger().log(getLogLevel(), "[DEBUG] " + message, throwable);
+        }
     }
 
     @Override
