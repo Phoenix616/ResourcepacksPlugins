@@ -783,7 +783,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             logDebug("Cleared all packs of " + player.getName());
         } else if (clientVersion >= MinecraftVersion.MINECRAFT_1_8.getProtocolNumber()) {
             try {
-                ResourcePackSendPacket packet = new ResourcePackSendPacket(getPackManager().getPackUrl(pack), pack.getHash());
+                ResourcePackSendPacket packet = new ResourcePackSendPacket(pack.getUuid(), getPackManager().getPackUrl(pack), pack.getHash());
                 try {
                     ((UserConnection) player).sendPacketQueued(packet);
                 } catch (Throwable t) {
@@ -859,7 +859,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
 
     private void removePack(ProxiedPlayer player, ResourcePack pack) {
         if (pack.getUuid() != null) {
-            player.unsafe().sendPacket(new ResourcePackRemovePacket(pack.getUuid()));
+            ResourcePackRemovePacket packet = new ResourcePackRemovePacket(pack.getUuid());
+            try {
+                ((UserConnection) player).sendPacketQueued(packet);
+            } catch (Throwable t) {
+                player.unsafe().sendPacket(packet);
+            }
             logDebug("Removed pack " + pack.getName() + " (" + pack.getUuid() + ") from " + player.getName());
         }
         sendPackRemoveInfo(player, pack);

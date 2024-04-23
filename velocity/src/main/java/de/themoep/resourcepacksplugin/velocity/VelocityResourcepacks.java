@@ -535,7 +535,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 sendPackClearRequest(player);
                 return;
             }
-            ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(getPackManager().getPackUrl(pack));
+            ResourcePackInfo.Builder packInfoBuilder = proxy.createResourcePackBuilder(getPackManager().getPackUrl(pack))
+                    .setId(pack.getUuid());
             if (pack.getRawHash().length == 20) {
                 packInfoBuilder.setHash(pack.getRawHash());
             } else if (pack.getRawHash().length > 0) {

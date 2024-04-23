@@ -81,6 +81,12 @@ public class ResourcePackSendPacket extends DefinedPacket {
         }
     }
 
+    @ConstructorProperties({"url", "hash"})
+    public ResourcePackSendPacket(UUID uuid, String url, String hash) {
+        this(url, hash);
+        this.uuid = Optional.of(uuid);
+    }
+
     @ConstructorProperties({"url", "hash", "force", "promptMessage"})
     public ResourcePackSendPacket(String url, String hash, boolean required, BaseComponent[] promptMessage) {
         this(url, hash);
