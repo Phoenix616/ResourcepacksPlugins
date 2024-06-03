@@ -21,6 +21,8 @@ package de.themoep.resourcepacksplugin.bukkit;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.nickuc.login.api.nLoginAPI;
 import com.nickuc.openlogin.bukkit.OpenLoginBukkit;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.ViaAPI;
 import de.themoep.minedown.MineDown;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
@@ -68,8 +70,6 @@ import org.geysermc.geyser.api.GeyserApi;
 import protocolsupport.api.ProtocolSupportAPI;
 import protocolsupport.api.ProtocolType;
 import protocolsupport.api.ProtocolVersion;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.ViaAPI;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
