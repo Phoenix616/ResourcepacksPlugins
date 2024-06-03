@@ -40,7 +40,7 @@ public class InternalHelper_fallback implements InternalHelper {
     private boolean hasAddResourcePack = false;
     private boolean hasSetIdResourcePack = false;
     private boolean hasSetResourcePack = false;
-    private boolean hasRemoveResourcepacks = false;
+    private boolean hasRemoveResourcepacks = true;
 
     public InternalHelper_fallback(WorldResourcepacks plugin) {
         this.plugin = plugin;
@@ -69,9 +69,6 @@ public class InternalHelper_fallback implements InternalHelper {
                 plugin.log(Level.SEVERE, "Unable to find method which enables us to efficiently send a resource pack!", e);
             }
         }
-        try {
-            hasRemoveResourcepacks = Player.class.getMethod("removeResourcePack", String.class) != null;
-        } catch (NoSuchMethodException ignored) {}
     }
 
     @Override
