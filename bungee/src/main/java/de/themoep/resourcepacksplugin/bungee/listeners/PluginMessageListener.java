@@ -84,7 +84,8 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
         try {
             target.sendData(MESSAGING_CHANNEL, data);
         } catch (Exception e) {
-            plugin.log(Level.WARNING, "Failed to send plugin message to " + target + "! This is most likely because the player connection timed out. " + e.getMessage());
+            plugin.log(Level.WARNING, "Failed to send plugin message to server " + target.getInfo().getName() + "! This is most likely because the player connection timed out. " + e.getMessage());
+            plugin.logDebug("Plugin message sending error:", e);
         }
     }
 
@@ -113,5 +114,10 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
             }
         }
         return key;
+    }
+
+    @Override
+    protected String getTargetType() {
+        return "Minecraft server";
     }
 }

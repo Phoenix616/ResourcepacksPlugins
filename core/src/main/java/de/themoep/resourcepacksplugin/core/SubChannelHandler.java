@@ -156,11 +156,16 @@ public abstract class SubChannelHandler<S> {
      */
     public void sendMessage(S target, String subChannel, Consumer<ByteArrayDataOutput> out) {
         if (key == null) {
-            plugin.log(Level.WARNING, "Can't send message to " + target + " on " + subChannel + " as no key is set!");
+            plugin.log(Level.WARNING, "Can't send data to " + getTargetType() + " on channel " + subChannel + " as no authentication key is set!\n" +
+                    "If you are using the plugin on both the proxy and the Minecraft servers as well then this is an error!" +
+                    " Make sure the same key is set in the plugin's key.yml on the proxy and all your servers!\n" +
+                    "If you are not using the plugin on the proxy then you can just ignore this warning!" +
+                    " The key should be set automatically to empty on the next join." +
+                    " (Otherwise just set an empty key yourself)");
             return;
         }
         if (key.isEmpty()) {
-            plugin.logDebug("Not sending message to " + target + " on " + subChannel + " as we are not in an environment where we should (key is empty in keys.yml)");
+            plugin.logDebug("Not sending message to " + target + " on " + subChannel + " as we are not in an environment where we should (key is empty in key.yml)");
             return;
         }
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
@@ -287,4 +292,10 @@ public abstract class SubChannelHandler<S> {
      * @return The key (or null if none is stored)
      */
     protected abstract String loadKey();
+
+    /**
+     * Get the type that we are sending messages to
+     * @return The type
+     */
+    protected abstract String getTargetType();
 }

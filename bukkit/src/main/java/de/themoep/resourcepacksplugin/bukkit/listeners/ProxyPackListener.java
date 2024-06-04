@@ -101,7 +101,9 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
         try {
             target.sendPluginMessage(plugin, MESSAGING_CHANNEL, data);
         } catch (Exception e) {
-            plugin.log(Level.WARNING, "Failed to send plugin message to " + target + "! This is most likely because the player connection timed out. " + e.getMessage());
+            plugin.log(Level.WARNING, "Failed to send plugin message to " + getTargetType() + " (via " + target.getName() + " connection)!" +
+                    " This is most likely because the player connection timed out. " + e.getMessage());
+            plugin.logDebug("Plugin message sending error:", e);
         }
     }
 
@@ -115,6 +117,11 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
     protected String loadKey() {
         keyConfig.reloadConfig();
         return keyConfig.getConfig().getString("key", null);
+    }
+
+    @Override
+    protected String getTargetType() {
+        return "proxy";
     }
 
     @Override
