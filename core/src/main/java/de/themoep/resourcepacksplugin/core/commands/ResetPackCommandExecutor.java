@@ -80,7 +80,7 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
             }
         }
 
-        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp, true) == Status.SUCCESS) {
+        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp, true).getStatus() == Status.SUCCESS) {
             if (!player.equals(sender)) {
                 sendMessage(sender, "success-other", "player", player.getName());
             }

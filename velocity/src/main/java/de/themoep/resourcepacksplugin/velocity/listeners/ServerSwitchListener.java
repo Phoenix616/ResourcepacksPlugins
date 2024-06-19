@@ -18,17 +18,24 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.collect.*;
+import com.velocitypowered.api.event.EventTask;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.event.player.configuration.PlayerFinishConfigurationEvent;
 import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.ServerConnection;
-import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
+import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,8 +45,85 @@ public class ServerSwitchListener {
 
     private final VelocityResourcepacks plugin;
 
+    private final Set<UUID> appliedInConfigPhase = ConcurrentHashMap.newKeySet();
+    private final Multimap<UUID, UUID> alreadyAppliedPacks = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
+    private final Table<UUID, UUID, CompletableFuture<Boolean>> playersLoadingPacks = Tables.synchronizedTable(HashBasedTable.create());
+
     public ServerSwitchListener(VelocityResourcepacks plugin) {
         this.plugin = plugin;
+    }
+
+    @Subscribe
+    public EventTask onFinishConfigPhase(PlayerFinishConfigurationEvent event) {
+        if (plugin.isEnabled()) {
+            final UUID playerId = event.player().getUniqueId();
+            plugin.unsetBackend(playerId);
+
+            long sendDelay = -1;
+            String serverName = plugin.getCurrentServerTracker().getCurrentServer(event.player());
+            if (serverName != null) {
+                sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
+            }
+            if (sendDelay < 0) {
+                sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
+            }
+
+            if (sendDelay <= 0) {
+                Set<ResourcePack> packs = calculatePack(playerId);
+                if (!packs.isEmpty()) {
+                    CompletableFuture<Boolean> lockFuture = CompletableFuture.completedFuture(true);
+                    for (ResourcePack pack : packs) {
+                        if (alreadyAppliedPacks.containsEntry(playerId, pack.getUuid())) {
+                            plugin.logDebug("Player " + event.player().getUsername() + " already has the pack " + pack.getUuid() + " applied");
+                        } else {
+                            CompletableFuture<Boolean> future = new CompletableFuture<>();
+                            future.whenComplete((success, throwable) -> {
+                                if (success) {
+                                    plugin.logDebug("Successfully sent pack " + pack.getUuid() + " to " + event.player().getUsername());
+                                } else {
+                                    plugin.logDebug("Failed to send pack " + pack.getUuid() + " to " + event.player().getUsername());
+                                }
+                            });
+                            playersLoadingPacks.put(playerId, pack.getUuid(), future);
+                            lockFuture = lockFuture.thenCombine(future, (a, b) -> a && b);
+                        }
+                    }
+                    String playerName = event.player().getUsername();
+                    CompletableFuture<Boolean> finalLockFuture = lockFuture;
+                    return EventTask.async(() -> {
+                        finalLockFuture.join();
+                        alreadyAppliedPacks.removeAll(playerId);
+                        appliedInConfigPhase.add(playerId);
+                        plugin.logDebug("Allowing Configuration phase to continue for " + playerName);
+                    });
+                }
+            }
+        }
+        return null;
+    }
+
+    @Subscribe
+    public void onPlayerDisconnect(DisconnectEvent event) {
+        UUID playerId = event.getPlayer().getUniqueId();
+        appliedInConfigPhase.remove(playerId);
+        alreadyAppliedPacks.removeAll(playerId);
+        Map<UUID, CompletableFuture<Boolean>> futures = playersLoadingPacks.rowMap().remove(playerId);
+        if (futures != null) {
+            for (CompletableFuture<Boolean> future : futures.values()) {
+                future.complete(false);
+            }
+        }
+    }
+
+    @Subscribe
+    public void onPackStatus(PlayerResourcePackStatusEvent event) {
+        if (!event.getStatus().isIntermediate()) {
+            alreadyAppliedPacks.put(event.getPlayer().getUniqueId(), event.getPackId());
+            CompletableFuture<Boolean> future = playersLoadingPacks.remove(event.getPlayer().getUniqueId(), event.getPackId());
+            if (future != null) {
+                future.complete(event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFUL);
+            }
+        }
     }
 
     @Subscribe
@@ -51,9 +135,9 @@ public class ServerSwitchListener {
             plugin.sendPackInfo(playerId);
 
             long sendDelay = -1;
-            Optional<ServerConnection> server = event.getPlayer().getCurrentServer();
-            if (server.isPresent()) {
-                sendDelay = plugin.getPackManager().getAssignment(server.get().getServerInfo().getName()).getSendDelay();
+            String serverName = plugin.getCurrentServerTracker().getCurrentServer(event.getPlayer());
+            if (serverName != null) {
+                sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
             }
             if (sendDelay < 0) {
                 sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
@@ -61,30 +145,28 @@ public class ServerSwitchListener {
 
             if (sendDelay > 0) {
                 plugin.getProxy().getScheduler().buildTask(plugin, () -> calculatePack(playerId)).delay(sendDelay * 50, TimeUnit.MILLISECONDS).schedule();
-            } else {
+            } else if (!appliedInConfigPhase.contains(playerId)){
                 calculatePack(playerId);
             }
+            appliedInConfigPhase.add(playerId);
         }
     }
 
-    private void calculatePack(UUID playerId) {
+    private Set<ResourcePack> calculatePack(UUID playerId) {
         if (plugin.hasBackend(playerId)) {
             plugin.logDebug("Player " + playerId + " has backend pack, not attempting to send a new one.");
-            return;
+            return Collections.emptySet();
         }
         if (!plugin.isAuthenticated(playerId)) {
             plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
-            return;
+            return Collections.emptySet();
         }
         Optional<Player> player = plugin.getProxy().getPlayer(playerId);
         if (player.isPresent()) {
-            String serverName = "";
             Player p = player.get();
-            Optional<ServerConnection> server = p.getCurrentServer();
-            if (server.isPresent()) {
-                serverName = server.get().getServerInfo().getName();
-            }
-            plugin.getPackManager().applyPack(plugin.getPlayer(p), serverName);
+            String serverName = plugin.getCurrentServerTracker().getCurrentServer(p);
+            return plugin.getPackManager().applyPack(plugin.getPlayer(p), serverName);
         }
+        return Collections.emptySet();
     }
 }

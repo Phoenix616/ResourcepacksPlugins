@@ -25,6 +25,7 @@ import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.velocity.PluginConfig;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
@@ -33,7 +34,7 @@ import java.io.File;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class PluginMessageListener extends SubChannelHandler<ServerConnection> {
+public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
     private static final ChannelIdentifier CHANNEL_IDENTIFIER = MinecraftChannelIdentifier.from(MESSAGING_CHANNEL);
 
     private final VelocityResourcepacks plugin;
@@ -63,7 +64,7 @@ public class PluginMessageListener extends SubChannelHandler<ServerConnection> {
 
         event.setResult(PluginMessageEvent.ForwardResult.handled());
         if (event.getSource() instanceof ServerConnection) {
-            handleMessage((ServerConnection) event.getSource(), event.getData());
+            handleMessage(((ServerConnection) event.getSource()).getServer(), event.getData());
         } else {
             plugin.logDebug("Received plugin message from " + event.getSource() + " which is not a ServerConnection!");
         }
@@ -72,12 +73,12 @@ public class PluginMessageListener extends SubChannelHandler<ServerConnection> {
     @Subscribe
     public void onServerSwitch(ServerPostConnectEvent event) {
         if (plugin.isEnabled()) {
-            event.getPlayer().getCurrentServer().ifPresent(this::sendKey);
+            event.getPlayer().getCurrentServer().ifPresent(serverConnection -> sendKey(serverConnection.getServer()));
         }
     }
 
     @Override
-    protected void sendPluginMessage(ServerConnection target, byte[] data) {
+    protected void sendPluginMessage(RegisteredServer target, byte[] data) {
         try {
             target.sendPluginMessage(CHANNEL_IDENTIFIER, data);
         } catch (Exception e) {

@@ -78,7 +78,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
 
-                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp, true)) {
+                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp, true).getStatus()) {
                         case SUCCESS:
                             if (!player.equals(sender)) {
                                 sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
@@ -97,8 +97,12 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         case NO_PERM_AND_WRONG_VERSION:
                             sendMessage(sender, "no-variant-found.perm-and-version", "player", player.getName(), "pack", pack.getName());
                             break;
-                        case UNKNOWN:
+                        case IS_EMPTY:
+                        case ALREADY_APPLIED:
                             sendMessage(sender, "already-in-use", "player", player.getName(), "pack", pack.getName());
+                            break;
+                        default:
+                            sendMessage(sender, "unknown-error", "player", player.getName(), "pack", pack.getName());
                             break;
                     }
                 } else {

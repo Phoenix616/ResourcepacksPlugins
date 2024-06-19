@@ -18,19 +18,19 @@ package de.themoep.resourcepacksplugin.velocity;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.io.ByteArrayDataOutput;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.network.ProtocolState;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.ProxyVersion;
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
@@ -42,15 +42,7 @@ import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.velocity.integrations.FloodgateIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.GeyserIntegration;
 import de.themoep.resourcepacksplugin.velocity.integrations.ViaVersionIntegration;
-import de.themoep.resourcepacksplugin.velocity.listeners.AuthMeVelocityListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.ConnectListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.JPremiumListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.LibreLoginListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.LibrePremiumListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.NLoginListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.PluginMessageListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.DisconnectListener;
-import de.themoep.resourcepacksplugin.velocity.listeners.ServerSwitchListener;
+import de.themoep.resourcepacksplugin.velocity.listeners.*;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
@@ -128,6 +120,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private GeyserIntegration geyser;
     private FloodgateIntegration floodgate;
     private PluginMessageListener messageChannelHandler;
+    private CurrentServerTracker serverTracker;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -245,6 +238,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
         um = new UserManager(this);
 
+        getProxy().getEventManager().register(this, serverTracker = new CurrentServerTracker(this));
         getProxy().getEventManager().register(this, new ConnectListener(this));
         getProxy().getEventManager().register(this, new DisconnectListener(this));
         getProxy().getEventManager().register(this, new ServerSwitchListener(this));
@@ -565,12 +559,14 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      * @param packs The ResourcePacks to send the info of the the Bukkit server, can be empty to clear it!
      */
     private void sendPackInfo(Player player, List<ResourcePack> packs) {
-        if (!player.getCurrentServer().isPresent()) {
+        RegisteredServer server = getCurrentServer(player);
+        if (server == null) {
             logDebug("Tried to send pack info of " + packs.size() + " packs for player " + player.getUsername() + " but server was null!");
             return;
         }
+
         if (!packs.isEmpty()) {
-            getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "packsChange", out -> {
+            getMessageChannelHandler().sendMessage(server, "packsChange", out -> {
                 out.writeUTF(player.getUsername());
                 out.writeLong(player.getUniqueId().getMostSignificantBits());
                 out.writeLong(player.getUniqueId().getLeastSignificantBits());
@@ -580,12 +576,29 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 }
             });
         } else {
-            getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "clearPack", out -> {
+            getMessageChannelHandler().sendMessage(server, "clearPack", out -> {
                 out.writeUTF(player.getUsername());
                 out.writeLong(player.getUniqueId().getMostSignificantBits());
                 out.writeLong(player.getUniqueId().getLeastSignificantBits());
             });
         }
+    }
+
+    /**
+     * Get the server the player is currently on or connecting to
+     * @param player The player
+     * @return The name of the server
+     */
+    public RegisteredServer getCurrentServer(Player player) {
+        String serverName = getCurrentServerTracker().getCurrentServer(player);
+        if (serverName == null) {
+            if (player.getProtocolState() != ProtocolState.CONFIGURATION) {
+                logDebug("Tried to get current server for player " + player.getUsername() + " but server '" + serverName + "' doesn't exist?");
+            }
+            return null;
+        }
+
+        return proxy.getServer(serverName).orElse(null);
     }
 
     public void sendPack(UUID playerId, ResourcePack pack) {
@@ -612,11 +625,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         } catch (NoSuchMethodError ignored) {
             // Outdated Velocity, fall back to plugin message
         }
-        if (!player.getCurrentServer().isPresent()) {
+        RegisteredServer server = getCurrentServer(player);
+        if (server == null) {
             logDebug("Tried to send pack clear request for player " + player.getUsername() + " but server was null!");
             return;
         }
-        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePackRequest", out -> {
+        getMessageChannelHandler().sendMessage(server, "removePackRequest", out -> {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
@@ -635,11 +649,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 // Outdated Velocity, fall back to plugin message
             }
         }
-        if (!player.getCurrentServer().isPresent()) {
+        RegisteredServer server = getCurrentServer(player);
+        if (server == null) {
             logDebug("Tried to send pack removal request of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
             return;
         }
-        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePackRequest", out -> {
+        getMessageChannelHandler().sendMessage(server, "removePackRequest", out -> {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
@@ -650,11 +665,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
 
     private void sendPackRemoveInfo(Player player, ResourcePack pack) {
-        if (!player.getCurrentServer().isPresent()) {
+        RegisteredServer server = getCurrentServer(player);
+        if (server == null) {
             logDebug("Tried to send pack removal info of pack " + pack.getName() + " for player " + player.getUsername() + " but server was null!");
             return;
         }
-        getMessageChannelHandler().sendMessage(player.getCurrentServer().get(), "removePack", out -> {
+        getMessageChannelHandler().sendMessage(server, "removePack", out -> {
             out.writeUTF(player.getUsername());
             out.writeLong(player.getUniqueId().getMostSignificantBits());
             out.writeLong(player.getUniqueId().getLeastSignificantBits());
@@ -942,7 +958,15 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
      * Get the handler for sub channels that listens on the "rp:plugin" channel to register new sub channels
      * @return  The message channel handler
      */
-    public SubChannelHandler<ServerConnection> getMessageChannelHandler() {
+    public SubChannelHandler<RegisteredServer> getMessageChannelHandler() {
         return messageChannelHandler;
+    }
+
+    /**
+     * Get the tracker for getting the server a player is on or connecting to
+     * @return The tracker
+     */
+    public CurrentServerTracker getCurrentServerTracker() {
+        return serverTracker;
     }
 }

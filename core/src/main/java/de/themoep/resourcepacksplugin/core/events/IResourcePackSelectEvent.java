@@ -82,6 +82,8 @@ public interface IResourcePackSelectEvent {
      * <code>NO_PERMISSION</code> - Selection failed because the player does not have the permission for the pack<br>
      * <code>WRONG_VERSION</code> - Selection failed because there is not compatible pack<br>
      * <code>NO_PERM_AND_WRONG_VERSION</code> - Both failures happened<br>
+     * <code>ALREADY_APPLIED</code> - The player already had that pack applied
+     * <code>IS_EMPTY</code> - The player already had the empty pack applied
      * <code>UNKNOWN</code> - We don't know why it failed<br>
      */
     public enum Status {
@@ -89,6 +91,8 @@ public interface IResourcePackSelectEvent {
         NO_PERMISSION,
         WRONG_VERSION,
         NO_PERM_AND_WRONG_VERSION,
+        ALREADY_APPLIED,
+        IS_EMPTY,
         UNKNOWN;
     }
 }

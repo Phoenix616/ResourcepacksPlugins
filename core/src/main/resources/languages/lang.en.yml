@@ -56,6 +56,7 @@ command:
     player-not-online: "&cThe player &f%input%&c is not online"
     bedrock-not-supported: "&cChanging the pack of Bedrock players is not supported!"
     already-in-use: "&f%player%&c already uses the pack '&f%pack%&c'!"
+    unknown-error: "&cCould not apply pack '&f%pack%&c' for unknown reasons!"
     no-variant-found:
       permission: "&f%player%&c can't use any variant of the pack '&f%pack%&c' due to their permissions!"
       version: "&f%player%&c can't use any variant of the pack '&f%pack%&c' due to their version!"

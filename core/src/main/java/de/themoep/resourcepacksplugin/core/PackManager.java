@@ -751,10 +751,10 @@ public class PackManager {
      * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null it will reset to empty if the player has a pack applied
-     * @return <code>true</code> if the pack was set; <code>false</code> if not
+     * @return The result of setting a pack
      */
-    public boolean setPack(UUID playerId, ResourcePack pack) {
-        return setPack(playerId, pack, true) == IResourcePackSelectEvent.Status.SUCCESS;
+    public @NonNull PackSetResult setPack(UUID playerId, ResourcePack pack) {
+        return setPack(playerId, pack, true);
     }
 
     /**
@@ -762,9 +762,9 @@ public class PackManager {
      * @param playerId  The UUID of the player to set the pack for
      * @param pack      The ResourcePack to set, if it is null/empty it will reset to empty if the player has a pack applied
      * @param temporary Should the pack be removed on log out or stored?
-     * @return the status, SUCCESS if the pack was set
+     * @return The result of setting a pack
      */
-    public Status setPack(UUID playerId, ResourcePack pack, boolean temporary) {
+    public @NonNull PackSetResult setPack(UUID playerId, ResourcePack pack, boolean temporary) {
         return setPack(playerId, pack, temporary, pack == null || pack.equals(getEmptyPack()));
     }
 
@@ -774,9 +774,9 @@ public class PackManager {
      * @param pack      The ResourcePack to set
      * @param temporary Should the pack be removed on log out or stored?
      * @param removeExisting Should existing packs be removed? (Only works on 1.20.3+, versions before that will always remove)
-     * @return the status, SUCCESS if the pack was set
+     * @return The result of setting a pack
      */
-    public Status setPack(UUID playerId, ResourcePack pack, boolean temporary, boolean removeExisting) {
+    public @NonNull PackSetResult setPack(UUID playerId, ResourcePack pack, boolean temporary, boolean removeExisting) {
         List<ResourcePack> prev = plugin.getUserManager().getUserPacks(playerId);
         if (!temporary) {
             if (pack == null) {
@@ -801,41 +801,54 @@ public class PackManager {
             }
         }
         if (pack != null && prev.contains(pack)) {
-            return Status.UNKNOWN;
+            ResourcePack variant = getMatchingVariant(playerId, pack).getPack();
+            return new PackSetResult(variant != null ? variant : pack, Status.ALREADY_APPLIED);
         }
         if (prev.isEmpty() && (pack == null || pack.equals(getEmptyPack()))) {
-            return Status.UNKNOWN;
+            return new PackSetResult(null, Status.IS_EMPTY);
         }
         if (pack != null && pack.getType() == ClientType.BEDROCK) {
             // TODO: Find way to change client pack for Bedrock players
-            return Status.UNKNOWN;
+            return new PackSetResult(null, Status.UNKNOWN);
         }
         IResourcePackSendEvent sendEvent = plugin.callPackSendEvent(playerId, pack);
         if (sendEvent.isCancelled()) {
             plugin.logDebug("Pack send event for " + playerId + " was cancelled!");
-            return Status.UNKNOWN;
+            return new PackSetResult(null, Status.UNKNOWN);
         }
         pack = processSendEvent(sendEvent, prev);
         if (pack != null) {
-            if (pack.getVariants().isEmpty()) {
-                sendPack(playerId, pack);
-                return Status.SUCCESS;
-            } else {
-                Status status = Status.SUCCESS;
-                for (ResourcePack variant : pack.getVariants()) {
-                    Status varStatus = checkPack(playerId, variant, Status.UNKNOWN);
-                    if (varStatus == Status.SUCCESS) {
-                        sendPack(playerId, variant);
-                        return IResourcePackSelectEvent.Status.SUCCESS;
-                    }
-                    if (varStatus.ordinal() > status.ordinal()) {
-                        status = varStatus;
-                    }
-                }
-                return status;
+            PackSetResult variant = getMatchingVariant(playerId, pack);
+            if (variant.getPack() != null) {
+                sendPack(playerId, variant.getPack());
             }
+            return variant;
         }
-        return IResourcePackSelectEvent.Status.UNKNOWN;
+        return new PackSetResult(null, Status.UNKNOWN);
+    }
+
+    /**
+     * Get the variant of a pack that should be applied to a player
+     * @param playerId The UUID of the player
+     * @param pack     The pack to get the variant for
+     * @return The resulting variant or error status
+     */
+    private PackSetResult getMatchingVariant(UUID playerId, ResourcePack pack) {
+        if (pack.getVariants().isEmpty()) {
+            return new PackSetResult(pack, Status.SUCCESS);
+        } else {
+            Status status = Status.SUCCESS;
+            for (ResourcePack variant : pack.getVariants()) {
+                Status varStatus = checkPack(playerId, variant, Status.UNKNOWN);
+                if (varStatus == Status.SUCCESS) {
+                    return new PackSetResult(variant, Status.SUCCESS);
+                }
+                if (varStatus.ordinal() > status.ordinal()) {
+                    status = varStatus;
+                }
+            }
+            return new PackSetResult(null, status);
+        }
     }
 
     /**
@@ -906,27 +919,46 @@ public class PackManager {
      * Apply the pack that a player should have on that server/world
      * @param player        The player
      * @param serverName    The name of the server/world
+     * @return The packs that were loaded by the client
      */
-    public void applyPack(ResourcepacksPlayer player, String serverName) {
+    public Set<ResourcePack> applyPack(ResourcepacksPlayer player, String serverName) {
         UUID playerId = player.getUniqueId();
+        LinkedHashSet<ResourcePack> sentPacks = new LinkedHashSet<>();
         LinkedHashSet<ResourcePack> packs = getApplicablePacks(player, serverName);
         if (plugin.supportsMultiplePacks(playerId)) {
             PackAssignment assignment = getAssignment(serverName);
+            boolean packWasRemoved = false;
             List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
             for (ResourcePack pack : userPacks) {
                 if (!packs.contains(pack) && !getGlobalAssignment().isOptionalPack(pack) && !assignment.isOptionalPack(pack)) {
                     removePack(playerId, pack);
+                    packWasRemoved = true;
                 }
             }
 
+            boolean alreadyHadPack = false;
+            List<PackSetResult> appliedResults = new ArrayList<>();
             for (ResourcePack pack : packs) {
-                setPack(playerId, pack);
+                PackSetResult packSetResult = setPack(playerId, pack);
+                if (packSetResult.getPack() != null) {
+                    alreadyHadPack |= packSetResult.getStatus() == Status.ALREADY_APPLIED;
+                    appliedResults.add(packSetResult);
+                }
+            }
+            if (!alreadyHadPack || packWasRemoved) {
+                for (PackSetResult appliedResult : appliedResults) {
+                    sentPacks.add(appliedResult.getPack());
+                }
             }
         } else if (!packs.isEmpty()) {
-            setPack(playerId, packs.iterator().next());
+            ResourcePack sentPack = setPack(playerId, packs.iterator().next()).getPack();
+            if (sentPack != null) {
+                sentPacks.add(sentPack);
+            }
         }
 
         plugin.sendPackInfo(playerId);
+        return sentPacks;
     }
 
     /**
@@ -1340,6 +1372,27 @@ public class PackManager {
         if (dirty) {
             dirty = false;
             plugin.saveConfigChanges();
+        }
+    }
+
+    /**
+     * The result of setting a pack
+     */
+    public static class PackSetResult {
+        private final ResourcePack pack;
+        private final Status status;
+
+        private PackSetResult(ResourcePack pack, Status status) {
+            this.pack = pack;
+            this.status = status;
+        }
+
+        public ResourcePack getPack() {
+            return pack;
+        }
+
+        public Status getStatus() {
+            return status;
         }
     }
 }
