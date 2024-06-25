@@ -90,13 +90,15 @@ public class ServerSwitchListener {
                         }
                     }
                     String playerName = event.player().getUsername();
-                    CompletableFuture<Boolean> finalLockFuture = lockFuture;
-                    return EventTask.async(() -> {
-                        finalLockFuture.join();
+                    return EventTask.resumeWhenComplete(lockFuture.thenAccept(success -> {
                         alreadyAppliedPacks.removeAll(playerId);
                         appliedInConfigPhase.add(playerId);
-                        plugin.logDebug("Allowing Configuration phase to continue for " + playerName);
-                    });
+                        if (success) {
+                            plugin.logDebug("Allowing Configuration phase to continue for " + playerName);
+                        } else {
+                            plugin.logDebug("Allowing Configuration phase even through we failed to send all packs to " + playerName);
+                        }
+                    }));
                 }
             }
         }
