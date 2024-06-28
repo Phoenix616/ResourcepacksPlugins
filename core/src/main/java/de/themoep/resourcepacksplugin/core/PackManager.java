@@ -319,15 +319,20 @@ public class PackManager {
 
     private void cacheVariant(ResourcePack variant, ResourcePack pack) throws IllegalArgumentException {
         if (variant.getVariants().isEmpty()) {
-            ensureUniqueData(variant, pack.getName());
-            if (variant.getUrl() != null && !variant.getUrl().isEmpty()) {
-                packUrls.putIfAbsent(variant.getUrl(), pack);
-            }
-            if (variant.getHash().length() > 0) {
-                packHashes.put(variant.getHash(), pack);
-            }
-            if (variant.getUuid() != null) {
-                packUuids.put(variant.getUuid(), pack);
+            try {
+                ensureUniqueData(variant, pack.getName());
+                if (variant.getUrl() != null && !variant.getUrl().isEmpty()) {
+                    packUrls.putIfAbsent(variant.getUrl(), pack);
+                }
+                if (variant.getHash().length() > 0) {
+                    packHashes.put(variant.getHash(), pack);
+                }
+                if (variant.getUuid() != null) {
+                    packUuids.put(variant.getUuid(), pack);
+                }
+            } catch (IllegalArgumentException e) {
+                plugin.log(Level.WARNING, e.getMessage() + " This might cause issues in some cases" +
+                        " especially when sending packs from a Minecraft server with this plugin on the proxy!");
             }
             registerPackHashWatcher(variant);
         } else {
@@ -345,16 +350,16 @@ public class PackManager {
     private void ensureUniqueData(ResourcePack pack, String packName) {
         ResourcePack byHash = getByHash(pack.getHash());
         if (byHash != null && !byHash.getName().equalsIgnoreCase(packName)) {
-            throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the hash '" + pack.getHash() + "' but a different name defined! (" + byHash.getName() + ")");
+            throw new IllegalArgumentException("There is already a pack with same hash '" + pack.getHash() + "' as pack '" + packName + "' (" + pack.getName() + ") defined: " + byHash.getName());
         }
         ResourcePack byUuid = getByUuid(pack.getUuid());
         if (byUuid != null && !byUuid.getName().equalsIgnoreCase(packName)) {
-            throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the uuid '" + pack.getUrl() + "' but a different name defined! (" + byUuid.getName() + ")");
+            throw new IllegalArgumentException("There is already a pack with same uuid '" + pack.getUuid() + "' as pack '" + packName + "' (" + pack.getName() + ") defined: " + byUuid.getName());
         }
         if (pack.getUrl() != null && !pack.getUrl().isEmpty()) {
             ResourcePack byUrl = getByUrl(pack.getUrl());
             if (byUrl != null && !byUrl.getName().equalsIgnoreCase(packName)) {
-                throw new IllegalArgumentException("Could not add pack '" + packName + "' (" + pack.getName() + "). There is already a pack with the url '" + pack.getUrl() + "' but a different name defined! (" + byUrl.getName() + ")");
+                throw new IllegalArgumentException("There is already a pack with same url '" + pack.getUrl() + "' as pack '" + packName + "' (" + pack.getName() + ") defined: " + byUrl.getName());
             }
         }
     }
