@@ -1,0 +1,90 @@
+command:
+  usage: 'Uso: /%command% %usage%'
+  reloaded: '&aConfiguração do %plugin% recarregada!%optional-resend%'
+  optional-resend: ' Reenviar pacotes para todos os jogadores online!'
+  version: '&aVersão do %plugin%: %version%'
+  not-enabled: '&c%plugin% não está habilitado!'
+  invalid-input: '&f%input%&c não é um(a) %expected% válido(a)!'
+  no-permission: '&cVocê não tem permissão: &f%permission%&c!'
+  unknown-pack: '&cNenhum pacote com o nome &e%input%&c encontrado!'
+  addpack:
+    name-already-used: '&cJá existe um pacote com o nome de &f%name%&c!'
+    url-already-used: '&cO pacote &f%name%&c já está usando o URL &f%url%&c!'
+    added: '&eAdicionado novo pacote &f%name%&e com URL &f%url%'
+  removepack:
+    removed: '&ePacote removido: &f%name%&e com URL &f%url%'
+  pack:
+    updated: '&eTipo &f%type%&e do pacote &f%pack%&e atualizado para &f%value%'
+    info: |-
+      &7----- Informações do Pacote &f%name%&e: -----
+      &eURL: &f%url%
+      &eHash: &f%hash%
+      &eFormato: &f%format%
+      &eVersão: &f%version%
+      &eRestrito: &f%restricted%
+      &ePermissão: &f%permission%
+      &eVariantes: &f%variants%
+    info-variants: |-
+      &7----- Informações do Pacote &f%name%&e: -----
+      &eFormato: &f%format%
+      &eVersão: &f%version%
+      &eRestrito: &f%restricted%
+      &ePermissão: &f%permission%
+      &e%variants% Variantes:
+  assignment:
+    new-assignment: '&cNenhuma atribuição com o nome &e%input%&c encontrada! Criando uma nova!'
+    updated: '&eTipo &f%type%&e da atribuição &f%assignment%&e atualizado para &f%value%'
+    optional-pack:
+      added: '&ePacote &f%pack%&e adicionado à lista de pacotes opcionais da atribuição &f%assignment%&e!'
+      already-added: '&cPacote &f%pack%&c já está na lista de pacotes opcionais da atribuição &f%assignment%&c?'
+      removed: '&ePacote &f%pack%&e removido da lista de pacotes opcionais da atribuição &f%assignment%&e!'
+      not-added: '&cPacote &f%pack%&c não está na lista de pacotes opcionais da atribuição &f%assignment%&c?'
+    info: |-
+      &7----- Informações da Atribuição &f%name%&e: -----
+      &ePacote: &f%pack%
+      &ePacotes Opcionais: &f%optional-packs%
+      &eRegex: &f%regex%
+      &eAtraso no Envio: &f%send-delay%
+  deleteassignment:
+    unknown-assignment: '&cNenhuma atribuição com o nome &e%input%&c encontrada!'
+    deleted: '&eAtribuição &f%name%&e foi deletada!'
+  listassignments:
+    head: '&aAtribuições configuradas:'
+    entry: '&e%name%'
+  usepack:
+    invalid-temporary: '&f%input%&c não é um valor temporário Booleano válido! (true/false)'
+    player-not-online: '&cO jogador &f%input%&c não está online'
+    bedrock-not-supported: '&cAlterar o pacote dos jogadores Bedrock não é suportado!'
+    already-in-use: '&f%player%&c já está usando o pacote ''&f%pack%&c''!'
+    no-variant-found:
+      permission: '&f%player%&c não pode usar nenhuma variante do pacote ''&f%pack%&c'' devido às suas permissões!'
+      version: '&f%player%&c não pode usar nenhuma variante do pacote ''&f%pack%&c'' devido à sua versão!'
+      perm-and-version: '&f%player%&c não pode usar nenhuma variante do pacote ''&f%pack%&c'' devido à sua versão e permissões!'
+    restricted: '&cVocê não tem permissão &f%permission%&c para definir o pacote restrito ''&f%pack%&c''!'
+    unknown-pack: '&cErro: Não há pacote com o nome ''&f%input%&c''!'
+    success-other: '&f%player% &aagora está usando o pacote ''&f%pack%&a''!'
+    success: '&aAgora você está usando o pacote %pack%!'
+    pack-list:
+      head: '&aPacotes disponíveis para você:'
+      entry: '  [&e%pack%](/usepack %pack%)%optional-format%%optional-version%'
+      entry-selected: '> [%pack%](/resetpack)%optional-format%%optional-version%'
+      optional-format: '&7 (Formato: %format%)'
+      optional-version: '&7 (Versão: %version%)'
+    no-packs: '&cNenhum pacote encontrado!'
+  resetpack:
+    player-not-online: '&cO jogador &f%input%&c não está online'
+    bedrock-not-supported: '&cAlterar o pacote dos jogadores Bedrock não é suportado!'
+    no-pack-stored: '&cNenhum pacote armazenado.'
+    had-stored-pack: '&aTinha o pacote ''&f%pack%&a'' armazenado.'
+    success-other: '&aRedefinir o pacote de &f%player%&a!'
+    success: '&aSeu pacote foi redefinido!'
+    no-pack: '&cVocê não tem nenhum pacote aplicado (ou o pacote vazio)?'
+    no-pack-other: '&f%player% &cnão tem nenhum pacote aplicado (ou o pacote vazio)?'
+generate-hashes:
+  generating: '&eGerando hashes...'
+  downloading: '&eBaixando &f%pack%&e...'
+  hash-sum: '&eHash SHA-1 de &f%pack%&e: &f%hash%'
+  invalid-url: '&e%url%&c não é um URL válido!'
+  failed-to-load-pack: '&cNão foi possível carregar %pack%! %error%'
+  changed: '&aHashes de %amount% pacotes alterados! Salvando no arquivo de configuração.'
+  none-changed: '&aNenhum hash foi alterado!'
