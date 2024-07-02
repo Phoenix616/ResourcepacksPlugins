@@ -157,7 +157,7 @@ public class ServerSwitchListener {
             } else if (!appliedInConfigPhase.contains(playerId)){
                 calculatePack(playerId);
             }
-            appliedInConfigPhase.add(playerId);
+            appliedInConfigPhase.remove(playerId);
         }
     }
 
