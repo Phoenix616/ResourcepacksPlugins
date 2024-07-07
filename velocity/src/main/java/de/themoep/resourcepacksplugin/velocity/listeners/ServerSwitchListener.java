@@ -120,7 +120,7 @@ public class ServerSwitchListener {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onPackStatusFirst(PlayerResourcePackStatusEvent event) {
-        if (!event.getStatus().isIntermediate()) {
+        if (!event.getStatus().isIntermediate() && event.getPackId() != null) {
             alreadyAppliedPacks.put(event.getPlayer().getUniqueId(), event.getPackId());
         }
     }
