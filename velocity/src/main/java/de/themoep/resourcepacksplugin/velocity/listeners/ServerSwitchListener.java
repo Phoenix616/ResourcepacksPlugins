@@ -27,6 +27,7 @@ import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.player.configuration.PlayerFinishConfigurationEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
@@ -74,7 +75,7 @@ public class ServerSwitchListener {
                 if (!packs.isEmpty()) {
                     CompletableFuture<Boolean> lockFuture = CompletableFuture.completedFuture(true);
                     for (ResourcePack pack : packs) {
-                        if (alreadyAppliedPacks.containsEntry(playerId, pack.getUuid())) {
+                        if (hasPack(event.player(), pack)) {
                             plugin.logDebug("Player " + event.player().getUsername() + " already has the pack " + pack.getUuid() + " applied");
                         } else {
                             CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -103,6 +104,19 @@ public class ServerSwitchListener {
             }
         }
         return null;
+    }
+
+    private boolean hasPack(Player player, ResourcePack pack) {
+        if (alreadyAppliedPacks.containsEntry(player.getUniqueId(), pack.getUuid())) {
+            return true;
+        }
+
+        for (ResourcePackInfo resourcePack : player.getAppliedResourcePacks()) {
+            if (resourcePack.getId().equals(pack.getUuid()) && resourcePack.getUrl().equals(pack.getUrl())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Subscribe
