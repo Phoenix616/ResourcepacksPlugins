@@ -39,7 +39,7 @@
         </repository>
         <repository>
             <id>kyngs-repo</id>
-            <url>https://repo.kyngs.xyz/public</url>
+            <url>https://repo.kyngs.xyz/releases</url>
         </repository>
     </repositories>
 
