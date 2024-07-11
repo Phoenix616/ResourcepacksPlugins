@@ -158,7 +158,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 .ifPresent(c -> {
                     try {
                         viaApi = new ViaVersionIntegration(this, c);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
                     }
                 });
@@ -167,7 +167,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                 .ifPresent(c -> {
                     try {
                         geyser = new GeyserIntegration(this, c);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
                     }
                 });
@@ -177,7 +177,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         floodgate = new FloodgateIntegration(this, c);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
                     }
                 });
@@ -187,7 +187,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         getProxy().getEventManager().register(this, new AuthMeVelocityListener(this));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""), e);
                     }
                 });
@@ -197,7 +197,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         getProxy().getEventManager().register(this, new NLoginListener(this));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""), e);
                     }
                 });
@@ -207,7 +207,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         getProxy().getEventManager().register(this, new JPremiumListener(this));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""), e);
                     }
                 });
@@ -217,7 +217,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         new LibrePremiumListener(this, c);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
                     }
                 });
@@ -227,7 +227,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
                     log(Level.INFO, "Detected " + c.getDescription().getName().orElse(c.getDescription().getId()) + " " + c.getDescription().getVersion().orElse(""));
                     try {
                         new LibreLoginListener(this, c);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.log(Level.SEVERE, "Could not create " + c.getDescription().getName().orElse(c.getDescription().getId()) + " hook", e);
                     }
                 });

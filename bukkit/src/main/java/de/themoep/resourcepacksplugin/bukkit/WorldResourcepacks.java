@@ -233,6 +233,43 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getName() + " " + floodgatePlugin.getDescription().getVersion());
             }
 
+            if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
+                getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
+                try {
+                    authmeApi = AuthMeApi.getInstance();
+                    getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
+                } catch (Throwable t) {
+                    getLogger().log(Level.SEVERE, "Could not create AuthMe hook!", t);
+                }
+            }
+            if (getServer().getPluginManager().getPlugin("OpeNLogin") != null) {
+                try {
+                    openLogin = (OpenLoginBukkit) getServer().getPluginManager().getPlugin("OpeNLogin");
+                    getLogger().log(Level.INFO, "Detected OpeNLogin " + openLogin.getDescription().getVersion());
+                    getServer().getPluginManager().registerEvents(new OpeNLoginListener(this), this);
+                } catch (Throwable t) {
+                    getLogger().log(Level.SEVERE, "Could not create OpeNLogin hook!", t);
+                }
+            }
+            if (getServer().getPluginManager().getPlugin("nLogin") != null) {
+                try {
+                    nLogin = nLoginAPI.getApi();
+                    getLogger().log(Level.INFO, "Detected nLogin " + nLogin.getVersion());
+                    getServer().getPluginManager().registerEvents(new NLoginListener(this), this);
+                } catch (Throwable t) {
+                    getLogger().log(Level.SEVERE, "Could not create nLogin hook!", t);
+                }
+            }
+            if (getServer().getPluginManager().getPlugin("LibreLogin") != null) {
+                try {
+                    libreLogin = ((LibreLoginProvider<Player, World>) getServer().getPluginManager().getPlugin("LibreLogin")).getLibreLogin();
+                    getLogger().log(Level.INFO, "Detected LibreLogin " + libreLogin.getVersion());
+                    new LibreLoginListener(this, libreLogin);
+                } catch (Throwable t) {
+                    getLogger().log(Level.SEVERE, "Could not create LibreLogin hook!", t);
+                }
+            }
+
             if (getConfig().getBoolean("autogeneratehashes", true)) {
                 getPackManager().generateHashes(null);
             }
@@ -377,43 +414,6 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
 
         getPackManager().setAppendHashToUrl(getConfig().getBoolean("append-hash-to-url"));
         logDebug("Append hash to pack URL: " + getPackManager().shouldAppendHashToUrl());
-
-        if (getServer().getPluginManager().getPlugin("AuthMe") != null) {
-            getLogger().log(Level.INFO, "Detected AuthMe " + getServer().getPluginManager().getPlugin("AuthMe").getDescription().getVersion());
-            try {
-                authmeApi = AuthMeApi.getInstance();
-                getServer().getPluginManager().registerEvents(new AuthmeLoginListener(this), this);
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Could not create AuthMe hook!", e);
-            }
-        }
-        if (getServer().getPluginManager().getPlugin("OpeNLogin") != null) {
-            try {
-                openLogin = (OpenLoginBukkit) getServer().getPluginManager().getPlugin("OpeNLogin");
-                getLogger().log(Level.INFO, "Detected OpeNLogin " + openLogin.getDescription().getVersion());
-                getServer().getPluginManager().registerEvents(new OpeNLoginListener(this), this);
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Could not create OpeNLogin hook!", e);
-            }
-        }
-        if (getServer().getPluginManager().getPlugin("nLogin") != null) {
-            try {
-                nLogin = nLoginAPI.getApi();
-                getLogger().log(Level.INFO, "Detected nLogin " + nLogin.getVersion());
-                getServer().getPluginManager().registerEvents(new NLoginListener(this), this);
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Could not create nLogin hook!", e);
-            }
-        }
-        if (getServer().getPluginManager().getPlugin("LibreLogin") != null) {
-            try {
-                libreLogin = ((LibreLoginProvider<Player, World>) getServer().getPluginManager().getPlugin("LibreLogin")).getLibreLogin();
-                getLogger().log(Level.INFO, "Detected LibreLogin " + libreLogin.getVersion());
-                new LibreLoginListener(this, libreLogin);
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Could not create LibreLogin hook!", e);
-            }
-        }
         return true;
     }
 

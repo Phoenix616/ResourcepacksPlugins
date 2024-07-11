@@ -192,7 +192,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             try {
                 viaApi = Via.getAPI();
                 getLogger().log(Level.INFO, "Detected ViaVersion " + viaApi.getVersion());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create ViaVersion hook!", e);
             }
         }
@@ -202,7 +202,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             try {
                 geyser = GeyserApi.api();
                 getLogger().log(Level.INFO, "Detected " + geyserPlugin.getDescription().getName() + " " + geyserPlugin.getDescription().getVersion());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create Geyser hook!", e);
             }
         }
@@ -212,7 +212,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             try {
                 floodgate = FloodgateApi.getInstance();
                 getLogger().log(Level.INFO, "Detected " + floodgatePlugin.getDescription().getName() + " " + floodgatePlugin.getDescription().getVersion());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create floodgate hook!", e);
             }
         }
@@ -222,7 +222,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Detected nLogin " + nLoginPlugin.getDescription().getVersion());
             try {
                 getProxy().getPluginManager().registerListener(this, new NLoginListener(this));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create nLogin hook!", e);
             }
         }
@@ -232,7 +232,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Detected JPremium " + jPremiumPlugin.getDescription().getVersion());
             try {
                 getProxy().getPluginManager().registerListener(this, new JPremiumListener(this));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create JPremium hook!", e);
             }
         }
@@ -242,7 +242,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Detected LibrePremium " + librePremiumPlugin.getDescription().getVersion());
             try {
                 new LibrePremiumListener(this, librePremiumPlugin);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create LibrePremium hook!", e);
             }
         }
@@ -252,7 +252,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             getLogger().log(Level.INFO, "Detected LibreLogin " + libreLoginPlugin.getDescription().getVersion());
             try {
                 new LibreLoginListener(this, libreLoginPlugin);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Could not create LibreLogin hook!", e);
             }
         }
