@@ -19,17 +19,20 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  */
 
 import com.google.common.collect.*;
+import com.velocitypowered.api.event.AwaitingEventExecutor;
 import com.velocitypowered.api.event.EventTask;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.event.player.configuration.PlayerConfigurationEvent;
 import com.velocitypowered.api.event.player.configuration.PlayerFinishConfigurationEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
@@ -39,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 14.05.2015.
@@ -53,16 +57,37 @@ public class ServerSwitchListener {
 
     public ServerSwitchListener(VelocityResourcepacks plugin) {
         this.plugin = plugin;
+
+        try {
+            plugin.getProxy().getEventManager().register(plugin, PlayerConfigurationEvent.class, new AwaitingEventExecutor<>() {
+                @Override
+                public @Nullable EventTask executeAsync(PlayerConfigurationEvent event) {
+                    return onConfigPhase(event.player());
+                }
+            });
+        } catch (NoClassDefFoundError e1) {
+            try {
+                plugin.getProxy().getEventManager().register(plugin, PlayerFinishConfigurationEvent.class, new AwaitingEventExecutor<>() {
+                    @Override
+                    public @Nullable EventTask executeAsync(PlayerFinishConfigurationEvent event) {
+                        return onConfigPhase(event.player());
+                    }
+                });
+            } catch (NoClassDefFoundError e2) {
+                plugin.getPluginLogger().log(Level.WARNING, "Configuration phase API is not available, resource packs will only be sent after login! Update Velocity if you want support for it.");
+                plugin.getPluginLogger().log(Level.WARNING, "PlayerConfigurationEvent error:", e1);
+                plugin.getPluginLogger().log(Level.WARNING, "PlayerFinishConfigurationEvent error:", e2);
+            }
+        }
     }
 
-    @Subscribe
-    public EventTask onFinishConfigPhase(PlayerFinishConfigurationEvent event) {
+    public EventTask onConfigPhase(Player player) {
         if (plugin.isEnabled()) {
-            final UUID playerId = event.player().getUniqueId();
+            final UUID playerId = player.getUniqueId();
             plugin.unsetBackend(playerId);
 
             long sendDelay = -1;
-            String serverName = plugin.getCurrentServerTracker().getCurrentServer(event.player());
+            String serverName = plugin.getCurrentServerTracker().getCurrentServer(player);
             if (serverName != null) {
                 sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
             }
@@ -75,22 +100,22 @@ public class ServerSwitchListener {
                 if (!packs.isEmpty()) {
                     CompletableFuture<Boolean> lockFuture = CompletableFuture.completedFuture(true);
                     for (ResourcePack pack : packs) {
-                        if (hasPack(event.player(), pack)) {
-                            plugin.logDebug("Player " + event.player().getUsername() + " already has the pack " + pack.getUuid() + " applied");
+                        if (hasPack(player, pack)) {
+                            plugin.logDebug("Player " + player.getUsername() + " already has the pack " + pack.getUuid() + " applied");
                         } else {
                             CompletableFuture<Boolean> future = new CompletableFuture<>();
                             future.whenComplete((success, throwable) -> {
                                 if (success) {
-                                    plugin.logDebug("Successfully sent pack " + pack.getUuid() + " to " + event.player().getUsername());
+                                    plugin.logDebug("Successfully sent pack " + pack.getUuid() + " to " + player.getUsername());
                                 } else {
-                                    plugin.logDebug("Failed to send pack " + pack.getUuid() + " to " + event.player().getUsername());
+                                    plugin.logDebug("Failed to send pack " + pack.getUuid() + " to " + player.getUsername());
                                 }
                             });
                             playersLoadingPacks.put(playerId, pack.getUuid(), future);
                             lockFuture = lockFuture.thenCombine(future, (a, b) -> a && b);
                         }
                     }
-                    String playerName = event.player().getUsername();
+                    String playerName = player.getUsername();
                     return EventTask.resumeWhenComplete(lockFuture.thenAccept(success -> {
                         alreadyAppliedPacks.removeAll(playerId);
                         appliedInConfigPhase.add(playerId);
