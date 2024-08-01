@@ -818,9 +818,14 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 protocol = viaApi.getPlayerVersion(playerId);
             }
             if (protocolSupportApi && protocol == serverProtocolVersion) { // if still same format test if player is using previous version
-                ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
-                if (version.getProtocolType() == ProtocolType.PC) {
-                    protocol = version.getId();
+                try {
+                    ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
+                    if (version.getProtocolType() == ProtocolType.PC) {
+                        protocol = version.getId();
+                    }
+                } catch (IllegalStateException e) {
+                    getLogger().warning("Unable to get version of player " + player.getName() + " using ProtocolSupport! Is it loaded correctly? (" + e.getMessage() + ")");
+                    logDebug("Detailed ProtocolSupport error:", e);
                 }
             }
             return protocol;
