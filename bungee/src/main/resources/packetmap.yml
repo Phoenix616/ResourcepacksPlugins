@@ -17,9 +17,11 @@ GAME:
     '1_20_2': 0x42
     '1_20_3': 0x44
     '1_20_5': 0x46
+    '1_21_2': 0x4B
   ResourcePackRemovePacket:
     '1_20_3': 0x43
     '1_20_5': 0x45
+    '1_21_2': 0x4A
 CONFIGURATION:
   ResourcePackSendPacket:
     '1_20_2': 0x06
