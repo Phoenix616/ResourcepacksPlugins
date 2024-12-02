@@ -73,6 +73,15 @@ public class PackManager {
 
     public static final String HASH_KEY = "#hash=";
 
+    private static final String[] URL_DENY_LIST = new String[] {
+            "drive.google.com",
+            "mediafire.com"
+    };
+
+    private static final String[] URL_WARN_LIST = new String[] {
+            "dropbox.com"
+    };
+
     private final ResourcepacksPlugin plugin;
 
     private WatchService watchService = null;
@@ -230,6 +239,7 @@ public class PackManager {
             throw new IllegalArgumentException("Pack " + name + " had a null config?");
         }
         String url = get(config, "url", "");
+        validateUrl(url);
         List<?> variantsList = get(config, "variants", new ArrayList<ResourcePack>());
         if (url.isEmpty() && variantsList.isEmpty()) {
             throw new IllegalArgumentException("Pack " + name + " does not have an url defined!");
@@ -273,6 +283,24 @@ public class PackManager {
             return (T) o;
         }
         return def;
+    }
+
+    /**
+     * Check whether an url is in the deny or warn list and throws an exception or logs a warning
+     * @param url The url to check
+     * @throws IllegalArgumentException If the url is in the deny list
+     */
+    private void validateUrl(String url) throws IllegalArgumentException {
+        for (String deny : URL_DENY_LIST) {
+            if (url.contains(deny)) {
+                throw new IllegalArgumentException("URL " + url + " is not allowed! " + deny + " does not work for hosting packs as they either block downloads from the Minecraft client or do not provide permanent direct links! Use your own webserver or https://mc-packs.net to host the pack instead!");
+            }
+        }
+        for (String warn : URL_WARN_LIST) {
+            if (url.contains(warn)) {
+                plugin.log(Level.WARNING, "Detected a potential issue with pack URL " + url + ": " + warn + " might not reliably work for hosting packs as they tend to eventually block downloads from the Minecraft client! Use your own webserver or https://mc-packs.net to host the pack instead!");
+            }
+        }
     }
 
     /**
