@@ -821,7 +821,7 @@ public class PackManager {
         }
         if (pack == null) {
             ResourcePack stored = getByName(plugin.getStoredPack(playerId));
-            if (stored != null && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (stored != null && checkPack(playerId, stored, Status.SUCCESS) == Status.SUCCESS) {
                 pack = stored;
                 plugin.logDebug(playerId + " has the pack " + stored.getName() + " stored!");
             }
@@ -1019,7 +1019,7 @@ public class PackManager {
         ResourcePack stored = getByName(plugin.getStoredPack(playerId));
 
         if (getStoredPacksOverride() && stored != null) {
-            if (checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (checkPack(playerId, stored, Status.SUCCESS) == Status.SUCCESS) {
                 if (previousPacks.contains(stored)) {
                     plugin.logDebug(player.getName() + " already uses the stored pack " + stored.getName());
                 } else {
@@ -1032,7 +1032,7 @@ public class PackManager {
         }
 
         for (ResourcePack prev : previousPacks) {
-            if (getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (getGlobalAssignment().isOptionalPack(prev) && checkPack(playerId, prev, Status.SUCCESS) == Status.SUCCESS) {
                 plugin.logDebug(player.getName() + " matched global as they already have the pack " + prev.getName());
                 packs.add(prev);
 
@@ -1051,11 +1051,11 @@ public class PackManager {
         }
 
         String matchReason = " due to ";
-        IResourcePackSelectEvent.Status status = IResourcePackSelectEvent.Status.UNKNOWN;
+        Status status = Status.UNKNOWN;
         if (serverName != null && !serverName.isEmpty()) {
             PackAssignment assignment = getAssignment(serverName);
             for (ResourcePack prev : previousPacks) {
-                if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+                if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, Status.SUCCESS) == Status.SUCCESS) {
                     plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as they already have the pack " + prev.getName());
                     packs.add(prev);
 
@@ -1065,7 +1065,7 @@ public class PackManager {
                 }
             }
 
-            if (stored != null && assignment.isOptionalPack(stored) && checkPack(playerId, stored, IResourcePackSelectEvent.Status.SUCCESS) == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (stored != null && assignment.isOptionalPack(stored) && checkPack(playerId, stored, Status.SUCCESS) == Status.SUCCESS) {
                 plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as their stored pack is an optional packs");
                 packs.add(stored);
 
@@ -1080,14 +1080,14 @@ public class PackManager {
                     .collect(Collectors.toCollection(ArrayList::new));
             status = checkPacks(playerId, serverPacks, Status.SUCCESS);
             matchReason = assignment.getName() + matchReason;
-            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (status == Status.SUCCESS) {
                 packs.addAll(serverPacks);
                 matchReason += "main packs";
             } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !serverPacks.isEmpty())) {
                 for (String secondaryName : assignment.getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
-                    if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                    if (status == Status.SUCCESS) {
                         packs.add(secondaryPack);
                         matchReason += "secondary pack";
                         break;
@@ -1102,14 +1102,14 @@ public class PackManager {
                     .collect(Collectors.toCollection(ArrayList::new));
             status = checkPacks(playerId, globalPacks, Status.SUCCESS);
             matchReason = "global due to ";
-            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (status == Status.SUCCESS) {
                 packs.addAll(globalPacks);
                 matchReason += "main packs";
             } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !globalPacks.isEmpty())) {
                 for (String secondaryName : getGlobalAssignment().getOptionalPacks()) {
                     ResourcePack secondaryPack = getByName(secondaryName);
                     status = checkPack(playerId, secondaryPack, status);
-                    if(status == IResourcePackSelectEvent.Status.SUCCESS) {
+                    if (status == Status.SUCCESS) {
                         packs.add(secondaryPack);
                         matchReason += "secondary pack";
                         break;
@@ -1118,14 +1118,14 @@ public class PackManager {
             }
         }
 
-        if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+        if (status == Status.SUCCESS) {
             if (!packs.isEmpty()) {
                 for (ResourcePack pack : packs) {
                     if (!pack.getVariants().isEmpty()) {
-                        status = IResourcePackSelectEvent.Status.UNKNOWN;
+                        status = Status.UNKNOWN;
                         for (ResourcePack variant : pack.getVariants()) {
                             status = checkPack(playerId, variant, status);
-                            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+                            if (status == Status.SUCCESS) {
                                 matchReason += " variant";
                                 break;
                             }
@@ -1133,7 +1133,7 @@ public class PackManager {
                     }
                 }
             }
-            if (status == IResourcePackSelectEvent.Status.SUCCESS) {
+            if (status == Status.SUCCESS) {
                 plugin.logDebug(player.getName() + " matched assignment " + matchReason);
             }
         }
@@ -1142,7 +1142,7 @@ public class PackManager {
             Set<Status> packStatuses = EnumSet.of(status);
             for (ResourcePack pack : packs) {
                 if (!pack.getUrl().isEmpty() && pack.getRawHash().length > 0) {
-                    packStatuses.add(IResourcePackSelectEvent.Status.SUCCESS);
+                    packStatuses.add(Status.SUCCESS);
                 }
             }
             status = packStatuses.stream()
@@ -1151,23 +1151,23 @@ public class PackManager {
         }
 
         IResourcePackSelectEvent selectEvent = plugin.callPackSelectEvent(playerId, new ArrayList<>(packs), status);
-        if (selectEvent.getStatus() != IResourcePackSelectEvent.Status.SUCCESS) {
+        if (selectEvent.getStatus() != Status.SUCCESS) {
             plugin.logDebug(player.getName() + " ResourcePackSelectEvent Status: " + selectEvent.getStatus());
         }
         return new LinkedHashSet<>(selectEvent.getPacks());
     }
 
-    protected IResourcePackSelectEvent.Status checkPacks(UUID playerId, List<ResourcePack> packs, IResourcePackSelectEvent.Status status) {
-        Set<Status> packStatuses = EnumSet.noneOf(IResourcePackSelectEvent.Status.class);
+    protected Status checkPacks(UUID playerId, List<ResourcePack> packs, Status status) {
+        Set<Status> packStatuses = EnumSet.noneOf(Status.class);
         for (Iterator<ResourcePack> it = packs.iterator(); it.hasNext(); ) {
             ResourcePack pack = it.next();
-            IResourcePackSelectEvent.Status packStatus = checkPack(playerId, pack, status);
+            Status packStatus = checkPack(playerId, pack, status);
             packStatuses.add(packStatus);
-            if (packStatus != IResourcePackSelectEvent.Status.SUCCESS) {
+            if (packStatus != Status.SUCCESS) {
                 it.remove();
             }
         }
-        if (packStatuses.contains(IResourcePackSelectEvent.Status.SUCCESS)) {
+        if (packStatuses.contains(Status.SUCCESS)) {
             if (packStatuses.size() == 1) {
                 return Status.SUCCESS;
             }
@@ -1178,7 +1178,7 @@ public class PackManager {
                 .orElse(Status.UNKNOWN);
     }
 
-    protected IResourcePackSelectEvent.Status checkPack(UUID playerId, ResourcePack pack, IResourcePackSelectEvent.Status status) {
+    protected Status checkPack(UUID playerId, ResourcePack pack, Status status) {
         if (pack == null) {
             return status;
         }
@@ -1188,21 +1188,21 @@ public class PackManager {
                                 && pack.getVersion() <= plugin.getPlayerProtocol(playerId)));
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
-            return IResourcePackSelectEvent.Status.SUCCESS;
+            return Status.SUCCESS;
         }
-        if(status != IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION) {
+        if(status != Status.NO_PERM_AND_WRONG_VERSION) {
             if(!rightFormat) {
-                if(!hasPermission || status == IResourcePackSelectEvent.Status.NO_PERMISSION) {
-                    status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                if(!hasPermission || status == Status.NO_PERMISSION) {
+                    status = Status.NO_PERM_AND_WRONG_VERSION;
                 } else {
-                    status = IResourcePackSelectEvent.Status.WRONG_VERSION;
+                    status = Status.WRONG_VERSION;
                 }
             }
             if(!hasPermission) {
-                if(!rightFormat || status == IResourcePackSelectEvent.Status.WRONG_VERSION) {
-                    status = IResourcePackSelectEvent.Status.NO_PERM_AND_WRONG_VERSION;
+                if(!rightFormat || status == Status.WRONG_VERSION) {
+                    status = Status.NO_PERM_AND_WRONG_VERSION;
                 } else {
-                    status = IResourcePackSelectEvent.Status.NO_PERMISSION;
+                    status = Status.NO_PERMISSION;
                 }
             }
         }
