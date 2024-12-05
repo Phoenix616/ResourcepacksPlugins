@@ -1078,7 +1078,7 @@ public class PackManager {
             List<ResourcePack> serverPacks = assignment.getPacks().stream()
                     .map(this::getByName)
                     .collect(Collectors.toCollection(ArrayList::new));
-            status = checkPacks(playerId, serverPacks, status);
+            status = checkPacks(playerId, serverPacks, Status.SUCCESS);
             matchReason = assignment.getName() + matchReason;
             if (status == IResourcePackSelectEvent.Status.SUCCESS) {
                 packs.addAll(serverPacks);
@@ -1100,7 +1100,7 @@ public class PackManager {
             List<ResourcePack> globalPacks = getGlobalAssignment().getPacks().stream()
                     .map(this::getByName)
                     .collect(Collectors.toCollection(ArrayList::new));
-            status = checkPacks(playerId, globalPacks, status);
+            status = checkPacks(playerId, globalPacks, Status.SUCCESS);
             matchReason = "global due to ";
             if (status == IResourcePackSelectEvent.Status.SUCCESS) {
                 packs.addAll(globalPacks);
