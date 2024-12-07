@@ -207,7 +207,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
                 getLogger().log(Level.WARNING, "Error while trying to create " + internalClass.getSimpleName(), e);
                 internalHelper = new InternalHelper_fallback(this);
             }
-            getLogger().log(Level.INFO, "Using " + internalHelper.getClass().getSimpleName());
+            logDebug("Using " + internalHelper.getClass().getSimpleName());
 
             Plugin viaPlugin = getServer().getPluginManager().getPlugin("ViaVersion");
             if (viaPlugin != null && viaPlugin.isEnabled()) {
