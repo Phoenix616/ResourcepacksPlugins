@@ -82,6 +82,29 @@ public class PackManager {
             "dropbox.com"
     };
 
+    private static final int[] PACK_FORMATS = new int[] {
+            MinecraftVersion.MINECRAFT_1_21_5.getProtocolNumber(), 55,
+            MinecraftVersion.MINECRAFT_1_21_4.getProtocolNumber(), 46,
+            MinecraftVersion.MINECRAFT_1_21_2.getProtocolNumber(), 42,
+            MinecraftVersion.MINECRAFT_1_21.getProtocolNumber(), 34,
+            MinecraftVersion.MINECRAFT_1_20_5.getProtocolNumber(), 32,
+            MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber(), 22,
+            MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber(), 18,
+            MinecraftVersion.MINECRAFT_1_20.getProtocolNumber(), 15,
+            MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber(), 13,
+            MinecraftVersion.MINECRAFT_1_19_3.getProtocolNumber(), 12,
+            MinecraftVersion.MINECRAFT_1_19.getProtocolNumber(), 9,
+            MinecraftVersion.MINECRAFT_1_18.getProtocolNumber(), 8,
+            MinecraftVersion.MINECRAFT_1_17.getProtocolNumber(), 7,
+            749, 6, // 1.16.2 / release candidate 1
+            565, 5, // 1.15 / pre release 1
+            348, 4, // pre 1.13 / 17w48a
+            210, 3, // pre 1.11
+            49, 2, // pre 1.9 / 15w31a
+            47, 1, // pre 1.8
+            0, 0
+    };
+
     private final ResourcepacksPlugin plugin;
 
     private WatchService watchService = null;
@@ -1351,47 +1374,12 @@ public class PackManager {
      * @return The pack format; <code>-1</code> if the player has an unknown version
      */
     public int getPackFormat(int version) {
-        if (version >= MinecraftVersion.MINECRAFT_1_21_4.getProtocolNumber()) {
-            return 46;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_21_2.getProtocolNumber()) {
-            return 42;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_21.getProtocolNumber()) {
-            return 34;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_20_5.getProtocolNumber()) {
-            return 32;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber()) {
-            return 22;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
-            return 18;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_20.getProtocolNumber()) {
-            return 15;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber()) {
-            return 13;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_19_3.getProtocolNumber()) {
-            return 12;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_19.getProtocolNumber()) {
-            return 9;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_18.getProtocolNumber()) {
-            return 8;
-        } else if (version >= MinecraftVersion.MINECRAFT_1_17.getProtocolNumber()) {
-            return 7;
-        } else if (version >= 749) { // 1.16.2 / release candidate 1
-            return 6;
-        } else if (version >= 565) { // 1.15 / pre release 1
-            return 5;
-        } else if (version >= 348) { // pre 1.13 / 17w48a
-            return 4;
-        } else if (version >= 210) { // pre 1.11
-            return 3;
-        } else if (version >= 49) { // pre 1.9 / 15w31a
-            return 2;
-        } else if (version >= 47) { // pre 1.8
-            return 1;
-        } else if (version >= 0) {
-            return 0;
-        } else {
-            return -1;
+        for (int i = 0; i + 1 < PACK_FORMATS.length; i += 2) {
+            if (version >= PACK_FORMATS[i]) {
+                return PACK_FORMATS[i + 1];
+            }
         }
+        return -1;
     }
 
     /**
