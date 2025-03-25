@@ -363,7 +363,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                 // This allows specifying the snapshot version an ID was first used
                 for (IdMapping mapping : additionalMappings) {
                     for (int id : ProtocolConstants.SUPPORTED_VERSION_IDS) {
-                        if (!registeredVersions.contains(id) && id > mapping.getProtocolVersion()) {
+                        if (id < 0x4000000 && !registeredVersions.contains(id) && id > mapping.getProtocolVersion()) {
                             logDebug("Using unregistered mapping " + mapping.getName() + "/" + mapping.getProtocolVersion() + " for unregistered version " + id);
                             mappings.put(mapping.getName(), map.invoke(null, id, mapping.getPacketId()));
                             registeredVersions.add(id);
