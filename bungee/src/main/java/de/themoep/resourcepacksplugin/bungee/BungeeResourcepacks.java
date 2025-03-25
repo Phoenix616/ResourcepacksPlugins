@@ -144,7 +144,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
      */
     private boolean enabled = false;
 
-    private int bungeeVersion;
+    private int bungeeVersion = -1;
 
     private ViaAPI viaApi;
     private GeyserApi geyser;
@@ -307,7 +307,14 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
             }
 
             logDebug("Registering " + packetClass.getSimpleName() + " in " + protocol + " phase...");
-            bungeeVersion = supportedVersions.get(supportedVersions.size() - 1);
+            if (bungeeVersion == -1) {
+                for (int i = supportedVersions.size() - 1; i > -1; i--) {
+                    bungeeVersion = supportedVersions.get(i);
+                    if (bungeeVersion < 0x4000000) {
+                        break;
+                    }
+                }
+            }
             if (bungeeVersion == ProtocolConstants.MINECRAFT_1_8) {
                 logDebug("BungeeCord 1.8 (" + bungeeVersion + ") detected!");
                 Method reg = direction.getClass().getDeclaredMethod("registerPacket", int.class, Class.class);
