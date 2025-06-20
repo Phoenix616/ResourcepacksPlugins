@@ -255,10 +255,24 @@ public class PackManager {
     /**
      * Creates a new ResourcePack instance from a config. Does not add it!
      * @param name      The name of the pack
-     * @param config
-     * @return
+     * @param config    A map of the config section
+     * @return The loaded pack
+     * @throws IllegalArgumentException Thrown when the config is invalid, e.g. missing url or uuid
      */
     public ResourcePack loadPack(String name, Map<String, Object> config) throws IllegalArgumentException {
+        return this.loadPack(null, name, config);
+    }
+
+
+    /**
+     * Creates a new ResourcePack instance from a config. Does not add it!
+     * @param parent    The parent pack, can be null
+     * @param name      The name of the pack
+     * @param config    A map of the config section
+     * @return The loaded pack
+     * @throws IllegalArgumentException Thrown when the config is invalid, e.g. missing url or uuid
+     */
+    private ResourcePack loadPack(ResourcePack parent, String name, Map<String, Object> config) throws IllegalArgumentException {
         if (config == null) {
             throw new IllegalArgumentException("Pack " + name + " had a null config?");
         }
@@ -287,7 +301,7 @@ public class PackManager {
 
         ClientType type = ClientType.valueOf(get(config, "type", "original").toUpperCase(Locale.ROOT));
 
-        ResourcePack pack = new ResourcePack(name, uuid, url, hash, localPath, format, 0, restricted, perm, type);
+        ResourcePack pack = new ResourcePack(parent, name, uuid, url, hash, localPath, format, 0, restricted, perm, type);
         try {
             pack.setVersion(mcVersion);
         } catch (IllegalArgumentException e) {
@@ -295,7 +309,7 @@ public class PackManager {
         }
 
         for (int i = 0; i < variantsList.size(); i++) {
-            pack.getVariants().add(loadPack(name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));
+            pack.getVariants().add(loadPack(pack, name + "-variant-" + (i + 1), plugin.getConfigMap(variantsList.get(i))));
         }
 
         return pack;

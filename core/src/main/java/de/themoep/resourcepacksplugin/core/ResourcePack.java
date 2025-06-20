@@ -45,6 +45,7 @@ public class ResourcePack {
     private String permission;
     private ClientType type;
 
+    private final ResourcePack parent;
     private final List<ResourcePack> variants = new ArrayList<>();
 
     /**
@@ -175,6 +176,25 @@ public class ResourcePack {
      * @param type The type of the pack depending on the client which should receive it
      */
     public ResourcePack(String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(null, name, uuid, url, hash, localPath, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param parent The parent pack if this is a variant of another pack. Can be null if this is not a variant.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param uuid The uuid of the resourcepack as set in the config.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param type The type of the pack depending on the client which should receive it
+     */
+    public ResourcePack(ResourcePack parent, String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this.parent = parent;
         this.name = name;
         this.uuid = uuid;
         this.url = url;
@@ -387,6 +407,26 @@ public class ResourcePack {
     }
 
     /**
+     * Get the parent pack if this is a variant of another pack.
+     * @return The parent pack or null if this is not a variant
+     */
+    public ResourcePack getParent() {
+        return parent;
+    }
+
+    /**
+     * Helper method to get the root parent of this pack.
+     * @return The root parent pack, which is the first pack in the chain of parents. If this pack has no parent, it will return itself.
+     */
+    public ResourcePack getRootParent() {
+        ResourcePack root = this;
+        while (root.getParent() != null) {
+            root = root.getParent();
+        }
+        return root;
+    }
+
+    /**
      * Get a list of different pack variants. Used to get, add and remove variants.
      * @return The list of pack variants
      */
@@ -424,6 +464,7 @@ public class ResourcePack {
                 "restricted", String.valueOf(isRestricted()),
                 "permission", getPermission(),
                 "type", getType().humanName(),
+                "parent", getParent() != null ? getParent().getName() : "-",
                 "variants", String.valueOf(getVariants().size())
         };
     }
