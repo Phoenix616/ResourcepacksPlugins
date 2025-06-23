@@ -1,0 +1,93 @@
+command:
+  usage: "用法: /%command% %usage%"
+  reloaded: "&重载 %plugin% 配置!%optional-resend%"
+  optional-resend: "重新向所有在线玩家发送资源包！"
+  version: "&a%plugin% 版本: %version%"
+  not-enabled: "&c%plugin% 未启用！"
+  invalid-input: "&f%input%&c 不是有效的 %expected%"
+  no-permission: "&c您没有权限 &f%permission%&c！"
+  unknown-pack: "&c未找到名为 &e%input%&c 的资源包！"
+  addpack:
+    name-already-used: "&c名为 &f%name%&c 的资源包已存在！"
+    url-already-used: "&c资源包 &f%name%&c 已使用了网址 &f%url%&c！"
+    added: "&e已添加名为 &f%name%&e 的新资源包，网址为 &f%url%"
+  removepack:
+    removed: "&e已移除名为 &f%name%&e 的资源包，网址为 &f%url%"
+  pack:
+    updated: "&e已将资源包 &f%pack%&e 的 &f%type%&e 设置为 &f%value%"
+    info: |-
+      &7----- &e资源包 &f%name%&e 信息: &7-----
+      &e网址: &f%url%
+      &eHash: &f%hash%
+      &e格式: &f%format%
+      &e版本: &f%version%
+      &e限制: &f%restricted%
+      &e权限: &f%permission%
+      &e变体: &f%variants%
+    info-variants: |-
+      &7----- &e资源包 &f%name%&e 信息: &7-----
+      &e格式: &f%format%
+      &e版本: &f%version%
+      &e限制: &f%restricted%
+      &e权限: &f%permission%
+      &e变体: &f%variants%
+  assignment:
+    new-assignment: "&c未找到名为 &e%input%&c 的分配！正在创建新的！"
+    updated: "&e已将分配 &f%assignment%&e 的 &f%type%&e 设置为 &f%value%"
+    optional-pack:
+      added:  "&e已将资源包 &f%pack%&e 添加到分配 &f%assignment%&e 的可选资源包列表中！"
+      already-added:  "&c资源包 &f%pack%&c 已在分配 &f%assignment%&c 的可选资源包列表中？"
+      removed:  "&e已从分配 &f%assignment%&e 的可选资源包列表中移除资源包 &f%pack%&e！"
+      not-added:  "&c资源包 &f%pack%&c 不在分配 &f%assignment%&c 的可选资源包列表中？"
+    info: |-
+      &7----- &e分配 &f%name%&e 信息: &7-----
+      &e资源包: &f%pack%
+      &e可选资源包: &f%optional-packs%
+      &e正则表达式: &f%regex%
+      &e发送延迟: &f%send-delay%
+  deleteassignment:
+    unknown-assignment: "&c未找到名为 &e%input%&c 的分配！"
+    deleted: "&e分配 &f%name%&e 已被删除！"
+  listassignments:
+    head: "&a已配置的分配:"
+    entry: "&e%name%"
+  usepack:
+    invalid-temporary: "&f%input%&c 不是有效的布尔临时值！（true/false）"
+    player-not-online: "&c玩家 &f%input%&c 不在线"
+    bedrock-not-supported: "&c不支持更改基岩版玩家的资源包！"
+    already-in-use: "&f%player%&c 已经使用资源包 “&f%pack%&c”！"
+    unknown-error: "&c由于未知原因，无法应用资源包 “&f%pack%&c”！"
+    no-variant-found:
+      permission: "&f由于权限问题，%player%&c 无法使用资源包 “&f%pack%&c” 的任何变体！"
+      version: "&f由于版本问题，%player%&c 无法使用资源包 “&f%pack%&c” 的任何变体！"
+      perm-and-version: "&f由于版本和权限问题，%player%&c 无法使用资源包 “&f%pack%&c” 的任何变体！"
+    restricted: "&c您没有权限 &f%permission%%c 来设置受限资源包 “&f%pack%&c”！"
+    unknown-pack: "&c错误：没有名为 “&f%input%&c” 的资源包！"
+    success-other: "&f%player% &a 现在使用资源包 “&f%pack%&a”！"
+    success: "&a您现在使用资源包 %pack%！"
+    pack-list:
+      head: "&a您可以使用的资源包:"
+      entry: "  [&e%pack%](/usepack %pack%)%optional-format%%optional-version%"
+      entry-selected: "> [%pack%](/resetpack)%optional-format%%optional-version%"
+      optional-format: "&7 (格式: %format%)"
+      optional-version: "&7 (版本: %version%)"
+    no-packs: "&c未找到资源包！"
+  resetpack:
+    player-not-online: "&c玩家 &f%input%&c 不在线"
+    bedrock-not-supported: "&c不支持更改基岩版玩家的资源包！"
+    no-pack-stored: "&c未存储任何资源包。"
+    had-stored-pack: "&a已存储资源包 “&f%pack%&a”。"
+    success-other: "&a已重置 &f%player%&a 的资源包！"
+    success: "&a已重置您的资源包！"
+    no-pack: "&c您没有应用任何资源包（或者是一个空的资源包）？"
+    no-pack-other: "&f%player% &c 没有应用任何资源包（或者是一个空的资源包）？"
+
+
+generate-hashes:
+  generating: "&e正在生成哈希..."
+  downloading: "&e正在下载 &f%pack%&e..."
+  hash-sum: "&e&f%pack%&e 的 SHA 1 hash: &f%hash%"
+  invalid-url: "&e%url%&c 不是有效的网址！"
+  failed-to-load-pack: "&c无法加载 %pack%！%error%"
+  changed: "&a%amount% 个资源包的哈希已更改！正在保存到配置中。"
+  none-changed: "&a没有 hash 更改！"
