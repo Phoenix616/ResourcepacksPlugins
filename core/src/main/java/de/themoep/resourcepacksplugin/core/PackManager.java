@@ -83,6 +83,7 @@ public class PackManager {
     };
 
     private static final int[] PACK_FORMATS = new int[] {
+            MinecraftVersion.MINECRAFT_1_21_7.getProtocolNumber(), 64,
             MinecraftVersion.MINECRAFT_1_21_6.getProtocolNumber(), 63,
             MinecraftVersion.MINECRAFT_1_21_5.getProtocolNumber(), 55,
             MinecraftVersion.MINECRAFT_1_21_4.getProtocolNumber(), 46,
