@@ -18,8 +18,9 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.jakub.premium.api.event.UserEvent;
+import com.jakub.jpremium.proxy.api.event.bungee.UserEvent;
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -31,6 +32,10 @@ public class JPremiumListener extends AuthHandler implements Listener {
 
     @EventHandler
     public void onAuth(UserEvent.Login event) {
-        onAuth(event.getUserProfile().getProxiedPlayer());
+        if (event.getCommandSender().isPresent() && event.getCommandSender().get() instanceof ProxiedPlayer) {
+            onAuth((ProxiedPlayer) event.getCommandSender().get());
+        } else {
+            onAuth(plugin.getProxy().getPlayer(event.getUserProfile().getUniqueId()));
+        }
     }
 }

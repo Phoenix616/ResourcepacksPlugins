@@ -18,7 +18,7 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.jakub.jpremium.velocity.api.event.UserEvent;
+import com.jakub.jpremium.proxy.api.event.velocity.UserEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
