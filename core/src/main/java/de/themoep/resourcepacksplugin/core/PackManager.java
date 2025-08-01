@@ -1027,6 +1027,11 @@ public class PackManager {
             if (sentPack != null) {
                 sentPacks.add(sentPack);
             }
+        } else {
+            List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
+            if (!userPacks.isEmpty()) {
+                setPack(playerId, null);
+            }
         }
 
         plugin.sendPackInfo(playerId);
