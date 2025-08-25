@@ -282,6 +282,8 @@ public class PackManager {
         List<?> variantsList = get(config, "variants", new ArrayList<ResourcePack>());
         if (url.isEmpty() && variantsList.isEmpty()) {
             throw new IllegalArgumentException("Pack " + name + " does not have an url defined!");
+        } else if (!url.isEmpty() && !variantsList.isEmpty()) {
+            throw new IllegalArgumentException("Pack " + name + " has url as well as variants defined! You cannot use both at the same time, add a variant to the list with your url (as well as hash and uuid) and remove the 'url' key!");
         }
         UUID uuid;
         String uuidStr = get(config, "uuid", "");
