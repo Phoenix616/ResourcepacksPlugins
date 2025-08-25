@@ -1234,6 +1234,9 @@ public class PackManager {
                                 && pack.getVersion() <= plugin.getPlayerProtocol(playerId)));
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
+            if (!pack.getVariants().isEmpty()) {
+                return checkPacks(playerId, new ArrayList<>(pack.getVariants()), status);
+            }
             return Status.SUCCESS;
         }
         if(status != Status.NO_PERM_AND_WRONG_VERSION) {
