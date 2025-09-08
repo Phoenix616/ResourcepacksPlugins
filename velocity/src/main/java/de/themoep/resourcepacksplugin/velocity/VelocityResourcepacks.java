@@ -35,6 +35,7 @@ import com.velocitypowered.api.util.ProxyVersion;
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
+import de.themoep.resourcepacksplugin.core.PlatformType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.SubChannelHandler;
 import de.themoep.resourcepacksplugin.velocity.events.ResourcePackSelectEvent;
@@ -479,7 +480,12 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
     }
-    
+
+    @Override
+    public PlatformType getPlatformType() {
+        return PlatformType.PROXY;
+    }
+
     public PluginConfig getConfig() {
         return config;
     }

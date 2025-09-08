@@ -40,6 +40,7 @@ import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.PlatformType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -538,6 +539,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
+    }
+
+    @Override
+    public PlatformType getPlatformType() {
+        return PlatformType.MINECRAFT_SERVER;
     }
 
 

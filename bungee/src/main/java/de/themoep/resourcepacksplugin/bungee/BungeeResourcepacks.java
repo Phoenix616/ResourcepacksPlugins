@@ -39,6 +39,7 @@ import de.themoep.resourcepacksplugin.core.ClientType;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.PlatformType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -728,7 +729,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
     }
-    
+
+    @Override
+    public PlatformType getPlatformType() {
+        return PlatformType.PROXY;
+    }
+
     public static BungeeResourcepacks getInstance() {
         return instance;
     }

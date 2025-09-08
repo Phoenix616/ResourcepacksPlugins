@@ -970,6 +970,7 @@ public class PackManager {
         }
         if (pack != null && !prev.contains(pack)) {
             if (!plugin.supportsMultiplePacks(event.getPlayerId())) {
+                plugin.logDebug("Player " + event.getPlayerId() + "'s client version does not support multiple packs, clearing previous pack");
                 plugin.getUserManager().clearUserPacks(event.getPlayerId());
             }
             plugin.getUserManager().addUserPack(event.getPlayerId(), pack);

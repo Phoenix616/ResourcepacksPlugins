@@ -59,7 +59,7 @@ public abstract class SubChannelHandler<S> {
 
             ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
             if (player == null) {
-                plugin.logDebug("(proxy)server sent pack " + packCount + " packs to player " + playerName + " but they aren't online?");
+                plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent pack " + packCount + " packs to player " + playerName + " but they aren't online?");
             }
 
             plugin.getUserManager().clearUserPacks(playerUuid);
@@ -67,10 +67,10 @@ public abstract class SubChannelHandler<S> {
             for (int i = 0; i < packCount; i++) {
                 ResourcePack pack = readPack(in);
                 if (pack != null) {
-                    plugin.logDebug("(proxy)server sent pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
+                    plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent pack " + pack.getName() + " (" + pack.getUrl() + ") to player " + playerName);
                     plugin.getUserManager().addUserPack(playerUuid, pack);
                 } else {
-                    plugin.logDebug("(proxy)server sent command to add an unknown pack to " + playerName + "?");
+                    plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to add an unknown pack to " + playerName + "?");
                 }
             }
         });
@@ -79,10 +79,10 @@ public abstract class SubChannelHandler<S> {
             UUID playerUuid = new UUID(in.readLong(), in.readLong());
             ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
             if (player == null) {
-                plugin.logDebug("(proxy)server sent command to clear the pack of player " + playerName + " but they aren't online?");
+                plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to clear the pack of player " + playerName + " but they aren't online?");
             }
 
-            plugin.logDebug("(proxy)server sent command to clear the pack of player " + playerName);
+            plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to clear the pack of player " + playerName);
             plugin.clearPack(playerUuid);
         });
         registerSubChannel("removePack", (p, in) -> {
@@ -94,12 +94,12 @@ public abstract class SubChannelHandler<S> {
             if (pack != null) {
                 ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
                 if (player == null) {
-                    plugin.logDebug("(proxy)server sent command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
+                    plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
                 }
-                plugin.logDebug("(proxy)server sent command to remove the pack " + pack.getName() + " from player " + playerName);
+                plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to remove the pack " + pack.getName() + " from player " + playerName);
                 plugin.getUserManager().removeUserPack(playerUuid, pack);
             } else {
-                plugin.logDebug("(proxy)server sent command to remove an unknown pack from " + playerName + "?");
+                plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to remove an unknown pack from " + playerName + "?");
             }
         });
     }
@@ -138,7 +138,7 @@ public abstract class SubChannelHandler<S> {
             reaction.accept(source, in);
             return true;
         }
-        plugin.log(Level.WARNING, "Unknown subchannel " + subChannel + "! Please make sure you are running a compatible plugin version on your Proxy!");
+        plugin.log(Level.WARNING, "Unknown subchannel " + subChannel + "! Please make sure you are running a compatible plugin version on your " + plugin.getPlatformType().getOpposite());
         return false;
     }
 

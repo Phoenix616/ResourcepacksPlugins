@@ -364,4 +364,10 @@ public interface ResourcepacksPlugin {
     default boolean supportsMultiplePacks(UUID playerId) {
         return getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber();
     }
+
+    /**
+     * Get the type of platform this plugin instance is running on
+     * @return The type of platform
+     */
+    PlatformType getPlatformType();
 }

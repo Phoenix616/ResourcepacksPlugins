@@ -31,6 +31,7 @@ import de.themoep.resourcepacksplugin.sponge.listeners.WorldSwitchListener;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.core.PackAssignment;
 import de.themoep.resourcepacksplugin.core.PackManager;
+import de.themoep.resourcepacksplugin.core.PlatformType;
 import de.themoep.resourcepacksplugin.core.PluginLogger;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
@@ -445,6 +446,10 @@ public class SpongeResourcepacks implements ResourcepacksPlugin, Languaged {
         return getConfig().getInt("permanent-pack-remove-time");
     }
 
+    @Override
+    public PlatformType getPlatformType() {
+        return PlatformType.MINECRAFT_SERVER;
+    }
 
     public void resendPack(UUID playerId) {
         Sponge.getServer().getPlayer(playerId).ifPresent(this::resendPack);
