@@ -291,7 +291,12 @@ public class PackManager {
         if (uuidStr.isEmpty()) {
             uuid = UUID.nameUUIDFromBytes(url.getBytes());
         } else {
-            uuid = UUID.fromString(uuidStr);
+            try {
+                uuid = UUID.fromString(uuidStr);
+            } catch (IllegalArgumentException e) {
+                plugin.log(Level.SEVERE, "Invalid UUID configured for pack " + name + ": " + uuidStr + ". Using one based on the URL.", e);
+                uuid = UUID.nameUUIDFromBytes(url.getBytes());
+            }
         }
         String hash = get(config, "hash", "");
 
