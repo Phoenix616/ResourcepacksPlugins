@@ -348,6 +348,12 @@ public interface ResourcepacksPlugin {
      * @return <code>true</code> if it's temporary, <code>false</code> if not
      */
     boolean isUsepackTemporary();
+
+    /**
+     * Whether /usepack will remove any packs that were automatically applied on 1.20.3+ to restore pre-1.20.3 single-pack behaviour
+     * @return <code>true</code> if it's removing existing packs, <code>false</code> if not
+     */
+    boolean areSelectedPacksRemovingExisting();
     
     /**
      * Get the time in which the permanent pack will be reset if the player disconnects

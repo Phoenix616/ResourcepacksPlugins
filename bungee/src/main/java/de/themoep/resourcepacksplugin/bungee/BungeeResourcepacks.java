@@ -724,7 +724,12 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     public boolean isUsepackTemporary() {
         return getConfig().getBoolean("usepack-is-temporary");
     }
-    
+
+    @Override
+    public boolean areSelectedPacksRemovingExisting() {
+        return getConfig().getBoolean("selected-packs-remove-existing");
+    }
+
     @Override
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");

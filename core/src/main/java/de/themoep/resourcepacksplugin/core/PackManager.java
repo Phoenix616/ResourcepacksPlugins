@@ -855,8 +855,22 @@ public class PackManager {
      * @param temporary Should the pack be removed on log out or stored?
      * @param removeExisting Should existing packs be removed? (Only works on 1.20.3+, versions before that will always remove)
      * @return The result of setting a pack
+     * @deprecated Use {@link #setPack(UUID, ResourcePack, boolean, PackRemoveOption)} to specify a {@link PackRemoveOption} instead of just a boolean.
      */
+    @Deprecated
     public @NonNull PackSetResult setPack(UUID playerId, ResourcePack pack, boolean temporary, boolean removeExisting) {
+        return setPack(playerId, pack, temporary, removeExisting ? PackRemoveOption.ALL : PackRemoveOption.NONE);
+    }
+
+    /**
+     * Set the pack of a player and send it to him, calls a ResourcePackSendEvent
+     * @param playerId  The UUID of the player to set the pack for
+     * @param pack      The ResourcePack to set
+     * @param temporary Should the pack be removed on log out or stored?
+     * @param removeOption What packs should be removed (Only works on 1.20.3+, versions before that will always remove)
+     * @return The result of setting a pack
+     */
+    public @NonNull PackSetResult setPack(UUID playerId, ResourcePack pack, boolean temporary, PackRemoveOption removeOption) {
         List<ResourcePack> prev = plugin.getUserManager().getUserPacks(playerId);
         if (!temporary) {
             if (pack == null) {
@@ -873,10 +887,17 @@ public class PackManager {
                 plugin.logDebug(playerId + " has the pack " + stored.getName() + " stored!");
             }
         }
-        if (plugin.supportsMultiplePacks(playerId) && removeExisting) {
-            for (ResourcePack existing : prev) {
-                if (existing != pack) {
-                    removePack(playerId, existing);
+        if (plugin.supportsMultiplePacks(playerId)) {
+            if (removeOption == PackRemoveOption.ALL) {
+                for (ResourcePack existing : prev) {
+                    if (existing != pack) {
+                        removePack(playerId, existing);
+                    }
+                }
+            } else if (removeOption == PackRemoveOption.PLAYER_SELECTED) {
+                ResourcePack selectedPack = plugin.getUserManager().getSelectedPack(playerId);
+                if (selectedPack != null && selectedPack != pack) {
+                    removePack(playerId, selectedPack);
                 }
             }
         }
@@ -1452,5 +1473,14 @@ public class PackManager {
         public Status getStatus() {
             return status;
         }
+    }
+
+    /**
+     * Specify what packs should be removed
+     */
+    public enum PackRemoveOption {
+        ALL,
+        PLAYER_SELECTED,
+        NONE
     }
 }
