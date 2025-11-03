@@ -1149,7 +1149,7 @@ public class PackManager {
             }
         }
 
-        if (packs.isEmpty()) {
+        if (packs.isEmpty() || (stored != null && packs.size() == 1 && packs.contains(stored))) {
             List<ResourcePack> globalPacks = getGlobalAssignment().getPacks().stream()
                     .map(this::getByName)
                     .collect(Collectors.toCollection(ArrayList::new));
