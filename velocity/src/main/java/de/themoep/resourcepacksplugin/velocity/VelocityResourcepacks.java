@@ -475,6 +475,11 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     public boolean isUsepackTemporary() {
         return getConfig().getBoolean("usepack-is-temporary");
     }
+
+    @Override
+    public boolean areSelectedPacksRemovingExisting() {
+        return getConfig().getBoolean("selected-packs-remove-existing");
+    }
     
     @Override
     public int getPermanentPackRemoveTime() {

@@ -68,7 +68,9 @@ command:
     pack-list:
       head: "&aPacks available to you:"
       entry: "  [&e%pack%](/usepack %pack%)%optional-format%%optional-version%"
-      entry-selected: "> [%pack%](/resetpack)%optional-format%%optional-version%"
+      entry-used: "%indicator% [%pack%](/resetpack)%optional-format%%optional-version%"
+      indicator-used: "*"
+      indicator-selected: ">"
       optional-format: "&7 (Format: %format%)"
       optional-version: "&7 (Version: %version%)"
     no-packs: "&cNo packs found!"

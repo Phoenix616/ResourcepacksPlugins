@@ -537,6 +537,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     }
 
     @Override
+    public boolean areSelectedPacksRemovingExisting() {
+        return getConfig().getBoolean("selected-packs-remove-existing");
+    }
+
+    @Override
     public int getPermanentPackRemoveTime() {
         return getConfig().getInt("permanent-pack-remove-time");
     }

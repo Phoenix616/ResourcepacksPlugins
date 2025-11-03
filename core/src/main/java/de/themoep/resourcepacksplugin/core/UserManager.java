@@ -22,6 +22,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +39,11 @@ public class UserManager {
      * playerid -> packname
      */
     private final Multimap<UUID, String> userPacksMap = MultimapBuilder.hashKeys().linkedHashSetValues().build();
+
+    /**
+     * The packs that were manually selected by the user
+     */
+    private final Map<UUID, String> selectedPacks = new HashMap<>();
     
     /**
      * playerid -> logintime
@@ -126,6 +132,7 @@ public class UserManager {
      * @return The list of resourcepacks the player had selected previous, an empty list if he had none before
      */
     public Collection<String> clearUserPacks(UUID playerId) {
+        selectedPacks.remove(playerId);
         return userPacksMap.removeAll(playerId);
     }
 
@@ -149,6 +156,9 @@ public class UserManager {
      */
     public void removeUserPack(UUID playerId, String packName) {
         userPacksMap.remove(playerId, packName);
+        if (packName.equals(selectedPacks.get(playerId))) {
+            selectedPacks.remove(playerId);
+        }
     }
 
     /**
@@ -157,6 +167,25 @@ public class UserManager {
     public void clearUserPacks() {
         userPacksMap.clear();
         userPackTime.clear();
+        selectedPacks.clear();
+    }
+
+    /**
+     * Get the pack a user has selected
+     * @param playerId  The UUID of this player
+     * @return The selected pack or <tt>null</tt> if none was manually selected
+     */
+    public ResourcePack getSelectedPack(UUID playerId) {
+        return plugin.getPackManager().getByName(selectedPacks.get(playerId));
+    }
+
+    /**
+     * Set the pack a user has selected
+     * @param playerId  The UUID of this player
+     * @param pack      The pack
+     */
+    public void setSelectedPack(UUID playerId, ResourcePack pack) {
+        selectedPacks.put(playerId, pack.getName());
     }
     
     /**

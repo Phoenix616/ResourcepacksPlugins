@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  */
 
 import de.themoep.resourcepacksplugin.core.ClientType;
+import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
@@ -78,8 +79,10 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                         return true;
                     }
 
-                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp, true).getStatus()) {
+                    switch (plugin.getPackManager().setPack(player.getUniqueId(), pack, temp,
+                            plugin.areSelectedPacksRemovingExisting() ? PackManager.PackRemoveOption.ALL : PackManager.PackRemoveOption.PLAYER_SELECTED).getStatus()) {
                         case SUCCESS:
+                            plugin.getUserManager().setSelectedPack(player.getUniqueId(), pack);
                             if (!player.equals(sender)) {
                                 sendMessage(sender, "success-other", "player", player.getName(), "pack", pack.getName());
                             }
@@ -115,6 +118,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
             sendMessage(sender, "pack-list.head");
             List<ResourcePack> packs = plugin.getPackManager().getPacks();
             if (packs.size() > 0) {
+                ResourcePack selectedPack = sender != null ? plugin.getUserManager().getSelectedPack(sender.getUniqueId()) : null;
                 List<ResourcePack> userPacks = sender != null ? plugin.getUserManager().getUserPacks(sender.getUniqueId()) : Collections.emptyList();
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
                         .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
@@ -125,13 +129,16 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
 
                 if (applicablePacks.size() > 0) {
                     for (ResourcePack pack : applicablePacks) {
-                        sendMessage(sender, "pack-list.entry" + (userPacks != null && userPacks.equals(pack) ? "-selected" : ""),
+                        sendMessage(sender, "pack-list.entry" + (userPacks.contains(pack) ? "-used" : ""),
                                 "pack", pack.getName(),
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
                                 "format", String.valueOf(pack.getFormat()),
                                 "version", String.valueOf(pack.getVersion()),
-                                "selected", userPacks.contains(pack) ? ">" : " ",
+                                "indicator", selectedPack == pack
+                                        ? getMessage(sender, "pack-list.indicator-selected")
+                                        : userPacks.contains(pack)
+                                                ? getMessage(sender, "pack-list.indicator-used") : " ",
                                 "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : "",
                                 "optional-version", pack.getVersion() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-version", "version", String.valueOf(pack.getVersion())) : ""
                         );

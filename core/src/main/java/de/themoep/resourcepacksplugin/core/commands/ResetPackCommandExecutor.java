@@ -19,6 +19,7 @@ package de.themoep.resourcepacksplugin.core.commands;
  */
 
 import de.themoep.resourcepacksplugin.core.ClientType;
+import de.themoep.resourcepacksplugin.core.PackManager;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 import de.themoep.resourcepacksplugin.core.events.IResourcePackSelectEvent.Status;
@@ -80,7 +81,8 @@ public class ResetPackCommandExecutor extends PluginCommandExecutor {
             }
         }
 
-        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp, true).getStatus() == Status.SUCCESS) {
+        if (plugin.getPackManager().setPack(player.getUniqueId(), null, temp,
+                plugin.areSelectedPacksRemovingExisting() ? PackManager.PackRemoveOption.ALL : PackManager.PackRemoveOption.PLAYER_SELECTED).getStatus() == Status.SUCCESS) {
             if (!player.equals(sender)) {
                 sendMessage(sender, "success-other", "player", player.getName());
             }

@@ -11,6 +11,8 @@ autogeneratehashes: true
 append-hash-to-url: true
 # Whether /usepack should apply packs temporary or permanent when run without any argument:
 usepack-is-temporary: true
+# Whether /usepack will remove any packs that were automatically applied on 1.20.3+ to restore pre-1.20.3 single-pack behaviour
+selected-packs-remove-existing: false
 # Whether packs that a player has stored will override a matched assignments
 stored-packs-override-assignments: false
 # When manually setting a permanent pack then it will be reset if the user disconnects in under x amount of seconds.
