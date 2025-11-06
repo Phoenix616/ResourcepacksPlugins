@@ -1260,9 +1260,8 @@ public class PackManager {
             return status;
         }
         boolean rightFormat = pack.getType() == plugin.getPlayerClientType(playerId)
-                && (plugin.getPlayerProtocol(playerId) < 0 /* unknown version */ || (
-                        pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
-                                && pack.getVersion() <= plugin.getPlayerProtocol(playerId)));
+                && pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
+                && pack.getVersion() <= plugin.getPlayerProtocol(playerId);
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
             if (!pack.getVariants().isEmpty()) {
@@ -1436,7 +1435,7 @@ public class PackManager {
                 return PACK_FORMATS[i + 1];
             }
         }
-        return -1;
+        return Integer.MAX_VALUE;
     }
 
     /**

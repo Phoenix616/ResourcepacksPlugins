@@ -118,7 +118,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         }
     };
 
-    private int serverProtocolVersion = -1;
+    private int serverProtocolVersion = Integer.MAX_VALUE;
 
     private InternalHelper internalHelper;
 
@@ -841,7 +841,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             return protocol;
         }
-        return -1;
+        return Integer.MAX_VALUE;
     }
 
     @Override

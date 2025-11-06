@@ -266,11 +266,7 @@ public interface ResourcepacksPlugin {
      * @return The pack format or -1 if the player isn't online
      */
     default int getPlayerPackFormat(UUID playerId) {
-        int protocol = getPlayerProtocol(playerId);
-        if (protocol > -1) {
-            return getPackManager().getPackFormat(protocol);
-        }
-        return -1;
+        return getPackManager().getPackFormat(getPlayerProtocol(playerId));
     }
 
     /**
