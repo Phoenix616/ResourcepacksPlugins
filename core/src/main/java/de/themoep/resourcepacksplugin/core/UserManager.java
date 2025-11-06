@@ -173,7 +173,7 @@ public class UserManager {
     /**
      * Get the pack a user has selected
      * @param playerId  The UUID of this player
-     * @return The selected pack or <tt>null</tt> if none was manually selected
+     * @return The selected pack or <code>null</code> if none was manually selected
      */
     public ResourcePack getSelectedPack(UUID playerId) {
         return plugin.getPackManager().getByName(selectedPacks.get(playerId));
