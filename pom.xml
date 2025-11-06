@@ -28,8 +28,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.version>1.9.1-SNAPSHOT</plugin.version>
         <lang.version>1.3-SNAPSHOT</lang.version>
-        <minedown-adventure.version>1.7.6-SNAPSHOT</minedown-adventure.version>
-        <minedown.version>1.7.1-SNAPSHOT</minedown.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <build.number>${buildNumber}</build.number>
@@ -118,13 +116,13 @@
             <dependency>
                 <groupId>de.themoep</groupId>
                 <artifactId>minedown-adventure</artifactId>
-                <version>${minedown-adventure.version}</version>
+                <version>1.7.6-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>de.themoep</groupId>
                 <artifactId>minedown</artifactId>
-                <version>${minedown.version}</version>
+                <version>1.7.1-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
