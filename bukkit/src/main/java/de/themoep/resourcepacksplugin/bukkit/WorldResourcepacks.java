@@ -841,7 +841,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
             }
             return protocol;
         }
-        return Integer.MAX_VALUE;
+        return -1;
     }
 
     @Override

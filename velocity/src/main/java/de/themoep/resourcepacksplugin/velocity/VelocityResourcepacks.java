@@ -899,7 +899,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             return viaApi.getPlayerVersion(playerId);
         }
 
-        return getProxy().getPlayer(playerId).map(p -> p.getProtocolVersion().getProtocol()).orElse(Integer.MAX_VALUE);
+        return getProxy().getPlayer(playerId).map(p -> p.getProtocolVersion().getProtocol()).orElse(-1);
     }
 
     @Override

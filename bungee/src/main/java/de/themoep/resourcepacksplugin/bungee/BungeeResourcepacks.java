@@ -1093,7 +1093,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         if (proxiedPlayer != null) {
             return proxiedPlayer.getPendingConnection().getVersion();
         }
-        return Integer.MAX_VALUE;
+        return -1;
     }
 
     @Override
