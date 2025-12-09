@@ -18,6 +18,7 @@ package de.themoep.resourcepacksplugin.core;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.hash.HashCode;
@@ -82,31 +83,31 @@ public class PackManager {
             "dropbox.com"
     };
 
-    private static final int[] PACK_FORMATS = new int[] {
-            MinecraftVersion.MINECRAFT_1_21_9.getProtocolNumber(), 69,
-            MinecraftVersion.MINECRAFT_1_21_7.getProtocolNumber(), 64,
-            MinecraftVersion.MINECRAFT_1_21_6.getProtocolNumber(), 63,
-            MinecraftVersion.MINECRAFT_1_21_5.getProtocolNumber(), 55,
-            MinecraftVersion.MINECRAFT_1_21_4.getProtocolNumber(), 46,
-            MinecraftVersion.MINECRAFT_1_21_2.getProtocolNumber(), 42,
-            MinecraftVersion.MINECRAFT_1_21.getProtocolNumber(), 34,
-            MinecraftVersion.MINECRAFT_1_20_5.getProtocolNumber(), 32,
-            MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber(), 22,
-            MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber(), 18,
-            MinecraftVersion.MINECRAFT_1_20.getProtocolNumber(), 15,
-            MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber(), 13,
-            MinecraftVersion.MINECRAFT_1_19_3.getProtocolNumber(), 12,
-            MinecraftVersion.MINECRAFT_1_19.getProtocolNumber(), 9,
-            MinecraftVersion.MINECRAFT_1_18.getProtocolNumber(), 8,
-            MinecraftVersion.MINECRAFT_1_17.getProtocolNumber(), 7,
-            749, 6, // 1.16.2 / release candidate 1
-            565, 5, // 1.15 / pre release 1
-            348, 4, // pre 1.13 / 17w48a
-            210, 3, // pre 1.11
-            49, 2, // pre 1.9 / 15w31a
-            47, 1, // pre 1.8
-            0, 0
-    };
+    private static final Collection<int[]> PACK_FORMATS = Lists.newArrayList(
+            new int[]{MinecraftVersion.MINECRAFT_1_21_9.getProtocolNumber(), 69},
+            new int[]{MinecraftVersion.MINECRAFT_1_21_7.getProtocolNumber(), 64},
+            new int[]{MinecraftVersion.MINECRAFT_1_21_6.getProtocolNumber(), 63},
+            new int[]{MinecraftVersion.MINECRAFT_1_21_5.getProtocolNumber(), 55},
+            new int[]{MinecraftVersion.MINECRAFT_1_21_4.getProtocolNumber(), 46},
+            new int[]{MinecraftVersion.MINECRAFT_1_21_2.getProtocolNumber(), 42},
+            new int[]{MinecraftVersion.MINECRAFT_1_21.getProtocolNumber(), 34},
+            new int[]{MinecraftVersion.MINECRAFT_1_20_5.getProtocolNumber(), 32},
+            new int[]{MinecraftVersion.MINECRAFT_1_20_3.getProtocolNumber(), 22},
+            new int[]{MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber(), 18},
+            new int[]{MinecraftVersion.MINECRAFT_1_20.getProtocolNumber(), 15},
+            new int[]{MinecraftVersion.MINECRAFT_1_19_4.getProtocolNumber(), 13},
+            new int[]{MinecraftVersion.MINECRAFT_1_19_3.getProtocolNumber(), 12},
+            new int[]{MinecraftVersion.MINECRAFT_1_19.getProtocolNumber(), 9},
+            new int[]{MinecraftVersion.MINECRAFT_1_18.getProtocolNumber(), 8},
+            new int[]{MinecraftVersion.MINECRAFT_1_17.getProtocolNumber(), 7},
+            new int[]{749, 6}, // 1.16.2 / release candidate 1
+            new int[]{565, 5}, // 1.15 / pre release 1
+            new int[]{348, 4}, // pre 1.13 / 17w48a
+            new int[]{210, 3}, // pre 1.11
+            new int[]{49, 2}, // pre 1.9 / 15w31a
+            new int[]{47, 1}, // pre 1.8
+            new int[]{0, 0}
+    );
 
     private final ResourcepacksPlugin plugin;
 
@@ -302,7 +303,20 @@ public class PackManager {
 
         String localPath = get(config, "local-path", "");
 
-        int format = get(config, "format", 0);
+        String formatString = get(config, "format", "").trim();
+        int[] format = new int[0];
+        if (formatString.length() > 0) {
+            String[] formatParts = formatString.split("\\.");
+            format = new int[formatParts.length];
+            for (int i = 0; i < formatParts.length; i++) {
+                try {
+                    format[i] = Integer.parseInt(formatParts[i]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Part '" + formatParts[i] + "' of format '" + formatString + "' is not a valid integer!", e);
+                }
+            }
+        }
+
         String mcVersion = get(config , "version", String.valueOf(get(config, "version", 0)));
 
         boolean restricted = get(config, "restricted", false);
@@ -326,8 +340,12 @@ public class PackManager {
 
     private static <T> T get(Map<String, Object> config, String path, T def) {
         Object o = config.getOrDefault(path, def);
-        if (o != null && def != null && def.getClass().isAssignableFrom(o.getClass())) {
-            return (T) o;
+        if (o != null && def != null) {
+            if (def.getClass().isAssignableFrom(o.getClass())) {
+                return (T) o;
+            } else if (def instanceof String) {
+                return (T) String.valueOf(o);
+            }
         }
         return def;
     }
@@ -1260,7 +1278,7 @@ public class PackManager {
             return status;
         }
         boolean rightFormat = pack.getType() == plugin.getPlayerClientType(playerId)
-                && pack.getFormat() <= plugin.getPlayerPackFormat(playerId)
+                && compareVersionTo(pack.getFormatArray(), plugin.getPlayerPackFormatArray(playerId)) <= 0
                 && pack.getVersion() <= plugin.getPlayerProtocol(playerId);
         boolean hasPermission = !pack.isRestricted() || plugin.checkPermission(playerId, pack.getPermission());
         if(rightFormat && hasPermission) {
@@ -1427,15 +1445,27 @@ public class PackManager {
     /**
      * Get the format of the pack a player can maximally use
      * @param version The Protocol version to get the format for
-     * @return The pack format; <code>-1</code> if the player has an unknown version
+     * @return The pack format; <code>Integer.MAX_VALUE</code> if the player has an unknown version
+     * @deprecated Pack formats use semantic versioning now. Use {@link #getPackFormatArray(int)}.
      */
+    @Deprecated
     public int getPackFormat(int version) {
-        for (int i = 0; i + 1 < PACK_FORMATS.length; i += 2) {
-            if (version >= PACK_FORMATS[i]) {
-                return PACK_FORMATS[i + 1];
+        int[] format = getPackFormatArray(version);
+        return format.length > 0 ? format[0] : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Get the format of the pack a player can maximally use
+     * @param version The Protocol version to get the format for
+     * @return The pack format; <code>[Integer.MAX_VALUE]</code> if the player has an unknown version
+     */
+    public int[] getPackFormatArray(int version) {
+        for (int[] formatDefinition : PACK_FORMATS) {
+            if (version >= formatDefinition[0]) {
+                return Arrays.copyOfRange(formatDefinition, 1, formatDefinition.length);
             }
         }
-        return Integer.MAX_VALUE;
+        return new int[]{Integer.MAX_VALUE};
     }
 
     /**
@@ -1454,6 +1484,31 @@ public class PackManager {
             dirty = false;
             plugin.saveConfigChanges();
         }
+    }
+
+    /**
+     * Compare two semantic versions
+     * @param semVer1 The first semantic version as an integer array
+     * @param semVer2 The second semantic version as an integer array
+     * @return -1 if it's older, 0 if they match, 1 if the first is newer. Similar to {@link Comparable#compareTo(Object)} logic.
+     */
+    public static int compareVersionTo(int[] semVer1, int[] semVer2) {
+        for (int i = 0; i < semVer2.length && i < semVer1.length; i++) {
+            int semVer1Int = semVer1[i];
+            int semVer2Int = semVer2[i];
+            if (semVer1Int > semVer2Int) {
+                return 1;
+            } else if (semVer1Int < semVer2Int) {
+                return -1;
+            }
+        }
+
+        if (semVer2.length < semVer1.length) {
+            return 1;
+        } else if (semVer2.length > semVer1.length) {
+            return -1;
+        }
+        return 0;
     }
 
     /**

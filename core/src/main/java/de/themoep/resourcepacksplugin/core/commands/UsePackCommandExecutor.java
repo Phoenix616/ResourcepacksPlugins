@@ -24,6 +24,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import de.themoep.resourcepacksplugin.core.ResourcepacksPlugin;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -121,7 +122,7 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                 ResourcePack selectedPack = sender != null ? plugin.getUserManager().getSelectedPack(sender.getUniqueId()) : null;
                 List<ResourcePack> userPacks = sender != null ? plugin.getUserManager().getUserPacks(sender.getUniqueId()) : Collections.emptyList();
                 List<ResourcePack> applicablePacks = sender == null ? packs : packs.stream()
-                        .filter(pack -> pack.getFormat() <= plugin.getPlayerPackFormat(sender.getUniqueId())
+                        .filter(pack -> PackManager.compareVersionTo(pack.getFormatArray(), plugin.getPlayerPackFormatArray(sender.getUniqueId())) <= 0
                                 && pack.getVersion() <= plugin.getPlayerProtocol(sender.getUniqueId())
                                 && pack.getType() == plugin.getPlayerClientType(sender.getUniqueId())
                                 && (!pack.isRestricted() || plugin.checkPermission(sender, pack.getPermission())))
@@ -133,13 +134,13 @@ public class UsePackCommandExecutor extends PluginCommandExecutor {
                                 "pack", pack.getName(),
                                 "hash", pack.getHash(),
                                 "url", pack.getUrl(),
-                                "format", String.valueOf(pack.getFormat()),
+                                "format", Arrays.stream(pack.getFormatArray()).mapToObj(String::valueOf).collect(Collectors.joining(".")),
                                 "version", String.valueOf(pack.getVersion()),
                                 "indicator", selectedPack == pack
                                         ? getMessage(sender, "pack-list.indicator-selected")
                                         : userPacks.contains(pack)
                                                 ? getMessage(sender, "pack-list.indicator-used") : " ",
-                                "optional-format", pack.getFormat() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", String.valueOf(pack.getFormat())) : "",
+                                "optional-format", pack.getFormatArray().length > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-format", "format", Arrays.stream(pack.getFormatArray()).mapToObj(String::valueOf).collect(Collectors.joining("."))) : "",
                                 "optional-version", pack.getVersion() > 0 ? plugin.getMessage(sender, "command.usepack.pack-list.optional-version", "version", String.valueOf(pack.getVersion())) : ""
                         );
                     }

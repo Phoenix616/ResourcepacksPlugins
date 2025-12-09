@@ -29,9 +29,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-/**
+/*
  * Created by Phoenix616 on 25.03.2015.
+ */
+/**
+ * This represents a resource pack which can be sent to a client.
  */
 public class ResourcePack {
     private final String name;
@@ -39,7 +43,7 @@ public class ResourcePack {
     private String url;
     private String localPath;
     private byte[] hash = new byte[0];
-    private int format;
+    private int[] format;
     private int version;
     private boolean restricted;
     private String permission;
@@ -66,7 +70,7 @@ public class ResourcePack {
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      */
     public ResourcePack(String name, UUID uuid, String url, String hash) {
-        this(name, url, hash, 0);
+        this(name, url, hash, new int[0]);
         this.uuid = uuid;
     }
 
@@ -76,7 +80,9 @@ public class ResourcePack {
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, int[])}
      */
+    @Deprecated
     public ResourcePack(String name, String url, String hash, int format) {
         this(name, url, hash, format, false);
     }
@@ -86,10 +92,21 @@ public class ResourcePack {
      * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param format The version of this resourcepack as defined in the pack.mcmeta
+     */
+    public ResourcePack(String name, String url, String hash, int[] format) {
+        this(name, url, hash, format, false);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param restricted Whether this pack should only be sent to players with the pluginname.pack.packname permission
      */
     public ResourcePack(String name, String url, String hash, boolean restricted) {
-        this(name, url, hash, 0, restricted);
+        this(name, url, hash, new int[0], restricted);
     }
 
     /**
@@ -98,51 +115,114 @@ public class ResourcePack {
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the pluginname.pack.packname permission
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, int[], boolean)}
      */
+    @Deprecated
     public ResourcePack(String name, String url, String hash, int format, boolean restricted) {
         this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name.toLowerCase(Locale.ROOT));
     }
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as a unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param restricted Whether this pack should only be sent to players with the pluginname.pack.packname permission
+     */
+    @Deprecated
+    public ResourcePack(String name, String url, String hash, int[] format, boolean restricted) {
+        this(name, url, hash, format, restricted, "resourcepacksplugin.pack." + name.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, int[], boolean, String)}
      */
+    @Deprecated
     public ResourcePack(String name, String url, String hash, int format, boolean restricted, String permission) {
         this(name, url, hash, format, 0, restricted, permission);
     }
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     */
+    public ResourcePack(String name, String url, String hash, int[] format, boolean restricted, String permission) {
+        this(name, url, hash, format, 0, restricted, permission);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param version The Minecraft version that this resourcepack is for
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, int[], int, boolean, String)}
      */
+    @Deprecated
     public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission) {
         this(name, url, hash, format, version, restricted, permission, ClientType.ORIGINAL);
     }
 
     /**
      * Object representation of a resourcepack set in the plugin's config file.
-     * @param name The name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @param url The url where this resourcepack is located at and where the client will download it from
      * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param version The Minecraft version that this resourcepack is for
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     */
+    public ResourcePack(String name, String url, String hash, int[] format, int version, boolean restricted, String permission) {
+        this(name, url, hash, format, version, restricted, permission, ClientType.ORIGINAL);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @param type The type of the pack depending on the client which should receive it
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, int[], int, boolean, String, ClientType)}
+     */
+    @Deprecated
+    public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(name, url, hash, null, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
      * @param type The type of the pack depending on the client which should receive it
      */
-    public ResourcePack(String name, String url, String hash, int format, int version, boolean restricted, String permission, ClientType type) {
+    public ResourcePack(String name, String url, String hash, int[] format, int version, boolean restricted, String permission, ClientType type) {
         this(name, url, hash, null, format, version, restricted, permission, type);
     }
 
@@ -155,10 +235,28 @@ public class ResourcePack {
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param version The Minecraft version that this resourcepack is for
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @param type The type of the pack depending on the client which should receive it
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, String, String, String, int[], int, boolean, String, ClientType)}
+     */
+    @Deprecated
+    public ResourcePack(String name, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(name, UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)), url, hash, localPath, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
      * @param type The type of the pack depending on the client which should receive it
      */
-    public ResourcePack(String name, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+    public ResourcePack(String name, String url, String hash, String localPath, int[] format, int version, boolean restricted, String permission, ClientType type) {
         this(name, UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)), url, hash, localPath, format, version, restricted, permission, type);
     }
 
@@ -172,10 +270,29 @@ public class ResourcePack {
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param version The Minecraft version that this resourcepack is for
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @param type The type of the pack depending on the client which should receive it
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(String, UUID, String, String, String, int[], int, boolean, String, ClientType)}
+     */
+    @Deprecated
+    public ResourcePack(String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(null, name, uuid, url, hash, localPath, format, version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param uuid The uuid of the resourcepack as set in the config.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
      * @param type The type of the pack depending on the client which should receive it
      */
-    public ResourcePack(String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+    public ResourcePack(String name, UUID uuid, String url, String hash, String localPath, int[] format, int version, boolean restricted, String permission, ClientType type) {
         this(null, name, uuid, url, hash, localPath, format, version, restricted, permission, type);
     }
 
@@ -190,10 +307,30 @@ public class ResourcePack {
      * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
      * @param version The Minecraft version that this resourcepack is for
      * @param permission A custom permission for this pack
-     * @param restricted Whether or not this pack should only be send to players with the pluginname.pack.packname permission
+     * @param restricted Whether this pack should only be sent to players with the specified permission
+     * @param type The type of the pack depending on the client which should receive it
+     * @deprecated format is an integer array now. Use {@link #ResourcePack(ResourcePack, String, UUID, String, String, String, int[], int, boolean, String, ClientType)}
+     */
+    @Deprecated
+    public ResourcePack(ResourcePack parent, String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+        this(parent, name, uuid, url, hash, localPath, format > 0 ? new int[]{format} : new int[0], version, restricted, permission, type);
+    }
+
+    /**
+     * Object representation of a resourcepack set in the plugin's config file.
+     * @param parent The parent pack if this is a variant of another pack. Can be null if this is not a variant.
+     * @param name The name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
+     * @param uuid The uuid of the resourcepack as set in the config.
+     * @param url The url where this resourcepack is located at and where the client will download it from
+     * @param hash The hash set for this resourcepack. Ideally this is the zip file's sha1 hash.
+     * @param localPath The local path to this resourcepack. Ideally this points to the same file as the url points to.
+     * @param format The version of this resourcepack as defined in the pack.mcmeta as pack_format
+     * @param version The Minecraft version that this resourcepack is for
+     * @param permission A custom permission for this pack
+     * @param restricted Whether this pack should only be sent to players with the specified permission
      * @param type The type of the pack depending on the client which should receive it
      */
-    public ResourcePack(ResourcePack parent, String name, UUID uuid, String url, String hash, String localPath, int format, int version, boolean restricted, String permission, ClientType type) {
+    public ResourcePack(ResourcePack parent, String name, UUID uuid, String url, String hash, String localPath, int[] format, int version, boolean restricted, String permission, ClientType type) {
         this.parent = parent;
         this.name = name;
         this.uuid = uuid;
@@ -210,7 +347,7 @@ public class ResourcePack {
     }
     
     /**
-     * Get the name of the resourcepack as set in the config. Serves as an uinque identifier. Correct case.
+     * Get the name of the resourcepack as set in the config. Serves as an unique identifier. Correct case.
      * @return The name as a string in correct case
      */
     public String getName() {
@@ -286,21 +423,47 @@ public class ResourcePack {
 
     /**
      * Get the pack format version
-     * @return The pack version as an int
+     * @return The pack version as an integer array
      */
-    public int getFormat() {
+    public int[] getFormatArray() {
         return format;
     }
+
+    /**
+     * Set the pack format version
+     * @param format The pack version as an integer array
+     * @return Whether or not the format changed
+     */
+    public boolean setFormatArray(int[] format) {
+        if (PackManager.compareVersionTo(this.format, format) == 0) {
+            return false;
+        }
+        this.format = format;
+        return true;
+    }
+
+    /**
+     * Get the first part of the pack format version
+     * @return The pack version as an int
+     * @deprecated Use {@link #getFormatArray()} as pack formats now use semantic versioning
+     */
+    @Deprecated
+    public int getFormat() {
+        return format[0];
+    }
+
     /**
      * Set the pack format version
      * @param format The pack version as an int
      * @return Whether or not the format changed
+     * @deprecated Use {@link #setFormatArray(int[])} as pack formats now use semantic versioning
      */
+    @Deprecated
     public boolean setFormat(int format) {
-        if (this.format == format) {
+        if (this.format.length == 1 && this.format[0] == format) {
             return false;
         }
-        this.format = format;
+        this.format = new int[] {format};
         return true;
     }
 
@@ -439,7 +602,7 @@ public class ResourcePack {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ResourcePack pack = (ResourcePack) o;
-        return format == pack.format && version == pack.version && restricted == pack.restricted
+        return PackManager.compareVersionTo(format, pack.format) == 0 && version == pack.version && restricted == pack.restricted
                 && Objects.equals(name, pack.name) && Objects.equals(uuid, pack.uuid)
                 && Objects.equals(url, pack.url) && Objects.equals(localPath, pack.localPath)
                 && Arrays.equals(hash, pack.hash) && Objects.equals(permission, pack.permission)
@@ -448,9 +611,7 @@ public class ResourcePack {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, uuid, url, localPath, format, version, restricted, permission, type, variants);
-        result = 31 * result + Arrays.hashCode(hash);
-        return result;
+        return Objects.hash(name, uuid, url, localPath, Arrays.hashCode(format), version, restricted, permission, type, variants, Arrays.hashCode(hash));
     }
 
     public String[] getReplacements() {
@@ -459,7 +620,7 @@ public class ResourcePack {
                 "uuid", getUuid() != null ? getUuid().toString() : "-",
                 "url", getUrl() != null ? getUrl() : "-",
                 "hash", getRawHash() != null ? getHash() : "-",
-                "format", String.valueOf(getFormat()),
+                "format", format.length > 0 ? Arrays.stream(format).mapToObj(String::valueOf).collect(Collectors.joining(".")) : "-",
                 "version", String.valueOf(getVersion()),
                 "restricted", String.valueOf(isRestricted()),
                 "permission", getPermission(),
@@ -482,7 +643,11 @@ public class ResourcePack {
             map.put("restricted", null);
             map.put("permission", null);
         } else {
-            map.put("format", format > 0 ? format : null);
+            if (format.length > 0) {
+                map.put("format", Arrays.stream(format).mapToObj(String::valueOf).collect(Collectors.joining(".")));
+            } else {
+                map.put("format", null);
+            }
             if (version > 0) {
                 MinecraftVersion mcVersion = MinecraftVersion.getExactVersion(version);
                 map.put("version", mcVersion != null ? mcVersion.toConfigString() : version);

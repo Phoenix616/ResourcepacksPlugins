@@ -151,8 +151,13 @@ public class ResourcepacksPluginCommandExecutor extends PluginCommandExecutor {
                             }
                         } else if ("format".equalsIgnoreCase(args[1])) {
                             try {
-                                save = pack.setFormat(Integer.parseInt(args[2]));
-                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "format", "value", String.valueOf(pack.getFormat()));
+                                String[] formatParts = args[2].split("\\.");
+                                int[] format = new int[formatParts.length];
+                                for (int i = 0; i < formatParts.length; i++) {
+                                    format[i] = Integer.parseInt(formatParts[i]);
+                                }
+                                save = pack.setFormatArray(format);
+                                sendMessage(sender, "updated", "pack", pack.getName(), "type", "format", "value", Arrays.stream(pack.getFormatArray()).mapToObj(String::valueOf).collect(Collectors.joining(".")));
                             } catch (NumberFormatException e) {
                                 sendMessage(sender, "invalid-input", "expected", "number", "input", args[2]);
                             }

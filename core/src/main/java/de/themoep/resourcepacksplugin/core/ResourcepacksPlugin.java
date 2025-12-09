@@ -264,9 +264,20 @@ public interface ResourcepacksPlugin {
      * Get the format of the pack this player can maximally use
      * @param playerId The UUID of the player
      * @return The pack format or -1 if the player isn't online
+     * @deprecated Pack formats use semantic versioning now. Use {@link #getPlayerPackFormatArray(UUID)}.
      */
+    @Deprecated
     default int getPlayerPackFormat(UUID playerId) {
         return getPackManager().getPackFormat(getPlayerProtocol(playerId));
+    }
+
+    /**
+     * Get the format of the pack this player can maximally use
+     * @param playerId The UUID of the player
+     * @return The pack format or -1 if the player isn't online
+     */
+    default int[] getPlayerPackFormatArray(UUID playerId) {
+        return getPackManager().getPackFormatArray(getPlayerProtocol(playerId));
     }
 
     /**
