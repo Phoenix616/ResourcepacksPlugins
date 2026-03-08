@@ -41,7 +41,7 @@ command:
       not-added: '&cPacote &f%pack%&c não está na lista de pacotes opcionais da atribuição &f%assignment%&c?'
     info: |-
       &7----- Informações da Atribuição &f%name%&e: -----
-      &ePacote: &f%pack%
+      &ePacotes: &f%packs%
       &ePacotes Opcionais: &f%optional-packs%
       &eRegex: &f%regex%
       &eAtraso no Envio: &f%send-delay%

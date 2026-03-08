@@ -41,7 +41,7 @@ command:
       not-added:  "&cPack &f%pack%&c is not on the optional pack list of assignment &f%assignment%&c?"
     info: |-
       &7----- &eAssignment &f%name%&e Info: &7-----
-      &ePack: &f%pack%
+      &ePacks: &f%packs%
       &eOptional Packs: &f%optional-packs%
       &eRegex: &f%regex%
       &eSend Delay: &f%send-delay%

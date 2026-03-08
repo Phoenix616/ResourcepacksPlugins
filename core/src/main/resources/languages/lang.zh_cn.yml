@@ -41,7 +41,7 @@ command:
       not-added:  "&c资源包 &f%pack%&c 不在分配 &f%assignment%&c 的可选资源包列表中？"
     info: |-
       &7----- &e分配 &f%name%&e 信息: &7-----
-      &e资源包: &f%pack%
+      &e资源包: &f%packs%
       &e可选资源包: &f%optional-packs%
       &e正则表达式: &f%regex%
       &e发送延迟: &f%send-delay%
