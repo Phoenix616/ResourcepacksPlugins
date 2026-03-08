@@ -747,14 +747,14 @@ public class PackManager {
                 plugin.log(Level.WARNING, "'packs' option has to be a String List!");
             } else if (!((List) packs).isEmpty()) {
                 plugin.logDebug("Packs:");
-                List<String> packName = (List<String>) packs;
-                for (String secondaryPack : packName) {
-                    ResourcePack pack = getByName(secondaryPack);
+                List<String> packNames = (List<String>) packs;
+                for (String packName : packNames) {
+                    ResourcePack pack = getByName(packName);
                     if (pack != null) {
                         assignment.addPack(pack);
                         plugin.logDebug("- " + pack.getName());
                     } else {
-                        plugin.log(Level.WARNING, "No pack with the name " + secondaryPack + " defined?");
+                        plugin.log(Level.WARNING, "No pack with the name " + packName + " defined?");
                     }
                 }
             }
@@ -767,14 +767,14 @@ public class PackManager {
                 plugin.log(Level.WARNING, "'optional-packs' option has to be a String List!");
             } else {
                 plugin.logDebug("Optional packs:");
-                List<String> optionalName = (List<String>) optionalPacks;
-                for(String secondaryPack : optionalName) {
-                    ResourcePack pack = getByName(secondaryPack);
+                List<String> optionalNames = (List<String>) optionalPacks;
+                for(String optionalName : optionalNames) {
+                    ResourcePack pack = getByName(optionalName);
                     if (pack != null) {
                         assignment.addOptionalPack(pack);
                         plugin.logDebug("- " + pack.getName());
                     } else {
-                        plugin.log(Level.WARNING, "No pack with the name " + secondaryPack + " defined?");
+                        plugin.log(Level.WARNING, "No pack with the name " + optionalName + " defined?");
                     }
                 }
             }
@@ -1180,12 +1180,12 @@ public class PackManager {
                 packs.addAll(serverPacks);
                 matchReason += "main packs";
             } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !serverPacks.isEmpty())) {
-                for (String secondaryName : assignment.getOptionalPacks()) {
-                    ResourcePack secondaryPack = getByName(secondaryName);
-                    status = checkPack(playerId, secondaryPack, status);
+                for (String optionalName : assignment.getOptionalPacks()) {
+                    ResourcePack optionalPack = getByName(optionalName);
+                    status = checkPack(playerId, optionalPack, status);
                     if (status == Status.SUCCESS) {
-                        packs.add(secondaryPack);
-                        matchReason += "secondary pack";
+                        packs.add(optionalPack);
+                        matchReason += "optional pack";
                         break;
                     }
                 }
@@ -1202,12 +1202,12 @@ public class PackManager {
                 packs.addAll(globalPacks);
                 matchReason += "main packs";
             } else if (!plugin.supportsMultiplePacks(playerId) && (!previousPacks.isEmpty() || !globalPacks.isEmpty())) {
-                for (String secondaryName : getGlobalAssignment().getOptionalPacks()) {
-                    ResourcePack secondaryPack = getByName(secondaryName);
-                    status = checkPack(playerId, secondaryPack, status);
+                for (String optionalName : getGlobalAssignment().getOptionalPacks()) {
+                    ResourcePack optionalPack = getByName(optionalName);
+                    status = checkPack(playerId, optionalPack, status);
                     if (status == Status.SUCCESS) {
-                        packs.add(secondaryPack);
-                        matchReason += "secondary pack";
+                        packs.add(optionalPack);
+                        matchReason += "optional pack";
                         break;
                     }
                 }
