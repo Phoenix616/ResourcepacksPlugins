@@ -75,14 +75,10 @@ public class ServerSwitchListener implements Listener {
             plugin.logDebug("Player " + playerId + " has backend pack, not attempting to send a new one.");
             return;
         }
-        if (!plugin.isAuthenticated(playerId)) {
-            plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
-            return;
-        }
         ProxiedPlayer player = plugin.getProxy().getPlayer(playerId);
-        if(player != null) {
+        if (player != null) {
             String serverName = "";
-            if(player.getServer() != null) {
+            if (player.getServer() != null) {
                 serverName = player.getServer().getInfo().getName();
             }
             plugin.getPackManager().applyPack(plugin.getPlayer(player), serverName);

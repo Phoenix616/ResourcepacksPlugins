@@ -35,7 +35,7 @@ public class ConnectListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerConnect(LoginEvent event) {
         if (plugin.isEnabled() && !event.isCancelled()) {
-            plugin.getUserManager().onConnect(event.getConnection().getUniqueId());
+            plugin.getUserManager().clearUserData(event.getConnection().getUniqueId());
         }
     }
 }

@@ -48,6 +48,7 @@ import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1029,28 +1030,55 @@ public class PackManager {
     }
 
     /**
-     * Apply the pack that a player should have on that server/world
-     * @param playerId      The UUID of the player
-     * @param serverName    The name of the server/world
-     * @deprecated Use {@link #applyPack(ResourcepacksPlayer, String)} instead
+     * Apply the pack with the appropriate delay based on the assignment name
+     * @param player The player
+     * @param assignmentName The name of the server/world assignment
      */
-    @Deprecated
-    public void applyPack(UUID playerId, String serverName) {
-        applyPack(plugin.getPlayer(playerId), serverName);
+    public void applyPackWithDelay(ResourcepacksPlayer player, String assignmentName) {
+        long sendDelay = getAssignment(assignmentName).getSendDelay();
+        if (sendDelay < 0) {
+            sendDelay = getGlobalAssignment().getSendDelay();
+        }
+        plugin.logDebug("Sending pack to " + player.getName() + "/" + player.getUniqueId() + " in " + sendDelay + " ticks...");
+        if (sendDelay > 0) {
+            plugin.runTaskLater(() -> plugin.getPackManager().applyPack(player, assignmentName), sendDelay);
+        } else {
+            plugin.getPackManager().applyPack(player, assignmentName);
+        }
     }
 
     /**
      * Apply the pack that a player should have on that server/world
-     * @param player        The player
-     * @param serverName    The name of the server/world
+     * @param playerId The UUID of the player
+     * @param assignmentName The name of the server/world assignment
+     * @deprecated Use {@link #applyPack(ResourcepacksPlayer, String)} instead
+     */
+    @Deprecated
+    public void applyPack(UUID playerId, String assignmentName) {
+        applyPack(plugin.getPlayer(playerId), assignmentName);
+    }
+
+    /**
+     * Apply the pack that a player should have on that server/world
+     * @param player The player
+     * @param assignmentName The name of the server/world assignment
      * @return The packs that were loaded by the client
      */
-    public Set<ResourcePack> applyPack(ResourcepacksPlayer player, String serverName) {
+    public Set<ResourcePack> applyPack(ResourcepacksPlayer player, String assignmentName) {
+        if (!plugin.isAuthenticated(player.getUniqueId())) {
+            plugin.logDebug("Player " + player.getName() + "/" + player.getUniqueId() + " is not authenticated, not attempting to send a pack yet.");
+            return Collections.emptySet();
+        }
+        if (!plugin.getUserManager().hasRepliedToCookieRequest(player.getUniqueId(), ResourcepacksPlugin.USERPACKS_KEY)) {
+            plugin.logDebug("Player " + player.getName() + "/" + player.getUniqueId() + " has not replied to cookie request yet, not attempting to send a pack yet.");
+            return Collections.emptySet();
+        }
+
         UUID playerId = player.getUniqueId();
         LinkedHashSet<ResourcePack> sentPacks = new LinkedHashSet<>();
-        LinkedHashSet<ResourcePack> packs = getApplicablePacks(player, serverName);
+        LinkedHashSet<ResourcePack> packs = getApplicablePacks(player, assignmentName);
         if (plugin.supportsMultiplePacks(playerId)) {
-            PackAssignment assignment = getAssignment(serverName);
+            PackAssignment assignment = getAssignment(assignmentName);
             boolean packWasRemoved = false;
             List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
             for (ResourcePack pack : userPacks) {
@@ -1093,22 +1121,22 @@ public class PackManager {
     /**
      * Get the pack the player should have on that server
      * @param playerId The UUID of the player
-     * @param serverName The name of the server
+     * @param assignmentName The name of the server/world assignment
      * @return The packs for that server; an empty list if they should have none
      * @deprecated Use {@link #getApplicablePacks(ResourcepacksPlayer, String)} instead
      */
     @Deprecated
-    public LinkedHashSet<ResourcePack> getApplicablePacks(UUID playerId, String serverName) {
-        return getApplicablePacks(plugin.getPlayer(playerId), serverName);
+    public LinkedHashSet<ResourcePack> getApplicablePacks(UUID playerId, String assignmentName) {
+        return getApplicablePacks(plugin.getPlayer(playerId), assignmentName);
     }
 
     /**
      * Get the pack the player should have on that server
-     * @param player     The player
-     * @param serverName The name of the server
+     * @param player The player
+     * @param assignmentName The name of the server/world assignment
      * @return The packs for that server; an empty list if they should have none
      */
-    public LinkedHashSet<ResourcePack> getApplicablePacks(ResourcepacksPlayer player, String serverName) {
+    public LinkedHashSet<ResourcePack> getApplicablePacks(ResourcepacksPlayer player, String assignmentName) {
         UUID playerId = player.getUniqueId();
         List<ResourcePack> previousPacks = plugin.getUserManager().getUserPacks(playerId);
         LinkedHashSet<ResourcePack> packs = new LinkedHashSet<>();
@@ -1148,8 +1176,8 @@ public class PackManager {
 
         String matchReason = " due to ";
         Status status = Status.UNKNOWN;
-        if (serverName != null && !serverName.isEmpty()) {
-            PackAssignment assignment = getAssignment(serverName);
+        if (assignmentName != null && !assignmentName.isEmpty()) {
+            PackAssignment assignment = getAssignment(assignmentName);
             for (ResourcePack prev : previousPacks) {
                 if (assignment.isOptionalPack(prev) && checkPack(playerId, prev, Status.SUCCESS) == Status.SUCCESS) {
                     plugin.logDebug(player.getName() + " matched assignment " + assignment.getName() + " as they already have the pack " + prev.getName());

@@ -20,12 +20,16 @@ package de.themoep.resourcepacksplugin.core;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,11 @@ public class UserManager {
      * playerid -> packname
      */
     private final Multimap<UUID, String> userPacksMap = MultimapBuilder.hashKeys().linkedHashSetValues().build();
+
+    /**
+     * What cookies a user replied to already
+     */
+    private final Multimap<UUID, String> cookieReplies = MultimapBuilder.hashKeys().hashSetValues().build();
 
     /**
      * The packs that were manually selected by the user
@@ -103,7 +112,11 @@ public class UserManager {
      * @return Whether the user already had that pack before
      */
     public boolean addUserPack(UUID playerId, ResourcePack pack) {
-        return userPacksMap.put(playerId, pack.getName());
+        if (userPacksMap.put(playerId, pack.getName())) {
+            storePacksInCookie(playerId);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -133,6 +146,7 @@ public class UserManager {
      */
     public Collection<String> clearUserPacks(UUID playerId) {
         selectedPacks.remove(playerId);
+        storePacksInCookie(playerId);
         return userPacksMap.removeAll(playerId);
     }
 
@@ -159,6 +173,7 @@ public class UserManager {
         if (packName.equals(selectedPacks.get(playerId))) {
             selectedPacks.remove(playerId);
         }
+        storePacksInCookie(playerId);
     }
 
     /**
@@ -192,7 +207,7 @@ public class UserManager {
      * What should happen when a player connects?
      * @param playerId The UUID of the player
      */
-    public void onConnect(UUID playerId) {
+    public void clearUserData(UUID playerId) {
         userPackTime.remove(playerId);
         clearUserPacks(playerId);
     }
@@ -205,6 +220,7 @@ public class UserManager {
         if (checkStoredPack(playerId)) {
             plugin.log(plugin.getLogLevel(), "Removed stored pack from " + playerId + " as he logged out in under " + plugin.getPermanentPackRemoveTime() + " seconds after it got applied!");
         }
+        cookieReplies.removeAll(playerId);
         userPackTime.remove(playerId);
         clearUserPacks(playerId);
         plugin.sendPackInfo(playerId);
@@ -250,5 +266,63 @@ public class UserManager {
         
         plugin.setStoredPack(playerId, null);
         return true;
+    }
+
+    /**
+     * Store the player's packs in the client cookies
+     * @param playerId The UUID of the player
+     */
+    public void storePacksInCookie(UUID playerId) {
+        if (!plugin.supportsCookies(playerId)) {
+            return;
+        }
+        List<ResourcePack> packs = getUserPacks(playerId);
+        ByteArrayDataOutput output = ByteStreams.newDataOutput();
+        output.writeLong(System.currentTimeMillis());
+        output.writeInt(packs.size());
+        for (ResourcePack pack : packs) {
+            output.writeUTF(pack.getName());
+        }
+        plugin.storeCookie(playerId, ResourcepacksPlugin.USERPACKS_KEY, output.toByteArray());
+    }
+
+    /**
+     * Retreive the stored packs from the client cookies
+     * @param playerId The UUID of the player
+     * @return A future completed when the packs got retrieved holding whether there was information stored
+     */
+    public CompletableFuture<Boolean> retrieveUserPacks(UUID playerId) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        plugin.retrieveCookie(playerId, ResourcepacksPlugin.USERPACKS_KEY).thenAccept(data -> {
+            ByteArrayDataInput input = ByteStreams.newDataInput(data);
+            long timestamp = input.readLong();
+            int packCount = -1;
+            if (System.currentTimeMillis() < timestamp + 60 * 1000) {
+                cookieReplies.put(playerId, ResourcepacksPlugin.USERPACKS_KEY);
+                packCount = input.readInt();
+                for (int i = 0; i < packCount; i++) {
+                    String packName = input.readUTF();
+                    ResourcePack pack = plugin.getPackManager().getByName(packName);
+                    if (pack != null) {
+                        addUserPack(playerId, pack);
+                        plugin.logDebug("Player " + playerId + " had a pack '" + pack.getName() + "' stored in their cookies");
+                    } else {
+                        plugin.logDebug("Player " + playerId + " had a pack with name '" + packName + "' stored in their cookies which does not exist on this server?");
+                    }
+                }
+            }
+            future.complete(packCount > -1);
+        });
+        return future;
+    }
+
+    /**
+     * Check whether a player has replied to a cookie request
+     * @param playerId The UUID of the player
+     * @param key The cookie key to check
+     * @return Whether the player has replied to a cookie request with that key before
+     */
+    public boolean hasRepliedToCookieRequest(UUID playerId, String key) {
+        return !plugin.supportsCookies(playerId) || cookieReplies.containsEntry(playerId, key);
     }
 }

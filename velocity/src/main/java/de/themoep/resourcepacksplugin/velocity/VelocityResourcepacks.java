@@ -60,6 +60,7 @@ import de.themoep.utils.lang.LangLogger;
 import de.themoep.utils.lang.LanguageConfig;
 import de.themoep.utils.lang.velocity.LanguageManager;
 import de.themoep.utils.lang.velocity.Languaged;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -76,8 +77,10 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
@@ -122,6 +125,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     private FloodgateIntegration floodgate;
     private PluginMessageListener messageChannelHandler;
     private CurrentServerTracker serverTracker;
+    private CookieManager cookieManager;
 
     @Inject
     public VelocityResourcepacks(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder) {
@@ -243,6 +247,8 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         getProxy().getEventManager().register(this, new ConnectListener(this));
         getProxy().getEventManager().register(this, new DisconnectListener(this));
         getProxy().getEventManager().register(this, new ServerSwitchListener(this));
+        getProxy().getEventManager().register(this, cookieManager = new CookieManager(this));
+        getProxy().getEventManager().register(this, new TransferListener(this));
         getProxy().getEventManager().register(this, messageChannelHandler);
         getProxy().getChannelRegistrar().register(MinecraftChannelIdentifier.create("rp", "plugin"));
 
@@ -489,6 +495,18 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Override
     public PlatformType getPlatformType() {
         return PlatformType.PROXY;
+    }
+
+    @Override
+    public void storeCookie(UUID playerId, String key, byte[] data) {
+        if (supportsCookies(playerId)) {
+            getProxy().getPlayer(playerId).ifPresent(player -> player.storeCookie(Key.key(key), data));
+        }
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieveCookie(UUID playerId, String key) {
+        return cookieManager.retrieveCookie(playerId, key);
     }
 
     public PluginConfig getConfig() {
@@ -950,6 +968,14 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     public int runTask(Runnable runnable) {
         getProxy().getScheduler().buildTask(this, runnable).schedule();
         return 0;
+    }
+
+    @Override
+    public void runTaskLater(Runnable runnable, long delay) {
+        getProxy().getScheduler()
+                .buildTask(this, runnable)
+                .delay(delay * 20, TimeUnit.MILLISECONDS)
+                .schedule();
     }
 
     @Override

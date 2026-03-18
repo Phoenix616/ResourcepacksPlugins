@@ -59,6 +59,7 @@ import fr.xephi.authme.api.v3.AuthMeApi;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -86,6 +87,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -551,6 +553,27 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         return PlatformType.MINECRAFT_SERVER;
     }
 
+    @Override
+    public void storeCookie(UUID playerId, String key, byte[] data) {
+        if (supportsCookies(playerId)) {
+            Player player = getServer().getPlayer(playerId);
+            try {
+                player.storeCookie(NamespacedKey.fromString(key), data);
+            } catch (NoSuchMethodError | IllegalStateException ignored) {} // old version
+        }
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieveCookie(UUID playerId, String key) {
+        if (supportsCookies(playerId)) {
+            Player player = getServer().getPlayer(playerId);
+            try {
+                return player.retrieveCookie(NamespacedKey.fromString(key));
+            } catch (NoSuchMethodError | IllegalStateException ignored) {} // old version
+        }
+        return CompletableFuture.completedFuture(new byte[0]);
+    }
+
 
     public void resendPack(UUID playerId) {
         Player player = getServer().getPlayer(playerId);
@@ -895,6 +918,11 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
     @Override
     public int runTask(Runnable runnable) {
         return getServer().getScheduler().runTask(this, runnable).getTaskId();
+    }
+
+    @Override
+    public void runTaskLater(Runnable runnable, long delay) {
+        getServer().getScheduler().runTaskLater(this, runnable, delay);
     }
 
     @Override

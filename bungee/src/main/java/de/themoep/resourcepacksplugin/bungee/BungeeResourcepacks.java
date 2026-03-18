@@ -76,6 +76,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,6 +90,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -740,6 +742,23 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
         return PlatformType.PROXY;
     }
 
+    @Override
+    public void storeCookie(UUID playerId, String key, byte[] data) {
+        if (supportsCookies(playerId)) {
+            ProxiedPlayer player = getProxy().getPlayer(playerId);
+            player.storeCookie(key, data);
+        }
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieveCookie(UUID playerId, String key) {
+        if (supportsCookies(playerId)) {
+            ProxiedPlayer player = getProxy().getPlayer(playerId);
+            return player.retrieveCookie(key);
+        }
+        return CompletableFuture.completedFuture(new byte[0]);
+    }
+
     public static BungeeResourcepacks getInstance() {
         return instance;
     }
@@ -1135,6 +1154,11 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     @Override
     public int runTask(Runnable runnable) {
         return getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.MICROSECONDS).getId();
+    }
+
+    @Override
+    public void runTaskLater(Runnable runnable, long delay) {
+        getProxy().getScheduler().schedule(this, runnable, delay * 20, TimeUnit.MILLISECONDS);
     }
 
     @Override

@@ -19,10 +19,7 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
  */
 
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
-import de.themoep.resourcepacksplugin.core.ResourcepacksPlayer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import java.util.concurrent.TimeUnit;
 
 public class AuthHandler {
     protected final BungeeResourcepacks plugin;
@@ -41,18 +38,8 @@ public class AuthHandler {
             if (player.getServer() != null) {
                 serverName = player.getServer().getInfo().getName();
             }
-            long sendDelay = plugin.getPackManager().getAssignment(serverName).getSendDelay();
-            if (sendDelay < 0) {
-                sendDelay = plugin.getPackManager().getGlobalAssignment().getSendDelay();
-            }
-            plugin.logDebug(player.getName() + " authenticated on the backend server " + serverName + "! Sending pack in " + sendDelay + " ticks...");
-            ResourcepacksPlayer rpPlayer = plugin.getPlayer(player);
-            if (sendDelay > 0) {
-                String finalServerName = serverName;
-                plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.getPackManager().applyPack(rpPlayer, finalServerName), sendDelay * 20, TimeUnit.MILLISECONDS);
-            } else {
-                plugin.getPackManager().applyPack(rpPlayer, serverName);
-            }
+            plugin.logDebug(player.getName() + " authenticated on " + serverName + "!");
+            plugin.getPackManager().applyPackWithDelay(plugin.getPlayer(player), serverName);
         }
     }
 

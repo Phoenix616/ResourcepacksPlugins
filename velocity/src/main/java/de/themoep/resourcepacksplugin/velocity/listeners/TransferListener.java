@@ -1,8 +1,8 @@
 package de.themoep.resourcepacksplugin.velocity.listeners;
 
 /*
- * ResourcepacksPlugins - velocity
- * Copyright (C) 2024 Max Lee aka Phoenix616 (max@themoep.de)
+ * ResourcepacksPlugins - VelocityResourcepacks
+ * Copyright (C) 2026 Max Lee aka Phoenix616 (mail@moep.tv)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,26 +19,21 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  */
 
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
-import de.themoep.resourcepacksplugin.core.MinecraftVersion;
+import com.velocitypowered.api.event.connection.PreTransferEvent;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
-/**
- * Created by Phoenix616 on 14.05.2015.
- */
-public class ConnectListener {
+public class TransferListener {
 
     private final VelocityResourcepacks plugin;
 
-    public ConnectListener(VelocityResourcepacks plugin) {
+    public TransferListener(VelocityResourcepacks plugin) {
         this.plugin = plugin;
     }
 
     @Subscribe
-    public void onPlayerConnect(PostLoginEvent event) {
-        // Clear user data only if it's a client version which does not support the configuration phase
-        if (plugin.isEnabled() && plugin.getPlayerProtocol(event.getPlayer().getUniqueId()) < MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
-            plugin.getUserManager().clearUserData(event.getPlayer().getUniqueId());
+    public void onPreTransfer(PreTransferEvent event) {
+        if (plugin.isEnabled()) {
+            plugin.getUserManager().storePacksInCookie(event.player().getUniqueId());
         }
     }
 }

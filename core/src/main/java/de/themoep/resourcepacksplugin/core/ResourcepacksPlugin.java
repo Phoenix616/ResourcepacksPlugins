@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -47,6 +48,8 @@ public interface ResourcepacksPlugin {
         log(getLogLevel(), "  - Phoenix616");
         log(getLogLevel(), "");
     }
+
+    String USERPACKS_KEY = "resourcepacksplugin:userpacks";
 
     boolean loadConfig();
 
@@ -324,6 +327,14 @@ public interface ResourcepacksPlugin {
     int runTask(Runnable runnable);
 
     /**
+     * Run a sync task later
+     * @param runnable What to run
+     * @param delay The delay in ticks
+     * @return The task id
+     */
+    void runTaskLater(Runnable runnable, long delay);
+
+    /**
      * Run a task asynchronously
      * @param runnable What to run
      * @return The task id
@@ -379,8 +390,33 @@ public interface ResourcepacksPlugin {
     }
 
     /**
+     * Check whether a player uses a version that supports cookies (starting with Java 1.20.5)
+     *
+     * @param playerId The UUID of the player
+     * @return true or false
+     */
+    default boolean supportsCookies(UUID playerId) {
+        return getPlayerProtocol(playerId) >= MinecraftVersion.MINECRAFT_1_20_5.getProtocolNumber();
+    }
+
+    /**
      * Get the type of platform this plugin instance is running on
      * @return The type of platform
      */
     PlatformType getPlatformType();
+
+    /**
+     * Store data into the client's cookies
+     * @param playerId The UUID of the player
+     * @param key The key to store the data under
+     * @param data The data to store
+     */
+    void storeCookie(UUID playerId, String key, byte[] data);
+
+    /**
+     * Get the data into the client's cookie
+     * @param playerId The UUID of the player
+     * @param key      The key to store the data under
+     */
+    CompletableFuture<byte[]> retrieveCookie(UUID playerId, String key);
 }

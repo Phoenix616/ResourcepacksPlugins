@@ -82,10 +82,17 @@ public class ServerSwitchListener {
     }
 
     public EventTask onConfigPhase(Player player) {
-        if (plugin.isEnabled()) {
-            final UUID playerId = player.getUniqueId();
-            plugin.unsetBackend(playerId);
+        if (!plugin.isEnabled()) {
+            return null;
+        }
 
+        final UUID playerId = player.getUniqueId();
+        plugin.getUserManager().clearUserData(playerId);
+        plugin.unsetBackend(playerId);
+
+        CompletableFuture<Boolean> lockFuture = new CompletableFuture<>();
+
+        plugin.getUserManager().retrieveUserPacks(playerId).thenAccept(isTransfer -> {
             long sendDelay = -1;
             String serverName = plugin.getCurrentServerTracker().getCurrentServer(player);
             if (serverName != null) {
@@ -98,7 +105,7 @@ public class ServerSwitchListener {
             if (sendDelay <= 0) {
                 Set<ResourcePack> packs = calculatePack(playerId);
                 if (!packs.isEmpty()) {
-                    CompletableFuture<Boolean> lockFuture = CompletableFuture.completedFuture(true);
+                    CompletableFuture<Boolean> packsFuture = CompletableFuture.completedFuture(true);
                     for (ResourcePack pack : packs) {
                         if (hasPack(player, pack)) {
                             plugin.logDebug("Player " + player.getUsername() + " already has the pack " + pack.getUuid() + " applied");
@@ -112,11 +119,11 @@ public class ServerSwitchListener {
                                 }
                             });
                             playersLoadingPacks.put(playerId, pack.getUuid(), future);
-                            lockFuture = lockFuture.thenCombine(future, (a, b) -> a && b);
+                            packsFuture = packsFuture.thenCombine(future, (a, b) -> a && b);
                         }
                     }
                     String playerName = player.getUsername();
-                    return EventTask.resumeWhenComplete(lockFuture.thenAccept(success -> {
+                    packsFuture.thenAccept(success -> {
                         alreadyAppliedPacks.removeAll(playerId);
                         appliedInConfigPhase.add(playerId);
                         if (success) {
@@ -124,11 +131,14 @@ public class ServerSwitchListener {
                         } else {
                             plugin.logDebug("Allowing Configuration phase even through we failed to send all packs to " + playerName);
                         }
-                    }));
+                        lockFuture.complete(true);
+                    });
+                    return;
                 }
             }
-        }
-        return null;
+            lockFuture.complete(true);
+        });
+        return EventTask.resumeWhenComplete(lockFuture);
     }
 
     private boolean hasPack(Player player, ResourcePack pack) {
@@ -203,10 +213,6 @@ public class ServerSwitchListener {
     private Set<ResourcePack> calculatePack(UUID playerId) {
         if (plugin.hasBackend(playerId)) {
             plugin.logDebug("Player " + playerId + " has backend pack, not attempting to send a new one.");
-            return Collections.emptySet();
-        }
-        if (!plugin.isAuthenticated(playerId)) {
-            plugin.logDebug("Player " + playerId + " is not authenticated, not attempting to send a pack yet.");
             return Collections.emptySet();
         }
         Optional<Player> player = plugin.getProxy().getPlayer(playerId);
