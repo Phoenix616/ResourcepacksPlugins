@@ -87,7 +87,9 @@ public class ServerSwitchListener {
         }
 
         final UUID playerId = player.getUniqueId();
-        plugin.getUserManager().clearUserData(playerId);
+
+        // No need to store as the player joins fresh/transfers/reconfigures and we only need to reset the internal state
+        plugin.getUserManager().clearUserData(playerId, false);
         plugin.unsetBackend(playerId);
 
         CompletableFuture<Boolean> lockFuture = new CompletableFuture<>();

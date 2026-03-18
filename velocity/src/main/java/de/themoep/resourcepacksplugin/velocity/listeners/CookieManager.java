@@ -18,24 +18,23 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.CookieReceiveEvent;
-import de.themoep.resourcepacksplugin.core.MinecraftVersion;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 import net.kyori.adventure.key.Key;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class CookieManager {
     private final VelocityResourcepacks plugin;
 
-    private final Map<UUID, Multimap<Key, CompletableFuture<byte[]>>> cookieRequests = new HashMap<>();
+    private final Map<UUID, Map<Key, Queue<CompletableFuture<byte[]>>>> cookieRequests = new HashMap<>();
 
     public CookieManager(VelocityResourcepacks plugin) {
         this.plugin = plugin;
@@ -43,10 +42,12 @@ public class CookieManager {
 
     @Subscribe
     public void onCookieReceive(CookieReceiveEvent event) {
-        Multimap<Key, CompletableFuture<byte[]>> requests = cookieRequests.get(event.getPlayer().getUniqueId());
-        if (requests != null) {
-            for (CompletableFuture<byte[]> completableFuture : requests.removeAll(event.getResult().getKey())) {
-                completableFuture.complete(event.getResult().getData());
+        Map<Key, Queue<CompletableFuture<byte[]>>> keyRequests = cookieRequests.get(event.getPlayer().getUniqueId());
+        if (keyRequests != null) {
+            Queue<CompletableFuture<byte[]>> requests = keyRequests.get(event.getOriginalKey());
+            if (requests != null && !requests.isEmpty()) {
+                requests.poll().complete(event.getOriginalData());
+                event.setResult(CookieReceiveEvent.ForwardResult.handled());
             }
         }
     }
@@ -62,10 +63,12 @@ public class CookieManager {
         }
 
         return plugin.getProxy().getPlayer(playerId).map(player -> {
-            Multimap<Key, CompletableFuture<byte[]>> requests = cookieRequests.computeIfAbsent(playerId, id -> MultimapBuilder.hashKeys().arrayListValues().build());
             Key key = Key.key(stringKey);
+            Queue<CompletableFuture<byte[]>> keyRequests = cookieRequests
+                    .computeIfAbsent(playerId, id -> new HashMap<>())
+                    .computeIfAbsent(key, k -> new LinkedList<>());
             CompletableFuture<byte[]> future = new CompletableFuture<>();
-            requests.put(key, future);
+            keyRequests.add(future);
             player.requestCookie(key);
             return future;
         }).orElse(CompletableFuture.completedFuture(new byte[0]));

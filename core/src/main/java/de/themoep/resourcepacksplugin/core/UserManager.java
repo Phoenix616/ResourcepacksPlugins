@@ -145,8 +145,18 @@ public class UserManager {
      * @return The list of resourcepacks the player had selected previous, an empty list if he had none before
      */
     public Collection<String> clearUserPacks(UUID playerId) {
+        return clearUserPacks(playerId, true);
+    }
+
+    /**
+     * Clear the resourcepacks of a user
+     * @param playerId The UUID of this player
+     * @param store Whether to store the pack list in the cookie
+     * @return The list of resourcepacks the player had selected previous, an empty list if he had none before
+     */
+    public Collection<String> clearUserPacks(UUID playerId, boolean store) {
         selectedPacks.remove(playerId);
-        storePacksInCookie(playerId);
+        if (store) storePacksInCookie(playerId);
         return userPacksMap.removeAll(playerId);
     }
 
@@ -208,8 +218,18 @@ public class UserManager {
      * @param playerId The UUID of the player
      */
     public void clearUserData(UUID playerId) {
+        clearUserData(playerId, true);
+    }
+
+
+    /**
+     * What should happen when a player connects?
+     * @param playerId The UUID of the player
+     * @param store Whether to store the pack list in the cookie
+     */
+    public void clearUserData(UUID playerId, boolean store) {
         userPackTime.remove(playerId);
-        clearUserPacks(playerId);
+        clearUserPacks(playerId, store);
     }
 
     /**
@@ -278,7 +298,6 @@ public class UserManager {
         }
         List<ResourcePack> packs = getUserPacks(playerId);
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
-        output.writeLong(System.currentTimeMillis());
         output.writeInt(packs.size());
         for (ResourcePack pack : packs) {
             output.writeUTF(pack.getName());
@@ -295,20 +314,16 @@ public class UserManager {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         plugin.retrieveCookie(playerId, ResourcepacksPlugin.USERPACKS_KEY).thenAccept(data -> {
             ByteArrayDataInput input = ByteStreams.newDataInput(data);
-            long timestamp = input.readLong();
-            int packCount = -1;
-            if (System.currentTimeMillis() < timestamp + 60 * 1000) {
-                cookieReplies.put(playerId, ResourcepacksPlugin.USERPACKS_KEY);
-                packCount = input.readInt();
-                for (int i = 0; i < packCount; i++) {
-                    String packName = input.readUTF();
-                    ResourcePack pack = plugin.getPackManager().getByName(packName);
-                    if (pack != null) {
-                        addUserPack(playerId, pack);
-                        plugin.logDebug("Player " + playerId + " had a pack '" + pack.getName() + "' stored in their cookies");
-                    } else {
-                        plugin.logDebug("Player " + playerId + " had a pack with name '" + packName + "' stored in their cookies which does not exist on this server?");
-                    }
+            cookieReplies.put(playerId, ResourcepacksPlugin.USERPACKS_KEY);
+            int packCount = input.readInt();
+            for (int i = 0; i < packCount; i++) {
+                String packName = input.readUTF();
+                ResourcePack pack = plugin.getPackManager().getByName(packName);
+                if (pack != null) {
+                    addUserPack(playerId, pack);
+                    plugin.logDebug("Player " + playerId + " had a pack '" + pack.getName() + "' stored in their cookies");
+                } else {
+                    plugin.logDebug("Player " + playerId + " had a pack with name '" + packName + "' stored in their cookies which does not exist on this server?");
                 }
             }
             future.complete(packCount > -1);
