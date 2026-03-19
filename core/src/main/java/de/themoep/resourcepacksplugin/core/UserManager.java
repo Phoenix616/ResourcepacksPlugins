@@ -313,8 +313,12 @@ public class UserManager {
     public CompletableFuture<Boolean> retrieveUserPacks(UUID playerId) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         plugin.retrieveCookie(playerId, ResourcepacksPlugin.USERPACKS_KEY).thenAccept(data -> {
-            ByteArrayDataInput input = ByteStreams.newDataInput(data);
             cookieReplies.put(playerId, ResourcepacksPlugin.USERPACKS_KEY);
+            if (data == null) {
+                future.complete(false);
+                return;
+            }
+            ByteArrayDataInput input = ByteStreams.newDataInput(data);
             int packCount = input.readInt();
             for (int i = 0; i < packCount; i++) {
                 String packName = input.readUTF();
