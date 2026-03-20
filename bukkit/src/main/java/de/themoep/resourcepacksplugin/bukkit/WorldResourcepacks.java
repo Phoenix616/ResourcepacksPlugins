@@ -24,6 +24,8 @@ import com.nickuc.openlogin.bukkit.OpenLoginBukkit;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.ViaAPI;
 import de.themoep.minedown.MineDown;
+import de.themoep.resourcepacksplugin.bukkit.adapter.PlatformAdapter;
+import de.themoep.resourcepacksplugin.bukkit.adapter.SpigotPlatformAdapter;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSelectEvent;
 import de.themoep.resourcepacksplugin.bukkit.events.ResourcePackSendEvent;
 import de.themoep.resourcepacksplugin.bukkit.internal.InternalHelper;
@@ -80,6 +82,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.spec.ECField;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -163,7 +166,26 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         messageChannelHandler = new ProxyPackListener(this);
 
         if (loadConfig()) {
-            getServer().getPluginManager().registerEvents(new ConnectListener(this), this);
+
+            Class<?> platformAdapterClass;
+            try {
+                platformAdapterClass = Class.forName(getClass().getPackage().getName() + ".adapter." + getServer().getName() + "PlatformAdapter");
+            } catch (Exception e) {
+                platformAdapterClass = SpigotPlatformAdapter.class;
+            }
+            PlatformAdapter platformAdapter;
+            try {
+                if (PlatformAdapter.class.isAssignableFrom(platformAdapterClass)) {
+                    platformAdapter = (PlatformAdapter) platformAdapterClass.getConstructor(WorldResourcepacks.class).newInstance(this);
+                } else {
+                    platformAdapter = new SpigotPlatformAdapter(this);
+                }
+            } catch (Exception e) {
+                getLogger().log(Level.WARNING, "Error while trying to create " + platformAdapterClass.getSimpleName(), e);
+                platformAdapter = new SpigotPlatformAdapter(this);
+            }
+            logDebug("Using " + internalHelper.getClass().getSimpleName());
+
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 

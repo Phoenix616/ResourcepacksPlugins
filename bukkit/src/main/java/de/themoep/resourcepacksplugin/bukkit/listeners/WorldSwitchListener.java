@@ -46,7 +46,9 @@ public class WorldSwitchListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        handleEvent(event.getPlayer());
+        plugin.getUserManager().retrieveUserPacks(event.getPlayer().getUniqueId()).thenAccept(isTransfer -> {
+            handleEvent(event.getPlayer());
+        });
     }
 
     private void handleEvent(Player player) {
