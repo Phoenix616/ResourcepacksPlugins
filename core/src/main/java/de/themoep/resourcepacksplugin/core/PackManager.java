@@ -84,6 +84,7 @@ public class PackManager {
     };
 
     private static final Collection<int[]> PACK_FORMATS = Lists.newArrayList(
+            new int[]{MinecraftVersion.MINECRAFT_26_1.getProtocolNumber(), 84},
             new int[]{MinecraftVersion.MINECRAFT_1_21_11.getProtocolNumber(), 75},
             new int[]{MinecraftVersion.MINECRAFT_1_21_9.getProtocolNumber(), 69},
             new int[]{MinecraftVersion.MINECRAFT_1_21_7.getProtocolNumber(), 64},
