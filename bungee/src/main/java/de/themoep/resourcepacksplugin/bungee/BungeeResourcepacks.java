@@ -394,7 +394,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     try {
                         reg.invoke(direction, packetClass, constructor, mappingsArray);
                     } catch (Throwable t) {
-                        getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
+                        getLogger().log(Level.SEVERE, "Error while registering " + protocol.name() + " " + directionName + " " + packetClass.getSimpleName() + ". Protocol version " + bungeeVersion + " might not be supported! Please look for an update!", t);
                         return false;
                     }
                 } catch (NoSuchMethodException e) {
@@ -404,7 +404,7 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
                     try {
                         reg.invoke(direction, packetClass, mappingsArray);
                     } catch (Throwable t) {
-                        getLogger().log(Level.SEVERE, "Protocol version " + bungeeVersion + " is not supported! Please look for an update!", t);
+                        getLogger().log(Level.SEVERE, "Error while registering " + protocol.name() + " " + directionName + " " + packetClass.getSimpleName()  + ". Protocol version " + bungeeVersion + " might not be supported! Please look for an update!", t);
                         return false;
                     }
                 }
