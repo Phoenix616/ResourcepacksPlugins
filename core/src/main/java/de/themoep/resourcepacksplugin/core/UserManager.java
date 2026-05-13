@@ -207,7 +207,6 @@ public class UserManager {
         }
         userPackTime.remove(playerId);
         clearUserPacks(playerId);
-        plugin.sendPackInfo(playerId);
     }
     
     /**
