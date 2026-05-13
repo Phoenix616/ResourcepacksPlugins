@@ -173,7 +173,9 @@ public abstract class SubChannelHandler<S> {
         dataOutput.writeLong(version);
         dataOutput.writeUTF(trustsSender() ? key : "");
         out.accept(dataOutput);
-        sendPluginMessage(target, dataOutput.toByteArray());
+        byte[] data = dataOutput.toByteArray();
+        plugin.logDebug("Sending plugin message to " + target + " on sub channel " + subChannel + " with " + data.length + " bytes of data");
+        sendPluginMessage(target, data);
     }
 
     /**
