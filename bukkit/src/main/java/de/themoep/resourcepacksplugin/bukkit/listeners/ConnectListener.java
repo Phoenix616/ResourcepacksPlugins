@@ -22,21 +22,37 @@ import de.themoep.resourcepacksplugin.bukkit.WorldResourcepacks;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 /**
  * Created by Phoenix616 on 14.05.2015.
  */
-public class ConnectListener implements Listener {
+public class ConnectListener {
 
     private final WorldResourcepacks plugin;
 
     public ConnectListener(WorldResourcepacks plugin) {
         this.plugin = plugin;
+        if (PlayerLoginEvent.class.getAnnotation(Deprecated.class) == null) {
+            plugin.getServer().getPluginManager().registerEvents(new Listener() {
+                @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+                public void onPlayerConnect(PlayerLoginEvent event) {
+                    handlePlayerConnect(event);
+                }
+            }, plugin);
+        } else {
+            plugin.getServer().getPluginManager().registerEvents(new Listener() {
+                @EventHandler(priority = EventPriority.LOWEST)
+                public void onPlayerConnect(PlayerJoinEvent event) {
+                    handlePlayerConnect(event);
+                }
+            }, plugin);
+        }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerConnect(PlayerLoginEvent event) {
+    public void handlePlayerConnect(PlayerEvent event) {
         if (plugin.isEnabled()) {
             plugin.getUserManager().onConnect(event.getPlayer().getUniqueId());
         }

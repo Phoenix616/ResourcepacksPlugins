@@ -161,7 +161,7 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         messageChannelHandler = new ProxyPackListener(this);
 
         if (loadConfig()) {
-            getServer().getPluginManager().registerEvents(new ConnectListener(this), this);
+            new ConnectListener(this);
             getServer().getPluginManager().registerEvents(new DisconnectListener(this), this);
             getServer().getPluginManager().registerEvents(new WorldSwitchListener(this), this);
 
