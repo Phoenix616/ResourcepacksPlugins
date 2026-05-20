@@ -174,14 +174,46 @@ public interface ResourcepacksPlugin {
      * Log a debug message
      * @param message The message
      */
-    void logDebug(String message);
+    default void logDebug(String message) {
+        logDebug(Level.INFO, message);
+    }
+
+    /**
+     * Log a debug message
+     * @param level     The level of the debug message (not corresponding to the resulting JUL level)
+     * @param message The message
+     */
+    default void logDebug(Level level, String message) {
+        logDebug(level, message, null);
+    }
 
     /**
      * Log a debug message with a stacktrace
      * @param message   The message
      * @param throwable The throwable
      */
-    void logDebug(String message, Throwable throwable);
+    default void logDebug(String message, Throwable throwable) {
+        logDebug(Level.INFO, message, throwable);
+    }
+
+    /**
+     * Log a debug message with a stacktrace
+     * @param level     The level of the debug message (not corresponding to the resulting JUL level)
+     * @param message   The message
+     * @param throwable The throwable
+     */
+    void logDebug(Level level, String message, Throwable throwable);
+
+    /**
+     * Get the level a debug message should be logged at. If the level is above INFO it will be logged at that level.
+     * This is necessary due to it not being common place to adjust the log levels to see additional log messages in
+     * the Minecraft scene.
+     * @param level The message level to get the resulting log level for
+     * @return The level the log message should be logged at.
+     */
+    default Level getDebugLogLevel(Level level) {
+        return level.intValue() > Level.INFO.intValue() ? level : Level.INFO;
+    }
 
     /**
      * The debug log level

@@ -59,7 +59,7 @@ public abstract class SubChannelHandler<S> {
 
             ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
             if (player == null) {
-                plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent pack " + packCount + " packs to player " + playerName + " but they aren't online?");
+                plugin.logDebug(Level.WARNING, plugin.getPlatformType().getOpposite() + " sent pack " + packCount + " packs to player " + playerName + " but they aren't online?");
             }
 
             plugin.getUserManager().clearUserPacks(playerUuid);
@@ -94,7 +94,7 @@ public abstract class SubChannelHandler<S> {
             if (pack != null) {
                 ResourcepacksPlayer player = plugin.getPlayer(playerUuid);
                 if (player == null) {
-                    plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
+                    plugin.logDebug(Level.WARNING, plugin.getPlatformType().getOpposite() + " sent command to remove the pack " + pack.getName() + " of player " + playerName + " but they aren't online?");
                 }
                 plugin.logDebug(plugin.getPlatformType().getOpposite() + " sent command to remove the pack " + pack.getName() + " from player " + playerName);
                 plugin.getUserManager().removeUserPack(playerUuid, pack);
@@ -165,7 +165,7 @@ public abstract class SubChannelHandler<S> {
             return;
         }
         if (key.isEmpty()) {
-            plugin.logDebug("Not sending message to " + target + " on " + subChannel + " as we are not in an environment where we should (key is empty in key.yml)");
+            plugin.logDebug(Level.WARNING, "Not sending message to " + target + " on " + subChannel + " as we are not in an environment where we should (key is empty in key.yml)");
             return;
         }
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
@@ -174,7 +174,7 @@ public abstract class SubChannelHandler<S> {
         dataOutput.writeUTF(trustsSender() ? key : "");
         out.accept(dataOutput);
         byte[] data = dataOutput.toByteArray();
-        plugin.logDebug("Sending plugin message to " + target + " on sub channel " + subChannel + " with " + data.length + " bytes of data");
+        plugin.logDebug(Level.FINE, "Sending plugin message to " + target + " on sub channel " + subChannel + " with " + data.length + " bytes of data");
         sendPluginMessage(target, data);
     }
 

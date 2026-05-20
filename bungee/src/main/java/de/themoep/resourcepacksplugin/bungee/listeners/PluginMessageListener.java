@@ -66,10 +66,10 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
 
         event.setCancelled(true);
         if (event.getSender() instanceof Server) {
-            plugin.logDebug("Received plugin message from " + ((Server) event.getSender()).getInfo().getName());
+            plugin.logDebug(Level.FINE, "Received plugin message from " + ((Server) event.getSender()).getInfo().getName());
             handleMessage((Server) event.getSender(), event.getData());
         } else {
-            plugin.logDebug("Received plugin message from " + event.getSender() + " which is not a ServerConnection!");
+            plugin.logDebug(Level.FINE, "Received plugin message from " + event.getSender() + " which is not a ServerConnection!");
         }
     }
 
@@ -86,7 +86,7 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
             target.sendData(MESSAGING_CHANNEL, data);
         } catch (Exception e) {
             plugin.log(Level.WARNING, "Failed to send plugin message to server " + target.getInfo().getName() + "! This is most likely because the player connection timed out. " + e.getMessage());
-            plugin.logDebug("Plugin message sending error:", e);
+            plugin.logDebug(Level.WARNING, "Plugin message sending error:", e);
         }
     }
 

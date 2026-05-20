@@ -286,7 +286,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
         if (debugString.equalsIgnoreCase("true")) {
             loglevel = Level.INFO;
         } else if (debugString.equalsIgnoreCase("false")) {
-            loglevel = Level.FINE;
+            loglevel = Level.OFF;
         } else {
             try {
                 loglevel = Level.parse(debugString.toUpperCase());
@@ -815,14 +815,9 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     }
 
     @Override
-    public void logDebug(String message) {
-        logDebug(message, null);
-    }
-
-    @Override
-    public void logDebug(String message, Throwable throwable) {
-        if (getLogLevel() != Level.OFF) {
-            log(getLogLevel(), "[DEBUG] " + message, throwable);
+    public void logDebug(Level level, String message, Throwable throwable) {
+        if (level.intValue() >= getLogLevel().intValue()) {
+            log(getDebugLogLevel(level), "[DEBUG] " + level.getName() + ": "+ message, throwable);
         }
     }
 
