@@ -135,6 +135,7 @@ public abstract class SubChannelHandler<S> {
                 plugin.log(Level.WARNING, "Received a message with an invalid key by " + source + " on subchannel " + subChannel + "! Please make sure the key on your proxy(s) and Minecraft servers match!");
                 return false;
             }
+            plugin.logDebug(Level.FINE, "Received plugin message from " + source + " on sub channel " + subChannel + " with " + message.length + " bytes of data");
             reaction.accept(source, in);
             return true;
         }

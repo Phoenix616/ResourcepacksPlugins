@@ -103,7 +103,7 @@ public class ProxyPackListener extends SubChannelHandler<Player> implements Plug
         } catch (Exception e) {
             plugin.log(Level.WARNING, "Failed to send plugin message to " + getTargetType() + " (via " + target.getName() + " connection)!" +
                     " This is most likely because the player connection timed out. " + e.getMessage());
-            plugin.logDebug("Plugin message sending error:", e);
+            plugin.logDebug(Level.WARNING, "Plugin message sending error:", e);
         }
     }
 

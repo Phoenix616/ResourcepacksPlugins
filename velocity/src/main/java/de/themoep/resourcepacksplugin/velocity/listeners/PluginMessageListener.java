@@ -66,7 +66,7 @@ public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
         if (event.getSource() instanceof ServerConnection) {
             handleMessage(((ServerConnection) event.getSource()).getServer(), event.getData());
         } else {
-            plugin.logDebug("Received plugin message from " + event.getSource() + " which is not a ServerConnection!");
+            plugin.logDebug(Level.WARNING, "Received plugin message from " + event.getSource() + " which is not a ServerConnection!");
         }
     }
 

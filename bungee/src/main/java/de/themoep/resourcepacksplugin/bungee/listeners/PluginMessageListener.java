@@ -66,7 +66,6 @@ public class PluginMessageListener extends SubChannelHandler<Server> implements 
 
         event.setCancelled(true);
         if (event.getSender() instanceof Server) {
-            plugin.logDebug(Level.FINE, "Received plugin message from " + ((Server) event.getSender()).getInfo().getName());
             handleMessage((Server) event.getSender(), event.getData());
         } else {
             plugin.logDebug(Level.FINE, "Received plugin message from " + event.getSender() + " which is not a ServerConnection!");
