@@ -31,7 +31,11 @@ import de.themoep.resourcepacksplugin.velocity.PluginConfig;
 import de.themoep.resourcepacksplugin.velocity.VelocityResourcepacks;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
@@ -42,6 +46,8 @@ public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
     private final PluginConfig keyConfig;
 
     private final AuthHandler authHandler;
+
+    private final Map<String, List<byte[]>> messageQueue = new ConcurrentHashMap<>();
 
     public PluginMessageListener(VelocityResourcepacks plugin) {
         super(plugin);
@@ -73,18 +79,39 @@ public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
     @Subscribe
     public void onServerSwitch(ServerPostConnectEvent event) {
         if (plugin.isEnabled()) {
-            event.getPlayer().getCurrentServer().ifPresent(serverConnection -> sendKey(serverConnection.getServer()));
+            event.getPlayer().getCurrentServer().ifPresent(serverConnection -> {
+                sendKey(serverConnection.getServer());
+                sendQueuedMessages(serverConnection.getServer());
+            });
         }
     }
 
     @Override
     protected void sendPluginMessage(RegisteredServer target, byte[] data) {
         try {
-            target.sendPluginMessage(CHANNEL_IDENTIFIER, data);
+            if (!target.sendPluginMessage(CHANNEL_IDENTIFIER, data)) {
+                if (target.getPlayersConnected().isEmpty()) {
+                    // Can only send plugin messages if at least one player is connected. Queue them.
+                    addQueuedMessage(target, data);
+                } else {
+                    plugin.log(Level.WARNING, "Failed to send plugin message to server " + target.getServerInfo().getName() + " for an unknown reason!");
+                }
+            }
         } catch (Exception e) {
             plugin.log(Level.WARNING, "Failed to send plugin message to server " + target.getServerInfo().getName() + "!" +
                     " This is most likely because the player connection timed out. " + e.getMessage());
             plugin.logDebug("Plugin message sending error:", e);
+        }
+    }
+
+    private void addQueuedMessage(RegisteredServer target, byte[] data) {
+        messageQueue.computeIfAbsent(target.getServerInfo().getName(), (n) -> new ArrayList<>()).add(data);
+    }
+
+    private void sendQueuedMessages(RegisteredServer server) {
+        List<byte[]> queued = messageQueue.remove(server.getServerInfo().getName());
+        if (queued != null) {
+            queued.forEach(data -> sendPluginMessage(server, data));
         }
     }
 

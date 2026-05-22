@@ -1000,7 +1000,7 @@ public class PackManager {
                 return;
             }
         }
-
+        plugin.sendPackInfo(playerId);
         plugin.sendPack(playerId, pack);
     }
 
@@ -1050,7 +1050,6 @@ public class PackManager {
         UUID playerId = player.getUniqueId();
         LinkedHashSet<ResourcePack> sentPacks = new LinkedHashSet<>();
         LinkedHashSet<ResourcePack> packs = getApplicablePacks(player, serverName);
-        boolean packsChanged = false;
         if (plugin.supportsMultiplePacks(playerId)) {
             PackAssignment assignment = getAssignment(serverName);
             boolean packWasRemoved = false;
@@ -1076,10 +1075,8 @@ public class PackManager {
                     sentPacks.add(appliedResult.getPack());
                 }
             }
-            packsChanged = packWasRemoved || !sentPacks.isEmpty();
         } else if (!packs.isEmpty()) {
             ResourcePack sentPack = setPack(playerId, packs.iterator().next()).getPack();
-            packsChanged = true;
             if (sentPack != null) {
                 sentPacks.add(sentPack);
             }
@@ -1087,12 +1084,7 @@ public class PackManager {
             List<ResourcePack> userPacks = plugin.getUserManager().getUserPacks(playerId);
             if (!userPacks.isEmpty()) {
                 setPack(playerId, null);
-                packsChanged = true;
             }
-        }
-
-        if (packsChanged) {
-            plugin.sendPackInfo(playerId);
         }
         return sentPacks;
     }

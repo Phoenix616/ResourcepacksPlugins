@@ -180,7 +180,10 @@ public class ServerSwitchListener {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            plugin.sendPackInfo(playerId);
+            if (event.getPreviousServer() != null) {
+                // If we already were on a server previously send the existing packs
+                plugin.sendPackInfo(playerId);
+            }
 
             long sendDelay = -1;
             String serverName = plugin.getCurrentServerTracker().getCurrentServer(event.getPlayer());

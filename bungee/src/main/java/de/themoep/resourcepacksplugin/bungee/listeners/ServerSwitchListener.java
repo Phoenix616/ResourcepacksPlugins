@@ -20,14 +20,17 @@ package de.themoep.resourcepacksplugin.bungee.listeners;
 
 import de.themoep.resourcepacksplugin.bungee.BungeeResourcepacks;
 import de.themoep.resourcepacksplugin.core.MinecraftVersion;
-import de.themoep.resourcepacksplugin.core.ResourcePack;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,17 +40,34 @@ public class ServerSwitchListener implements Listener {
 
     private final BungeeResourcepacks plugin;
 
+    private final Set<UUID> initialJoin = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
     public ServerSwitchListener(BungeeResourcepacks plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
     public void onServerSwitch(ServerSwitchEvent event) {
+        if (plugin.isEnabled() && event.getFrom() == null) {
+            initialJoin.add(event.getPlayer().getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void onDisconnect(PlayerDisconnectEvent event) {
+        initialJoin.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onServerConnected(ServerConnectedEvent event) {
         if (plugin.isEnabled()) {
             final UUID playerId = event.getPlayer().getUniqueId();
             plugin.unsetBackend(playerId);
 
-            plugin.sendPackInfo(playerId);
+            if (!initialJoin.remove(playerId)) {
+                // If we already were on a server previously send the existing packs
+                plugin.sendPackInfo(playerId);
+            }
 
             if (plugin.getPlayerProtocol(playerId) == MinecraftVersion.MINECRAFT_1_20_2.getProtocolNumber()) {
                 // In 1.20.2 the pack needs to be resent on server switch -> we remove the user pack which forces a resend
