@@ -821,7 +821,10 @@ public class WorldResourcepacks extends JavaPlugin implements ResourcepacksPlugi
         if (player != null) {
             int protocol = serverProtocolVersion;
             if (viaApi != null) {
-                protocol = viaApi.getPlayerVersion(playerId);
+                int viaProtocol = viaApi.getPlayerVersion(playerId);
+                if (viaProtocol > -1) {
+                    protocol = viaProtocol;
+                }
             }
             if (protocolSupportApi && protocol == serverProtocolVersion) { // if still same format test if player is using previous version
                 try {

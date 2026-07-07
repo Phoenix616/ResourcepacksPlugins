@@ -1081,7 +1081,10 @@ public class BungeeResourcepacks extends Plugin implements ResourcepacksPlugin {
     @Override
     public int getPlayerProtocol(UUID playerId) {
         if (viaApi != null) {
-            return viaApi.getPlayerVersion(playerId);
+            int viaProtocol = viaApi.getPlayerVersion(playerId);
+            if (viaProtocol > -1) {
+                return viaProtocol;
+            }
         }
 
         ProxiedPlayer proxiedPlayer = getProxy().getPlayer(playerId);

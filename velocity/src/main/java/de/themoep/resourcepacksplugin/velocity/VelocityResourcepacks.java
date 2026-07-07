@@ -891,7 +891,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
     @Override
     public int getPlayerProtocol(UUID playerId) {
         if (viaApi != null) {
-            return viaApi.getPlayerVersion(playerId);
+            int viaProtocol = viaApi.getPlayerVersion(playerId);
+            if (viaProtocol > -1) {
+                return viaProtocol;
+            }
         }
 
         return getProxy().getPlayer(playerId).map(p -> p.getProtocolVersion().getProtocol()).orElse(-1);
