@@ -136,7 +136,7 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
             Class.forName("org.spongepowered.configurate.ConfigurationNode");
         } catch (ClassNotFoundException e) {
             ProxyVersion version = getProxy().getVersion();
-            log(Level.SEVERE, "\nYou are running an outdated version of Velocity! Update to at least Velocity 3.3.0!\n");
+            log(Level.SEVERE, "\nYou are running an outdated version of Velocity! Update to at least Velocity 4.0.0!\n");
             log(Level.SEVERE, getName() + " " + getVersion() + " is not compatible with " + version.getName() + " " + version.getVersion() + "!\n");
             log(Level.SEVERE, "Disabling plugin!");
             return;
@@ -257,7 +257,10 @@ public class VelocityResourcepacks implements ResourcepacksPlugin, Languaged {
 
     protected void registerCommand(PluginCommandExecutor executor) {
         getProxy().getCommandManager().register(
-                getProxy().getCommandManager().metaBuilder(executor.getName()).aliases(executor.getAliases()).build(),
+                getProxy().getCommandManager().metaBuilder(executor.getName())
+                        .aliases(executor.getAliases())
+                        .plugin(this)
+                        .build(),
                 new ForwardingCommand(executor)
         );
     }

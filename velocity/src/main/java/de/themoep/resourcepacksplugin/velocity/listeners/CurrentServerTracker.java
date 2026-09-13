@@ -18,7 +18,6 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
@@ -40,7 +39,7 @@ public class CurrentServerTracker {
         this.plugin = plugin;
     }
 
-    @Subscribe(order = PostOrder.LAST)
+    @Subscribe(priority = Short.MIN_VALUE + 1)
     public void onServerConnect(ServerPreConnectEvent event) {
         if (plugin.isEnabled() && event.getResult().getServer().isPresent()) {
             plugin.logDebug("Player " + event.getPlayer().getUsername() + " is connecting to server " + event.getResult().getServer().get().getServerInfo().getName());

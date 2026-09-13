@@ -18,7 +18,6 @@ package de.themoep.resourcepacksplugin.velocity.listeners;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
@@ -63,7 +62,7 @@ public class PluginMessageListener extends SubChannelHandler<RegisteredServer> {
         });
     }
 
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe(priority = Short.MAX_VALUE - 1)
     public void pluginMessageReceived(PluginMessageEvent event) {
         if (!plugin.isEnabled() || !event.getIdentifier().equals(CHANNEL_IDENTIFIER))
             return;
