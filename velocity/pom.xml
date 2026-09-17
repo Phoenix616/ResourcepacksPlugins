@@ -17,8 +17,8 @@
     </parent>
 
     <properties>
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
     </properties>
 
     <repositories>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.velocitypowered</groupId>
             <artifactId>velocity-api</artifactId>
-            <version>3.3.0-SNAPSHOT</version>
+            <version>4.2.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
