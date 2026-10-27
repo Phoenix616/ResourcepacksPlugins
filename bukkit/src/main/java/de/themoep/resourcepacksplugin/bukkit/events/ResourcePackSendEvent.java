@@ -27,7 +27,7 @@ import org.bukkit.event.HandlerList;
 import java.util.UUID;
 
 /**
- * Created by Phoenix616 on 18.04.2015.
+ *  Fired when the plugin sends a pack to a player which allows modifying or cancelling it.
  */
 public class ResourcePackSendEvent extends Event implements IResourcePackSendEvent, Cancellable {
     private static final HandlerList handlers = new HandlerList();

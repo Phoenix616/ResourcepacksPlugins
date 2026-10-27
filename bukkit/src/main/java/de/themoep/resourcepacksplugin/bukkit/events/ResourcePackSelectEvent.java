@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by Phoenix616 on 18.04.2015.
+ *  Fired when the plugin tries to determine which packs a player should have applied.
  */
 public class ResourcePackSelectEvent extends Event implements IResourcePackSelectEvent {
     private static final HandlerList handlers = new HandlerList();

@@ -23,7 +23,7 @@ import de.themoep.resourcepacksplugin.core.ResourcePack;
 import java.util.UUID;
 
 /**
- * Created by Phoenix616 on 18.04.2015.
+ *  The platform-independent interface for events which are fired when the plugin sends a pack to a player which allows modifying or cancelling it.
  */
 public interface IResourcePackSendEvent {
 

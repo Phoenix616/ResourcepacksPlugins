@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by Phoenix616 on 18.04.2015.
+ *  The platform-independent interface for events which are fired when the plugin tries to determine which packs a player should have applied.
  */
 public interface IResourcePackSelectEvent {
 
